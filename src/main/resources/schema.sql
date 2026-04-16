@@ -68,5 +68,8 @@ CREATE TABLE IF NOT EXISTS order_items (
     PRIMARY KEY (id),
     CONSTRAINT fk_order_items_order   FOREIGN KEY (order_id)   REFERENCES orders(id),
     CONSTRAINT fk_order_items_robot   FOREIGN KEY (robot_id)   REFERENCES robots(id),
-    CONSTRAINT fk_order_items_upgrade FOREIGN KEY (upgrade_id) REFERENCES upgrades(id)
+    CONSTRAINT fk_order_items_upgrade FOREIGN KEY (upgrade_id) REFERENCES upgrades(id),
+    CONSTRAINT chk_order_items_product
+        CHECK ((robot_id IS NOT NULL AND upgrade_id IS NULL)
+            OR (robot_id IS NULL AND upgrade_id IS NOT NULL))
 );
