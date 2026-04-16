@@ -1,5 +1,6 @@
-package io.camunda.demo.catalog;
+package io.camunda.demo.repositories;
 
+import io.camunda.demo.model.Upgrade;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

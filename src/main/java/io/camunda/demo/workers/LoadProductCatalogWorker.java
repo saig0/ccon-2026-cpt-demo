@@ -2,8 +2,8 @@ package io.camunda.demo.workers;
 
 import io.camunda.client.annotation.JobWorker;
 import io.camunda.client.api.response.ActivatedJob;
-import io.camunda.demo.catalog.ProductCatalogService;
-import io.camunda.demo.catalog.ProductDto;
+import io.camunda.demo.services.ProductCatalogService;
+
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;

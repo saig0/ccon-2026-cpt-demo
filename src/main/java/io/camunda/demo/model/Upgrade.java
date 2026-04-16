@@ -1,4 +1,4 @@
-package io.camunda.demo.catalog;
+package io.camunda.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

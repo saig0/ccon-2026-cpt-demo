@@ -1,4 +1,4 @@
-package io.camunda.demo.catalog;
+package io.camunda.demo.model;
 
 /**
  * Core intent/category of a robot in the Camunda Robotics product catalog.

@@ -1,4 +1,8 @@
-package io.camunda.demo.catalog;
+package io.camunda.demo.workers;
+
+import io.camunda.demo.model.Robot;
+import io.camunda.demo.model.RobotIntent;
+import io.camunda.demo.model.Upgrade;
 
 import java.math.BigDecimal;
 import java.util.List;

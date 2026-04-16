@@ -1,7 +1,13 @@
-package io.camunda.demo.catalog;
+package io.camunda.demo.services;
 
 import java.util.List;
 import java.util.Optional;
+
+import io.camunda.demo.model.Robot;
+import io.camunda.demo.model.RobotIntent;
+import io.camunda.demo.model.Upgrade;
+import io.camunda.demo.repositories.RobotRepository;
+import io.camunda.demo.repositories.UpgradeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

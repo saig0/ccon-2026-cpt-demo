@@ -1,6 +1,9 @@
-package io.camunda.demo.catalog;
+package io.camunda.demo.repositories;
 
 import java.util.List;
+
+import io.camunda.demo.model.Robot;
+import io.camunda.demo.model.RobotIntent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RobotRepository extends JpaRepository<Robot, Long> {
