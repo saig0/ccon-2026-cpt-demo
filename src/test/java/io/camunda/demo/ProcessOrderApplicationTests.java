@@ -21,21 +21,16 @@ public class ProcessOrderApplicationTests {
 
   @Test
   void shouldCompleteProcessInstance() {
-    client.newDeployResourceCommand()
-        .addResourceFromClasspath("process.bpmn")
-        .send()
-        .join();
-
+    // given
     final ProcessInstanceEvent processInstance = client.newCreateInstanceCommand()
         .bpmnProcessId("ccon-2026-cpt-demo-process")
         .latestVersion()
         .send()
         .join();
 
-    processTestContext.mockJobWorker("check-inventory").thenComplete();
-    processTestContext.mockJobWorker("charge-payment").thenComplete();
-    processTestContext.mockJobWorker("ship-items").thenComplete();
+    // when - job workers complete the jobs
 
+    // then
     CamundaAssert.assertThat(processInstance).isCompleted();
   }
 }
