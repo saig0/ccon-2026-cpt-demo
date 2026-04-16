@@ -1,0 +1,12 @@
+package io.camunda.demo.repositories;
+
+import io.camunda.demo.model.Upgrade;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+/**
+ * Repository for {@link Upgrade} entities.
+ * Extend with custom query methods as the catalog grows.
+ */
+public interface UpgradeRepository extends JpaRepository<Upgrade, Long> {
+
+}
