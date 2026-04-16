@@ -331,10 +331,10 @@ INSERT INTO orders (id, customer_id, order_date,
                     shipment_address_street, shipment_address_city, shipment_address_country,
                     shipment_date, payment_date, payment_amount) VALUES
   (1, 1, '2025-01-10',
-   'Unter den Linden 1', 'Berlin', 'Germany',
+   'Zossener Str. 55-58', 'Berlin', 'Germany',
    '2025-01-15', '2025-01-10', 3999.99),
   (2, 1, '2025-06-01',
-   'Unter den Linden 1', 'Berlin', 'Germany',
+   'Zossener Str. 55-58', 'Berlin', 'Germany',
    '2025-06-07', '2025-06-01', 449.99);
 
 -- Luke's orders (robots: C3PO, R2-D2)
@@ -380,41 +380,42 @@ INSERT INTO orders (id, customer_id, order_date,
 
 -- ---------------------------------------------------------------------------
 -- Order Items
--- (product_reference matches robot model_id values in the robots table)
+-- robot_id references robots(id); upgrade_id references upgrades(id)
+-- Exactly one of robot_id or upgrade_id is set per row.
 -- ---------------------------------------------------------------------------
 
--- Order 1: Zee buys WALL-E
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (1, 'WALL-E', 1);
+-- Order 1: Zee buys WALL-E (robots.id = 15)
+INSERT INTO order_items (order_id, robot_id, quantity) VALUES
+  (1, 15, 1);
 
--- Order 2: Zee buys Enhanced Waste Compactor upgrade (referenced by name)
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (2, 'WALL-E-UPGRADE-WASTE-COMPACTOR', 1);
+-- Order 2: Zee buys Enhanced Waste Compactor upgrade (upgrades.id = 16)
+INSERT INTO order_items (order_id, upgrade_id, quantity) VALUES
+  (2, 16, 1);
 
--- Order 3: Luke buys C-3PO
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (3, 'C3PO', 1);
+-- Order 3: Luke buys C-3PO (robots.id = 1)
+INSERT INTO order_items (order_id, robot_id, quantity) VALUES
+  (3, 1, 1);
 
--- Order 4: Luke buys R2-D2
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (4, 'ASTROMECH', 1);
+-- Order 4: Luke buys R2-D2 (robots.id = 3)
+INSERT INTO order_items (order_id, robot_id, quantity) VALUES
+  (4, 3, 1);
 
--- Order 5: Philip J. buys Bender
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (5, 'BENDER', 1);
+-- Order 5: Philip J. buys Bender (robots.id = 8)
+INSERT INTO order_items (order_id, robot_id, quantity) VALUES
+  (5, 8, 1);
 
--- Order 6: Hiro buys Baymax v1.0
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (6, 'BAYMAX', 1);
+-- Order 6: Hiro buys Baymax v1.0 (robots.id = 9)
+INSERT INTO order_items (order_id, robot_id, quantity) VALUES
+  (6, 9, 1);
 
--- Order 7: Hiro buys Pet Care Suite for Baymax
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (7, 'BAYMAX-UPGRADE-PET-CARE', 1);
+-- Order 7: Hiro buys Pet Care Suite for Baymax (upgrades.id = 8)
+INSERT INTO order_items (order_id, upgrade_id, quantity) VALUES
+  (7, 8, 1);
 
--- Order 8: Jean-Luc buys Data android
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (8, 'DATA', 1);
+-- Order 8: Jean-Luc buys Data android (robots.id = 11)
+INSERT INTO order_items (order_id, robot_id, quantity) VALUES
+  (8, 11, 1);
 
--- Order 9: Jean-Luc buys Quantum Computation Upgrade for Data
-INSERT INTO order_items (order_id, product_reference, quantity) VALUES
-  (9, 'DATA-UPGRADE-QUANTUM-COMPUTATION', 1);
+-- Order 9: Jean-Luc buys Quantum Computation Upgrade for Data (upgrades.id = 24)
+INSERT INTO order_items (order_id, upgrade_id, quantity) VALUES
+  (9, 24, 1);

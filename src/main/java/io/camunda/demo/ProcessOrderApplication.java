@@ -1,14 +1,12 @@
 package io.camunda.demo;
 
 import io.camunda.client.annotation.Deployment;
-import io.camunda.demo.model.Customer;
-import io.camunda.demo.model.OrderItem;
-import io.camunda.demo.model.Robot;
+import io.camunda.demo.dto.CustomerDto;
+import io.camunda.demo.dto.RobotDto;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.ProductCatalogService;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -30,26 +28,15 @@ public class ProcessOrderApplication {
 
   @PostConstruct
   void printDatabaseEntriesForDebugging() {
-    List<Robot> robots = productCatalogService.findAllRobots();
+    List<RobotDto> robots = productCatalogService.findAllRobots();
     LOGGER.debug("Available robots in the product catalog: {}", robots.size());
-    robots.forEach(
-        robot ->
-            LOGGER.debug(
-                "Robot: {} (model: {}, intent: {})",
-                robot.getName(),
-                robot.getModelId(),
-                robot.getIntent()));
+    robots.forEach(robot ->
+        LOGGER.debug("Robot: {} (model: {}, intent: {})",
+            robot.name(), robot.modelId(), robot.intent()));
 
-    List<Customer> customers = customerDatabaseService.findAllCustomers();
+    List<CustomerDto> customers = customerDatabaseService.findAllCustomers();
     LOGGER.debug("Customers in the database: {}", customers.size());
-    customers.forEach(
-        customer ->
-            LOGGER.debug(
-                "Customer: {} (orders: {})",
-                customer.getName(),
-                customer.getOrders().stream()
-                    .flatMap(order -> order.getItems().stream())
-                    .map(OrderItem::getProductReference)
-                    .collect(Collectors.joining(", "))));
+    customers.forEach(customer ->
+        LOGGER.debug("Customer: {} (orders: {})", customer.name(), customer.orders().size()));
   }
 }

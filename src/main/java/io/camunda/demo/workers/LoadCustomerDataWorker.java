@@ -3,6 +3,7 @@ package io.camunda.demo.workers;
 import io.camunda.client.annotation.JobWorker;
 import io.camunda.client.annotation.Variable;
 import io.camunda.client.api.response.ActivatedJob;
+import io.camunda.demo.dto.CustomerDto;
 import io.camunda.demo.services.CustomerDatabaseService;
 import jakarta.annotation.Nullable;
 import java.util.List;
@@ -37,8 +38,7 @@ public class LoadCustomerDataWorker {
 
     if (customerName != null && !customerName.isBlank()) {
       return customerDatabaseService.findCustomerByName(customerName)
-          .map(customer -> {
-            final CustomerDto customerDto = CustomerDto.from(customer);
+          .map(customerDto -> {
             LOG.info("Loaded customer '{}' with {} order(s)", customerDto.name(), customerDto.orders().size());
             return Map.<String, Object>of("customer", customerDto);
           })
@@ -48,9 +48,7 @@ public class LoadCustomerDataWorker {
           });
     }
 
-    final List<CustomerDto> customers = customerDatabaseService.findAllCustomers().stream()
-        .map(CustomerDto::from)
-        .toList();
+    final List<CustomerDto> customers = customerDatabaseService.findAllCustomers();
     LOG.info("Loaded {} customer(s) from customer database", customers.size());
 
     LOG.info("load-customer-data completed: {}", job.getKey());

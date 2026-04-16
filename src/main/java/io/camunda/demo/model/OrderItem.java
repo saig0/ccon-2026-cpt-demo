@@ -1,6 +1,5 @@
 package io.camunda.demo.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +11,7 @@ import jakarta.persistence.Table;
 
 /**
  * Represents a single line item within a customer {@link Order}.
+ * Exactly one of {@link #robot} or {@link #upgrade} is non-null.
  */
 @Entity
 @Table(name = "order_items")
@@ -25,22 +25,32 @@ public class OrderItem {
   @JoinColumn(name = "order_id", nullable = false)
   private Order order;
 
-  /**
-   * Reference to the robot product ordered (model ID from the product catalog,
-   * e.g. "WALL-E" or "C3PO").
-   */
-  @Column(nullable = false)
-  private String productReference;
+  /** The robot that was ordered. Null if this item is an upgrade. */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "robot_id")
+  private Robot robot;
 
-  @Column(nullable = false)
+  /** The upgrade that was ordered. Null if this item is a robot. */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "upgrade_id")
+  private Upgrade upgrade;
+
   private int quantity;
 
   protected OrderItem() {
   }
 
-  public OrderItem(Order order, String productReference, int quantity) {
+  /** Creates an order item for a robot. */
+  public OrderItem(Order order, Robot robot, int quantity) {
     this.order = order;
-    this.productReference = productReference;
+    this.robot = robot;
+    this.quantity = quantity;
+  }
+
+  /** Creates an order item for an upgrade. */
+  public OrderItem(Order order, Upgrade upgrade, int quantity) {
+    this.order = order;
+    this.upgrade = upgrade;
     this.quantity = quantity;
   }
 
@@ -56,12 +66,20 @@ public class OrderItem {
     this.order = order;
   }
 
-  public String getProductReference() {
-    return productReference;
+  public Robot getRobot() {
+    return robot;
   }
 
-  public void setProductReference(String productReference) {
-    this.productReference = productReference;
+  public void setRobot(Robot robot) {
+    this.robot = robot;
+  }
+
+  public Upgrade getUpgrade() {
+    return upgrade;
+  }
+
+  public void setUpgrade(Upgrade upgrade) {
+    this.upgrade = upgrade;
   }
 
   public int getQuantity() {
@@ -74,7 +92,8 @@ public class OrderItem {
 
   @Override
   public String toString() {
-    return "OrderItem{id=" + id + ", productReference='" + productReference
-        + "', quantity=" + quantity + "}";
+    final String product = robot != null ? "robot=" + robot.getModelId()
+        : (upgrade != null ? "upgrade=" + upgrade.getName() : "none");
+    return "OrderItem{id=" + id + ", " + product + ", quantity=" + quantity + "}";
   }
 }

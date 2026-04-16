@@ -60,10 +60,13 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
-    id                  BIGINT          NOT NULL AUTO_INCREMENT,
-    order_id            BIGINT          NOT NULL,
-    product_reference   VARCHAR(255)    NOT NULL,
-    quantity            INT             NOT NULL,
+    id          BIGINT  NOT NULL AUTO_INCREMENT,
+    order_id    BIGINT  NOT NULL,
+    robot_id    BIGINT,
+    upgrade_id  BIGINT,
+    quantity    INT     NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id)
+    CONSTRAINT fk_order_items_order   FOREIGN KEY (order_id)   REFERENCES orders(id),
+    CONSTRAINT fk_order_items_robot   FOREIGN KEY (robot_id)   REFERENCES robots(id),
+    CONSTRAINT fk_order_items_upgrade FOREIGN KEY (upgrade_id) REFERENCES upgrades(id)
 );
