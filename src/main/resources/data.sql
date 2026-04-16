@@ -284,3 +284,137 @@ INSERT INTO robot_compatible_upgrades (robot_id, upgrade_id) VALUES
   (18, 19), -- Tactical Analysis Matrix
   (18, 13), -- Reinforced Combat Armor
   (18, 14); -- Advanced Weapons Array
+
+
+-- =============================================================================
+-- Camunda Robotics – Customer Database: Example Data
+-- =============================================================================
+-- Customers:
+--   1 – Zee          (Berlin, Germany)          robot: WALL-E
+--   2 – Luke         (Tatooine, Outer Rim)      robots: C3PO, R2-D2
+--   3 – Philip J.    (New York, USA)            robot: Bender
+--   4 – Hiro         (San Francisco, USA)       robot: Baymax
+--   5 – Jean-Luc     (Enterprise, Deep Space)   robot: Data
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- Customers
+-- ---------------------------------------------------------------------------
+INSERT INTO customers (id, name, email, address_street, address_city, address_country,
+                        payment_method, payment_reference) VALUES
+  (1, 'Zee',       'zee@camunda-robotics.io',
+   'Unter den Linden 1', 'Berlin', 'Germany',
+   'CREDIT_CARD', '**** **** **** 4200'),
+
+  (2, 'Luke',      'luke.skywalker@tatooine.galaxy',
+   'Moisture Farm, Jundland Wastes', 'Tatooine', 'Outer Rim Territories',
+   'GALACTIC_CREDITS', 'GC-77890-SKY'),
+
+  (3, 'Philip J.', 'p.fry@planet-express.com',
+   '57th Street', 'New York', 'USA',
+   'CREDIT_CARD', '**** **** **** 3000'),
+
+  (4, 'Hiro',      'hiro.hamada@sfit.edu',
+   '1234 Lucky Cat Cafe, Akihabara District', 'San Francisco', 'USA',
+   'PAYPAL', 'hiro.hamada@sfit.edu'),
+
+  (5, 'Jean-Luc',  'picard@starfleet.fed',
+   'Ready Room, Deck 8', 'USS Enterprise NCC-1701-D', 'United Federation of Planets',
+   'FEDERATION_CREDITS', 'FC-1701D-CAP');
+
+-- ---------------------------------------------------------------------------
+-- Orders
+-- ---------------------------------------------------------------------------
+
+-- Zee's orders (robot: WALL-E)
+INSERT INTO orders (id, customer_id, order_date,
+                    shipment_address_street, shipment_address_city, shipment_address_country,
+                    shipment_date, payment_date, payment_amount) VALUES
+  (1, 1, '2025-01-10',
+   'Unter den Linden 1', 'Berlin', 'Germany',
+   '2025-01-15', '2025-01-10', 3999.99),
+  (2, 1, '2025-06-01',
+   'Unter den Linden 1', 'Berlin', 'Germany',
+   '2025-06-07', '2025-06-01', 449.99);
+
+-- Luke's orders (robots: C3PO, R2-D2)
+INSERT INTO orders (id, customer_id, order_date,
+                    shipment_address_street, shipment_address_city, shipment_address_country,
+                    shipment_date, payment_date, payment_amount) VALUES
+  (3, 2, '2024-11-20',
+   'Moisture Farm, Jundland Wastes', 'Tatooine', 'Outer Rim Territories',
+   '2024-11-30', '2024-11-20', 9999.99),
+  (4, 2, '2025-02-14',
+   'Moisture Farm, Jundland Wastes', 'Tatooine', 'Outer Rim Territories',
+   '2025-02-21', '2025-02-14', 8999.99);
+
+-- Philip J.'s orders (robot: Bender)
+INSERT INTO orders (id, customer_id, order_date,
+                    shipment_address_street, shipment_address_city, shipment_address_country,
+                    shipment_date, payment_date, payment_amount) VALUES
+  (5, 3, '2025-03-01',
+   '57th Street', 'New York', 'USA',
+   '2025-03-08', '2025-03-01', 7499.99);
+
+-- Hiro's orders (robot: Baymax)
+INSERT INTO orders (id, customer_id, order_date,
+                    shipment_address_street, shipment_address_city, shipment_address_country,
+                    shipment_date, payment_date, payment_amount) VALUES
+  (6, 4, '2024-12-24',
+   '1234 Lucky Cat Cafe, Akihabara District', 'San Francisco', 'USA',
+   '2024-12-29', '2024-12-24', 6999.99),
+  (7, 4, '2025-04-05',
+   '1234 Lucky Cat Cafe, Akihabara District', 'San Francisco', 'USA',
+   '2025-04-12', '2025-04-05', 799.99);
+
+-- Jean-Luc's orders (robot: Data)
+INSERT INTO orders (id, customer_id, order_date,
+                    shipment_address_street, shipment_address_city, shipment_address_country,
+                    shipment_date, payment_date, payment_amount) VALUES
+  (8, 5, '2025-05-10',
+   'Ready Room, Deck 8', 'USS Enterprise NCC-1701-D', 'United Federation of Planets',
+   '2025-05-20', '2025-05-10', 14999.99),
+  (9, 5, '2025-09-01',
+   'Ready Room, Deck 8', 'USS Enterprise NCC-1701-D', 'United Federation of Planets',
+   '2025-09-08', '2025-09-01', 5999.99);
+
+-- ---------------------------------------------------------------------------
+-- Order Items
+-- (product_reference matches robot model_id values in the robots table)
+-- ---------------------------------------------------------------------------
+
+-- Order 1: Zee buys WALL-E
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (1, 'WALL-E', 1);
+
+-- Order 2: Zee buys Enhanced Waste Compactor upgrade (referenced by name)
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (2, 'WALL-E-UPGRADE-WASTE-COMPACTOR', 1);
+
+-- Order 3: Luke buys C-3PO
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (3, 'C3PO', 1);
+
+-- Order 4: Luke buys R2-D2
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (4, 'ASTROMECH', 1);
+
+-- Order 5: Philip J. buys Bender
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (5, 'BENDER', 1);
+
+-- Order 6: Hiro buys Baymax v1.0
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (6, 'BAYMAX', 1);
+
+-- Order 7: Hiro buys Pet Care Suite for Baymax
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (7, 'BAYMAX-UPGRADE-PET-CARE', 1);
+
+-- Order 8: Jean-Luc buys Data android
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (8, 'DATA', 1);
+
+-- Order 9: Jean-Luc buys Quantum Computation Upgrade for Data
+INSERT INTO order_items (order_id, product_reference, quantity) VALUES
+  (9, 'DATA-UPGRADE-QUANTUM-COMPUTATION', 1);
