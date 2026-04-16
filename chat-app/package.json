@@ -1,0 +1,26 @@
+{
+  "name": "camunda-robotics-chat",
+  "version": "1.0.0",
+  "description": "Camunda Robotics customer support chat application",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "node --loader ts-node/esm src/index.ts"
+  },
+  "dependencies": {
+    "@camunda8/orchestration-cluster-api": "^9.1.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.3",
+    "@types/uuid": "^10.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

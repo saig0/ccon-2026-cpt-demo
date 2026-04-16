@@ -30,4 +30,5 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode/chat-app/node_modules/
+chat-app/dist/
