@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions
-  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
-  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
-  id="Definitions_chat"
-  targetNamespace="http://bpmn.io/schema/bpmn"
-  exporter="Camunda Modeler"
-  exporterVersion="5.36.1"
-  modeler:executionPlatform="Camunda Cloud"
-  modeler:executionPlatformVersion="8.8.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  id="Definitions_16mvwsb"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.36.1"
+                  modeler:executionPlatform="Camunda Cloud"
+                  modeler:executionPlatformVersion="8.8.0">
 
   <bpmn:message id="Message_UserReply" name="user-message">
     <bpmn:extensionElements>
@@ -56,9 +55,10 @@
       currentMessage is automatically updated — no explicit output mapping needed.
     -->
     <bpmn:intermediateCatchEvent id="Event_UserMessage" name="User message received">
-      <bpmn:messageEventDefinition id="MsgDef_UserReply" messageRef="Message_UserReply"/>
       <bpmn:incoming>Flow_RespondToWait</bpmn:incoming>
       <bpmn:outgoing>Flow_LoopBack</bpmn:outgoing>
+       <bpmn:messageEventDefinition id="MsgDef_UserReply" messageRef="Message_UserReply"/>
+     
     </bpmn:intermediateCatchEvent>
 
     <!-- ── Sequence flows ───────────────────────────────────── -->
