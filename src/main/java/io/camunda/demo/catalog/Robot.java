@@ -2,6 +2,8 @@ package io.camunda.demo.catalog;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,9 +42,10 @@ public class Robot {
   @Column(length = 1000)
   private String description;
 
-  /** Core intent/category, e.g. "translation", "navigation", "guard". */
+  /** Core intent/category, e.g. {@link RobotIntent#TRANSLATION} or {@link RobotIntent#GUARD}. */
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private String intent;
+  private RobotIntent intent;
 
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal price;
@@ -63,7 +66,7 @@ public class Robot {
   protected Robot() {
   }
 
-  public Robot(String modelId, String modelVersion, String name, String description, String intent,
+  public Robot(String modelId, String modelVersion, String name, String description, RobotIntent intent,
       BigDecimal price) {
     this.modelId = modelId;
     this.modelVersion = modelVersion;
@@ -109,11 +112,11 @@ public class Robot {
     this.description = description;
   }
 
-  public String getIntent() {
+  public RobotIntent getIntent() {
     return intent;
   }
 
-  public void setIntent(String intent) {
+  public void setIntent(RobotIntent intent) {
     this.intent = intent;
   }
 

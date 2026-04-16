@@ -27,7 +27,7 @@ public class ProductCatalogService {
   }
 
   /** Returns all robots that match a given intent/category. */
-  public List<Robot> findRobotsByIntent(String intent) {
+  public List<Robot> findRobotsByIntent(RobotIntent intent) {
     return robotRepository.findByIntent(intent);
   }
 
