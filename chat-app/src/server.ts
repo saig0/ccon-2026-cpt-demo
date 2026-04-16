@@ -3,6 +3,7 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ProcessDefinitionId } from '@camunda8/orchestration-cluster-api';
 import {
   createConversation,
   getConversation,
@@ -10,7 +11,7 @@ import {
   subscribe,
   unsubscribe,
 } from './store.js';
-import { zbc } from './camunda.js';
+import { client } from './camunda.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,8 +41,8 @@ app.post('/api/chat/start', async (req: Request, res: Response) => {
     content: initialMessage,
   });
 
-  await zbc.createProcessInstance({
-    bpmnProcessId: 'chat-support-process',
+  await client.createProcessInstance({
+    processDefinitionId: ProcessDefinitionId.assumeExists('chat-support-process'),
     variables: {
       conversationId,
       userName,
@@ -75,7 +76,7 @@ app.post('/api/chat/:conversationId/message', async (req: Request, res: Response
     content: message,
   });
 
-  await zbc.publishMessage({
+  await client.publishMessage({
     name: 'user-message',
     correlationKey: conversationId,
     variables: { currentMessage: message },

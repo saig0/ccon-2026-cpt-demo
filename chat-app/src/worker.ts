@@ -1,4 +1,4 @@
-import { zbc } from './camunda.js';
+import { client } from './camunda.js';
 import { addMessage } from './store.js';
 
 interface ChatJobVariables {
@@ -68,9 +68,9 @@ function generateAgentResponse(message: string): string {
 export function startWorker(): void {
   console.log('Starting Camunda job worker for "send-chat-message"...');
 
-  zbc.createWorker({
-    taskType: 'send-chat-message',
-    taskHandler: async (job) => {
+  client.createJobWorker({
+    jobType: 'send-chat-message',
+    jobHandler: async (job) => {
       const { conversationId, userName, currentMessage } =
         job.variables as unknown as ChatJobVariables;
 

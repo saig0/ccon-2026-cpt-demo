@@ -1,4 +1,3 @@
-import { Camunda8 } from '@camunda8/sdk';
+import { createCamundaClient } from '@camunda8/orchestration-cluster-api';
 
-const camunda = new Camunda8();
-export const zbc = camunda.getZeebeGrpcApiClient();
+export const client = createCamundaClient();

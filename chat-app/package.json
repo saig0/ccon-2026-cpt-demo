@@ -10,7 +10,7 @@
     "dev": "node --loader ts-node/esm src/index.ts"
   },
   "dependencies": {
-    "@camunda8/sdk": "^8.8.9",
+    "@camunda8/orchestration-cluster-api": "^9.1.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "uuid": "^11.1.0"

@@ -295,6 +295,14 @@ html, body {
   padding: 0.4rem 1rem;
   font-size: 0.82rem;
   color: var(--text-secondary);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+a.source-link:hover {
+  border-color: var(--cr-orange);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 3px var(--cr-orange-glow);
 }
 
 .feature-icon {

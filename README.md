@@ -95,18 +95,19 @@ Copy `chat-app/.env.example` to `chat-app/.env` and fill in your credentials.
 
 **Camunda SaaS:**
 ```env
-ZEEBE_ADDRESS=<cluster-id>.zeebe.camunda.io:443
-ZEEBE_CLIENT_ID=<your-client-id>
-ZEEBE_CLIENT_SECRET=<your-client-secret>
-ZEEBE_AUTHORIZATION_SERVER_URL=https://login.cloud.camunda.io/oauth/token
-ZEEBE_TOKEN_AUDIENCE=zeebe.camunda.io
+CAMUNDA_AUTH_STRATEGY=OAUTH
+CAMUNDA_REST_ADDRESS=https://<region>.zeebe.camunda.io/<cluster-id>
+CAMUNDA_CLIENT_ID=<your-client-id>
+CAMUNDA_CLIENT_SECRET=<your-client-secret>
+CAMUNDA_OAUTH_URL=https://login.cloud.camunda.io/oauth/token
+CAMUNDA_TOKEN_AUDIENCE=zeebe.camunda.io
 PORT=3000
 ```
 
 **Self-Managed (no auth):**
 ```env
-ZEEBE_ADDRESS=localhost:26500
-ZEEBE_INSECURE_CONNECTION=true
+CAMUNDA_AUTH_STRATEGY=NONE
+CAMUNDA_REST_ADDRESS=http://localhost:8080/v2
 PORT=3000
 ```
 
