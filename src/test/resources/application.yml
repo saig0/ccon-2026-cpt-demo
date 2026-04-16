@@ -1,0 +1,15 @@
+camunda:
+  process-test:
+    runtime-mode: shared
+
+logging:
+  level:
+    root: warn
+    io:
+      camunda:
+        process:
+          test: info
+      # Hide default logging from Testcontainers
+    org:
+      testcontainers: warn
+    tc: error

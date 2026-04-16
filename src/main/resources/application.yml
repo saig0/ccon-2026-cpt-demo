@@ -1,0 +1,11 @@
+spring.application.name: CCon 2026 - CPT demo
+
+logging:
+  level:
+    root: warn
+    io:
+      camunda:
+        demo: debug
+        client:
+          impl:
+            CamundaCallCredentials: error
