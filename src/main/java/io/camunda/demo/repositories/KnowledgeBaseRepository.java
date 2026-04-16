@@ -10,8 +10,10 @@ public interface KnowledgeBaseRepository extends JpaRepository<KnowledgeBaseEntr
 
   /**
    * Find all knowledge base entries whose {@code keywords} column contains the given keyword
-   * (case-insensitive, substring match within the comma-separated keyword list).
+   * as an exact comma-delimited token (case-insensitive). Wrapping commas are added to both
+   * the stored keyword list and the search term so that partial-word false positives are avoided
+   * (e.g. searching "base" will not match an entry tagged "database").
    */
-  @Query("SELECT e FROM KnowledgeBaseEntry e WHERE LOWER(e.keywords) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+  @Query("SELECT e FROM KnowledgeBaseEntry e WHERE LOWER(CONCAT(',', e.keywords, ',')) LIKE LOWER(CONCAT('%,', TRIM(:keyword), ',%'))")
   List<KnowledgeBaseEntry> findByKeyword(@Param("keyword") String keyword);
 }
