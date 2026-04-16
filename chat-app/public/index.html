@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camunda Robotics — Customer Support</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="landing-body">
+  <div class="circuit-bg"></div>
+
+  <div class="landing-wrapper">
+    <header class="landing-header">
+      <div class="brand-mark">
+        <div class="robot-avatar large">🤖</div>
+        <div class="brand-text">
+          <span class="brand-name">CAMUNDA ROBOTICS</span>
+          <span class="brand-tagline">Smart Robots for a Smarter World</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="landing-main">
+      <div class="hero-section">
+        <h1 class="hero-title">Customer Support</h1>
+        <p class="hero-sub">
+          Our AI-powered RoboSupport 3000 is ready to help you with product issues,
+          upgrades, warranties, and everything robotic.
+        </p>
+      </div>
+
+      <div class="start-card">
+        <div class="card-glow"></div>
+        <h2 class="card-title">Start a Conversation</h2>
+        <form id="startForm" autocomplete="off">
+          <div class="form-group">
+            <label for="userName">Your Name</label>
+            <input
+              type="text"
+              id="userName"
+              placeholder="e.g. Ada Lovelace"
+              required
+              maxlength="60"
+            />
+          </div>
+          <div class="form-group">
+            <label for="initialMessage">How can we help you?</label>
+            <textarea
+              id="initialMessage"
+              rows="4"
+              placeholder="Describe your question or issue with our robotic products..."
+              required
+              maxlength="500"
+            ></textarea>
+          </div>
+          <button type="submit" class="btn-primary" id="startBtn">
+            <span class="btn-text">Start Chat</span>
+            <span class="btn-icon">→</span>
+          </button>
+          <p id="startError" class="form-error" hidden></p>
+        </form>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-chip">
+          <span class="feature-icon">⚡</span>
+          <span>Instant AI Support</span>
+        </div>
+        <div class="feature-chip">
+          <span class="feature-icon">🔧</span>
+          <span>Technical Experts</span>
+        </div>
+        <div class="feature-chip">
+          <span class="feature-icon">🛡️</span>
+          <span>Warranty &amp; Repairs</span>
+        </div>
+        <div class="feature-chip">
+          <span class="feature-icon">🚀</span>
+          <span>Upgrade Advisory</span>
+        </div>
+      </div>
+    </main>
+
+    <footer class="landing-footer">
+      <span>© 2026 Camunda Robotics GmbH — Powered by</span>
+      <span class="footer-brand">Camunda Process Automation</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

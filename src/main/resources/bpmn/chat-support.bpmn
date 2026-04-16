@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+  id="Definitions_chat"
+  targetNamespace="http://bpmn.io/schema/bpmn"
+  exporter="Camunda Modeler"
+  exporterVersion="5.36.1"
+  modeler:executionPlatform="Camunda Cloud"
+  modeler:executionPlatformVersion="8.8.0">
+
+  <bpmn:message id="Message_UserReply" name="user-message">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=conversationId"/>
+    </bpmn:extensionElements>
+  </bpmn:message>
+
+  <!--
+    Chat Support Process
+    ─────────────────────────────────────────────────────────────────
+    Flow:
+      1. Process instance is created by the chat app with variables:
+           conversationId, userName, currentMessage (initial request)
+      2. Service task "send-chat-message" – job worker generates an agent
+         response and pushes it to the SSE stream.
+      3. Intermediate message catch "user-message" – waits for the next
+         user message, correlated by conversationId.
+         The user's message text is mapped into currentMessage.
+      4. Loop back to step 2 for every subsequent exchange.
+  -->
+  <bpmn:process id="chat-support-process" name="Customer Chat Support" isExecutable="true">
+
+    <!-- ── Start ────────────────────────────────────────────── -->
+    <bpmn:startEvent id="Event_Start" name="Chat started">
+      <bpmn:outgoing>Flow_StartToRespond</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ── Agent response task ──────────────────────────────── -->
+    <bpmn:serviceTask id="Task_AgentResponse" name="Send agent response">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-chat-message"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_StartToRespond</bpmn:incoming>
+      <bpmn:incoming>Flow_LoopBack</bpmn:incoming>
+      <bpmn:outgoing>Flow_RespondToWait</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- ── Wait for next user message ───────────────────────── -->
+    <!--
+      When the message is correlated, Zeebe merges all message variables into
+      the process scope. The frontend publishes { currentMessage: <text> }, so
+      currentMessage is automatically updated — no explicit output mapping needed.
+    -->
+    <bpmn:intermediateCatchEvent id="Event_UserMessage" name="User message received">
+      <bpmn:messageEventDefinition id="MsgDef_UserReply" messageRef="Message_UserReply"/>
+      <bpmn:incoming>Flow_RespondToWait</bpmn:incoming>
+      <bpmn:outgoing>Flow_LoopBack</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+
+    <!-- ── Sequence flows ───────────────────────────────────── -->
+    <bpmn:sequenceFlow id="Flow_StartToRespond"  sourceRef="Event_Start"       targetRef="Task_AgentResponse"/>
+    <bpmn:sequenceFlow id="Flow_RespondToWait"   sourceRef="Task_AgentResponse" targetRef="Event_UserMessage"/>
+    <bpmn:sequenceFlow id="Flow_LoopBack"        sourceRef="Event_UserMessage"  targetRef="Task_AgentResponse"/>
+
+  </bpmn:process>
+
+  <!-- ── Diagram layout ────────────────────────────────────── -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_chat">
+    <bpmndi:BPMNPlane id="BPMNPlane_chat" bpmnElement="chat-support-process">
+
+      <bpmndi:BPMNShape id="Event_Start_di" bpmnElement="Event_Start">
+        <dc:Bounds x="152" y="202" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="132" y="245" width="76" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_AgentResponse_di" bpmnElement="Task_AgentResponse">
+        <dc:Bounds x="250" y="180" width="140" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Event_UserMessage_di" bpmnElement="Event_UserMessage">
+        <dc:Bounds x="462" y="202" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="438" y="245" width="84" height="27"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_StartToRespond_di" bpmnElement="Flow_StartToRespond">
+        <di:waypoint x="188" y="220"/>
+        <di:waypoint x="250" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_RespondToWait_di" bpmnElement="Flow_RespondToWait">
+        <di:waypoint x="390" y="220"/>
+        <di:waypoint x="462" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_LoopBack_di" bpmnElement="Flow_LoopBack">
+        <di:waypoint x="480" y="202"/>
+        <di:waypoint x="480" y="120"/>
+        <di:waypoint x="320" y="120"/>
+        <di:waypoint x="320" y="180"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

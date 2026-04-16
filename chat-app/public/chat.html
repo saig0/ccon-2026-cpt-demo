@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camunda Robotics — Live Support Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chat-body">
+  <div class="chat-layout">
+
+    <!-- Header -->
+    <header class="chat-header">
+      <a href="/" class="header-back" title="Back to start">←</a>
+      <div class="header-brand">
+        <div class="robot-avatar medium pulse">🤖</div>
+        <div>
+          <div class="brand-name">CAMUNDA ROBOTICS</div>
+          <div class="agent-status">
+            <span class="status-dot"></span>
+            <span>RoboSupport 3000 · Online</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-info">
+        <span class="conv-label">Conversation ID</span>
+        <span id="convIdDisplay" class="conv-id">—</span>
+      </div>
+    </header>
+
+    <!-- Messages -->
+    <main class="chat-messages" id="chatMessages">
+      <div class="messages-inner" id="messagesInner">
+        <div class="typing-indicator" id="typingIndicator" hidden>
+          <div class="robot-avatar small">🤖</div>
+          <div class="typing-bubble">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Input area -->
+    <footer class="chat-footer">
+      <form id="messageForm" autocomplete="off">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="messageInput"
+            placeholder="Type your message…"
+            maxlength="500"
+            disabled
+          />
+          <button type="submit" class="btn-send" id="sendBtn" disabled>
+            <span>Send</span>
+            <span class="btn-icon">→</span>
+          </button>
+        </div>
+        <p id="sendError" class="form-error" hidden></p>
+      </form>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
