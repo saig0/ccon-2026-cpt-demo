@@ -31,4 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/chat-app/node_modules/
+chat-app/node_modules/
+chat-app/node/
 chat-app/dist/

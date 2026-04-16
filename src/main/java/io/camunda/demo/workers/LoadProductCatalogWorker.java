@@ -2,6 +2,7 @@ package io.camunda.demo.workers;
 
 import io.camunda.client.annotation.JobWorker;
 import io.camunda.client.api.response.ActivatedJob;
+import io.camunda.demo.dto.RobotDto;
 import io.camunda.demo.services.ProductCatalogService;
 
 import java.util.List;
@@ -25,9 +26,7 @@ public class LoadProductCatalogWorker {
   public Map<String, Object> loadProductCatalog(final ActivatedJob job) {
     LOG.info("Processing load-product-catalog job: {}", job.getKey());
 
-    final List<ProductDto> products = productCatalogService.findAllRobots().stream()
-        .map(ProductDto::from)
-        .toList();
+    final List<RobotDto> products = productCatalogService.findAllRobots();
     LOG.info("Loaded {} products from product catalog", products.size());
 
     LOG.info("load-product-catalog completed: {}", job.getKey());

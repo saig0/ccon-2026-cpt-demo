@@ -1,16 +1,12 @@
-package io.camunda.demo.workers;
+package io.camunda.demo.dto;
 
 import io.camunda.demo.model.Robot;
 import io.camunda.demo.model.RobotIntent;
-import io.camunda.demo.model.Upgrade;
-
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Type-safe representation of a robot product as returned by the catalog worker.
- */
-public record ProductDto(
+/** Type-safe DTO for a robot in the Camunda Robotics product catalog. */
+public record RobotDto(
     Long id,
     String modelId,
     String modelVersion,
@@ -20,18 +16,8 @@ public record ProductDto(
     BigDecimal price,
     List<UpgradeDto> compatibleUpgrades) {
 
-  /**
-   * Type-safe representation of an upgrade as returned alongside its parent robot.
-   */
-  public record UpgradeDto(Long id, String name, BigDecimal price) {
-
-    public static UpgradeDto from(Upgrade upgrade) {
-      return new UpgradeDto(upgrade.getId(), upgrade.getName(), upgrade.getPrice());
-    }
-  }
-
-  public static ProductDto from(Robot robot) {
-    return new ProductDto(
+  public static RobotDto from(Robot robot) {
+    return new RobotDto(
         robot.getId(),
         robot.getModelId(),
         robot.getModelVersion(),
