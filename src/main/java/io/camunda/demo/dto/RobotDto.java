@@ -2,13 +2,10 @@ package io.camunda.demo.dto;
 
 import io.camunda.demo.model.Robot;
 import io.camunda.demo.model.RobotIntent;
-import io.camunda.demo.model.Upgrade;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Type-safe DTO for a robot in the Camunda Robotics product catalog.
- */
+/** Type-safe DTO for a robot in the Camunda Robotics product catalog. */
 public record RobotDto(
     Long id,
     String modelId,
@@ -18,19 +15,6 @@ public record RobotDto(
     RobotIntent intent,
     BigDecimal price,
     List<UpgradeDto> compatibleUpgrades) {
-
-  /**
-   * Type-safe DTO for an upgrade as returned alongside its parent robot.
-   * Includes {@code description} (not present in the legacy worker DTO) to give
-   * consumers full upgrade details without needing a separate lookup.
-   */
-  public record UpgradeDto(Long id, String name, String description, BigDecimal price) {
-
-    public static UpgradeDto from(Upgrade upgrade) {
-      return new UpgradeDto(upgrade.getId(), upgrade.getName(),
-          upgrade.getDescription(), upgrade.getPrice());
-    }
-  }
 
   public static RobotDto from(Robot robot) {
     return new RobotDto(

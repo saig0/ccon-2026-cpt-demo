@@ -1,6 +1,7 @@
 package io.camunda.demo.services;
 
 import io.camunda.demo.dto.RobotDto;
+import io.camunda.demo.dto.UpgradeDto;
 import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.repositories.RobotRepository;
 import io.camunda.demo.repositories.UpgradeRepository;
@@ -10,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for loading and querying the Camunda Robotics product catalog.
- * Returns {@link RobotDto} and {@link RobotDto.UpgradeDto} objects instead of JPA entities
- * to avoid lazy-loading issues outside the transaction boundary.
+ * Service for loading and querying the Camunda Robotics product catalog. Returns {@link RobotDto}
+ * and {@link UpgradeDto} objects instead of JPA entities to avoid lazy-loading issues outside the
+ * transaction boundary.
  */
 @Service
 @Transactional(readOnly = true)
@@ -21,8 +22,8 @@ public class ProductCatalogService {
   private final RobotRepository robotRepository;
   private final UpgradeRepository upgradeRepository;
 
-  public ProductCatalogService(RobotRepository robotRepository,
-      UpgradeRepository upgradeRepository) {
+  public ProductCatalogService(
+      RobotRepository robotRepository, UpgradeRepository upgradeRepository) {
     this.robotRepository = robotRepository;
     this.upgradeRepository = upgradeRepository;
   }
@@ -48,7 +49,7 @@ public class ProductCatalogService {
   }
 
   /** Returns all upgrades available in the catalog as DTOs. */
-  public List<RobotDto.UpgradeDto> findAllUpgrades() {
-    return upgradeRepository.findAll().stream().map(RobotDto.UpgradeDto::from).toList();
+  public List<UpgradeDto> findAllUpgrades() {
+    return upgradeRepository.findAll().stream().map(UpgradeDto::from).toList();
   }
 }
