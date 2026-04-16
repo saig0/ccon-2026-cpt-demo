@@ -38,9 +38,9 @@ public class LoadCustomerDataWorker {
     if (customerName != null && !customerName.isBlank()) {
       return customerDatabaseService.findCustomerByName(customerName)
           .map(customer -> {
-            final CustomerDto dto = CustomerDto.from(customer);
-            LOG.info("Loaded customer '{}' with {} order(s)", dto.name(), dto.orders().size());
-            return Map.<String, Object>of("customer", dto);
+            final CustomerDto customerDto = CustomerDto.from(customer);
+            LOG.info("Loaded customer '{}' with {} order(s)", customerDto.name(), customerDto.orders().size());
+            return Map.<String, Object>of("customer", customerDto);
           })
           .orElseGet(() -> {
             LOG.warn("No customer found with name '{}'", customerName);
