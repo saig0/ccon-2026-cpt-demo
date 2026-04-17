@@ -30,6 +30,18 @@ CREATE TABLE IF NOT EXISTS robot_compatible_upgrades (
 );
 
 -- =============================================================================
+-- Camunda Robotics – Troubleshooting Knowledge Base: Schema
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS knowledge_base_entries (
+    id          BIGINT          NOT NULL AUTO_INCREMENT,
+    problem     VARCHAR(1000)   NOT NULL,
+    keywords    VARCHAR(1000)   NOT NULL,
+    solution    VARCHAR(2000)   NOT NULL,
+    PRIMARY KEY (id)
+);
+
+-- =============================================================================
 -- Camunda Robotics – Customer Database: Schema
 -- =============================================================================
 
