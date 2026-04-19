@@ -475,6 +475,30 @@ a.source-link:hover {
   word-break: break-word;
 }
 
+/* Ensure rendered HTML content has proper spacing */
+.msg-bubble > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.msg-bubble p {
+  margin-bottom: 0.5rem;
+}
+
+.msg-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.msg-bubble ul,
+.msg-bubble ol {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.msg-bubble li {
+  margin-bottom: 0.3rem;
+}
+
 .msg-user .msg-bubble {
   background: var(--cr-orange);
   color: #fff;

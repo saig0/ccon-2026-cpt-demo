@@ -164,9 +164,12 @@ async function initChat(conversationId) {
         meta.className = 'msg-meta';
         meta.textContent = formatTime(msg.timestamp);
 
-        const bubble = document.createElement('div');
-        bubble.className = 'msg-bubble';
-        bubble.textContent = msg.content;
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+
+    // Render HTML content directly
+    bubble.innerHTML = msg.content;
+
 
         if (msg.sender === 'agent') {
             const avatar = document.createElement('div');
