@@ -508,6 +508,10 @@ a.source-link:hover {
   align-self: flex-start;
 }
 
+.typing-indicator[hidden] {
+  display: none;
+}
+
 .typing-bubble {
   background: var(--surface-600);
   border: 1px solid var(--border-subtle);
