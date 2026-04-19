@@ -16,6 +16,10 @@ spring:
     init:
       mode: always
 
+  jackson:
+    deserialization:
+      REQUIRE_HANDLERS_FOR_JAVA8_TIMES: true
+
 logging:
   level:
     root: warn

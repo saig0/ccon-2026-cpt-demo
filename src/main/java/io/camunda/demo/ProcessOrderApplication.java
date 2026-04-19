@@ -1,5 +1,7 @@
 package io.camunda.demo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.camunda.client.annotation.Deployment;
 import io.camunda.demo.dto.CustomerDto;
 import io.camunda.demo.dto.RobotDto;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @Deployment(resources = "classpath*:/bpmn/**/*.bpmn")
@@ -27,6 +30,13 @@ public class ProcessOrderApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(ProcessOrderApplication.class, args);
+  }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JavaTimeModule());
+    return mapper;
   }
 
   @PostConstruct
