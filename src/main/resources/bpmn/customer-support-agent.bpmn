@@ -40,7 +40,7 @@
         <bpmn:extensionElements>
           <zeebe:taskDefinition type="send-chat-message" />
           <zeebe:ioMapping>
-            <zeebe:input source="=fromAi(toolCall.agentReply, &#34;The message to reply. In HTML format.&#34;)" target="currentMessage" />
+            <zeebe:input source="=fromAi(toolCall.agentReply, &#34;The message to reply. In TEXT format with icons.&#34;)" target="currentMessage" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
         <bpmn:outgoing>Flow_1c80qxp</bpmn:outgoing>
