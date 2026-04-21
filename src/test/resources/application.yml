@@ -6,10 +6,9 @@ logging:
   level:
     root: warn
     io:
-      camunda:
-        demo: debug
-        process:
-          test: info
+      camunda.demo: debug
+      camunda.client: info
+      camunda.process: info
       # Hide default logging from Testcontainers
     org:
       testcontainers: warn
