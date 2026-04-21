@@ -82,6 +82,11 @@ async function initChat(conversationId) {
         if (res.ok) {
             const messages = await res.json();
             messages.forEach((msg) => appendMessage(msg));
+
+            // Show typing indicator if last message is from user
+            if (messages.length > 0 && messages[messages.length - 1].sender === 'user') {
+                showTyping();
+            }
         }
     } catch {
         // ignore, SSE will bring new messages
@@ -164,11 +169,11 @@ async function initChat(conversationId) {
         meta.className = 'msg-meta';
         meta.textContent = formatTime(msg.timestamp);
 
-    const bubble = document.createElement('div');
-    bubble.className = 'msg-bubble';
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
 
-    // Render HTML content directly
-    bubble.innerHTML = msg.content;
+        // Render HTML content directly
+        bubble.innerHTML = msg.content;
 
 
         if (msg.sender === 'agent') {
