@@ -48,11 +48,32 @@ cp .env.example .env
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
 ### Run the Spring Boot process application
 
-### Inspect the process in Camunda 8
+Run the following command in your terminal to start the Spring Boot process application:
+
+```bash
+# Run the Spring Boot app (deploys BPMN, starts Java workers)
+mvn spring-boot:run
+```
+
+### Start a chat session
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+Fill in the form to start a new chat session:
+
+- Your name: `Zee`
+- How can we help you? `I have an issue with my robot. What can I do?`
+
+Available users:
+
+- `Zee`
+- `Luke`
+- `Hiro`
+- `Jean-Luc`
+
+### Inspect the process
 
 Open [http://localhost:8080/operate](http://localhost:8080/operate) to inspect the process instances in Operate (login:
 `demo/demo`).
