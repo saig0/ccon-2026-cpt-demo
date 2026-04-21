@@ -24,8 +24,9 @@ logging:
   level:
     root: warn
     io:
+      camunda.demo: debug
+      camunda.client: info
       camunda:
-        demo: debug
         client:
           impl:
             CamundaCallCredentials: error
