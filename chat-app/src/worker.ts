@@ -4,7 +4,7 @@ import {addMessage} from './store.js';
 interface ChatJobVariables {
     conversationId: string;
     userName: string;
-    currentMessage: string;
+    message: string;
 }
 
 interface AgentResponseEntry {
@@ -71,18 +71,18 @@ export function startWorker(): void {
     client.createJobWorker({
         jobType: 'send-chat-message',
         jobHandler: async (job) => {
-            const {conversationId, userName, currentMessage} =
+            const {conversationId, userName, message} =
                 job.variables as unknown as ChatJobVariables;
 
             addMessage(conversationId, {
                 sender: 'agent',
                 senderName: 'RoboSupport 3000',
-                content: currentMessage,
+                content: message,
             });
 
-            console.log(`[Worker] Send responded to ${conversationId}: "${currentMessage}"`);
+            console.log(`[Worker] Send responded to ${conversationId}: "${message}"`);
 
-            return job.complete({lastResponse: currentMessage});
+            return job.complete({lastResponse: message});
         },
     });
 

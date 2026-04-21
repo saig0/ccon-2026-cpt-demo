@@ -40,7 +40,7 @@ app.post('/api/chat/start', async (req: Request, res: Response) => {
         variables: {
             conversationId,
             userName,
-            currentMessage: initialMessage,
+            message: initialMessage,
         },
     });
 
@@ -73,7 +73,7 @@ app.post('/api/chat/:conversationId/message', async (req: Request, res: Response
     await client.publishMessage({
         name: 'user-message',
         correlationKey: conversationId,
-        variables: {currentMessage: message},
+        variables: {message: message},
     });
 
     console.log(`[Server] User message published for conversation ${conversationId}`);
