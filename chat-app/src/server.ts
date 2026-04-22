@@ -36,7 +36,7 @@ app.post('/api/chat/start', async (req: Request, res: Response) => {
     });
 
     await client.createProcessInstance({
-        processDefinitionId: ProcessDefinitionId.assumeExists('customer-support-agent'),
+        processDefinitionId: ProcessDefinitionId.assumeExists('customer-support-agent-process'),
         variables: {
             conversationId,
             userName,
