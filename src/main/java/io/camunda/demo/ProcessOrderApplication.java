@@ -19,7 +19,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-@Deployment(resources = "classpath*:/bpmn/**/*.bpmn")
+@Deployment(
+    resources = {
+      "classpath*:/bpmn/**/*.bpmn",
+      "classpath*:/bpmn/**/*.dmn",
+      "classpath*:/bpmn/**/*.form"
+    })
 public class ProcessOrderApplication {
 
   private static final Logger LOGGER =
