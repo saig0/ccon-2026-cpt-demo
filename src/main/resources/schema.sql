@@ -46,14 +46,16 @@ CREATE TABLE IF NOT EXISTS knowledge_base_entries (
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS customers (
-    id                 BIGINT          NOT NULL AUTO_INCREMENT,
-    name               VARCHAR(255)    NOT NULL,
-    email              VARCHAR(255)    NOT NULL,
-    address_street     VARCHAR(255)    NOT NULL,
-    address_city       VARCHAR(255)    NOT NULL,
-    address_country    VARCHAR(255)    NOT NULL,
-    payment_method     VARCHAR(50)     NOT NULL,
-    payment_reference  VARCHAR(255)    NOT NULL,
+    id                      BIGINT          NOT NULL AUTO_INCREMENT,
+    name                    VARCHAR(255)    NOT NULL,
+    email                   VARCHAR(255)    NOT NULL,
+    address_street          VARCHAR(255)    NOT NULL,
+    address_city            VARCHAR(255)    NOT NULL,
+    address_country         VARCHAR(255)    NOT NULL,
+    payment_method          VARCHAR(50)     NOT NULL,
+    payment_reference       VARCHAR(255)    NOT NULL,
+    can_buy_robots          BOOLEAN         NOT NULL DEFAULT FALSE,
+    can_buy_security_robots BOOLEAN         NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id)
 );
 

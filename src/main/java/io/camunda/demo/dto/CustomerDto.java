@@ -10,6 +10,8 @@ public record CustomerDto(
     String email,
     AddressDto address,
     PaymentInfoDto paymentInfo,
+    boolean canBuyRobots,
+    boolean canBuySecurityRobots,
     List<OrderDto> orders) {
 
   public static CustomerDto from(Customer customer) {
@@ -20,6 +22,8 @@ public record CustomerDto(
         new AddressDto(
             customer.getAddressStreet(), customer.getAddressCity(), customer.getAddressCountry()),
         new PaymentInfoDto(customer.getPaymentMethod(), customer.getPaymentReference()),
+        customer.isCanBuyRobots(),
+        customer.isCanBuySecurityRobots(),
         customer.getOrders().stream().map(OrderDto::from).toList());
   }
 }
