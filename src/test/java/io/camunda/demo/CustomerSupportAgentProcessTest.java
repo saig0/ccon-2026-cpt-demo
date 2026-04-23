@@ -46,29 +46,15 @@ public class CustomerSupportAgentProcessTest {
             .join();
 
     // when
-    assertThatProcessInstance(processInstance).hasActiveElements(byId("customer-support-agent"));
-
-    processTestContext.completeJobOfAdHocSubProcess(
-        byElementId("customer-support-agent"),
-        result ->
-            result
-                .activateElement("send-agent-reply")
-                .variable("message", "Don't panic. I will help you."));
-
-    assertThatProcessInstance(processInstance).isWaitingForMessage("user-message", CONVERSATION_ID);
-
-    client
-        .newPublishMessageCommand()
-        .messageName("user-message")
-        .correlationKey(CONVERSATION_ID)
-        .variables(Map.of("message", "Thanks, that would be great!"))
-        .send()
-        .join();
-
     processTestContext.completeJobOfAdHocSubProcess(
         byElementId("customer-support-agent"), result -> result.completionConditionFulfilled(true));
 
+    processTestContext.completeJob(
+        byElementId("analyse-conversation"), Map.of("conversation_outcome", "OKAY"));
+
     // then
-    assertThatProcessInstance(processInstance).isCompleted();
+    assertThatProcessInstance(processInstance)
+        .isCompleted()
+        .hasCompletedElementsInOrder(byId("customer-support-agent"), byId("analyse-conversation"));
   }
 }
