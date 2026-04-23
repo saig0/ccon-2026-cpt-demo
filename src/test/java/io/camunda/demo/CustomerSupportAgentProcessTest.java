@@ -50,11 +50,11 @@ public class CustomerSupportAgentProcessTest {
         byElementId("customer-support-agent"), result -> result.completionConditionFulfilled(true));
 
     processTestContext.completeJob(
-        byElementId("analyse-conversation"), Map.of("conversation_outcome", "OKAY"));
+        byElementId("analyze-conversation"), Map.of("conversation_outcome", "OKAY"));
 
     // then
     assertThatProcessInstance(processInstance)
         .isCompleted()
-        .hasCompletedElementsInOrder(byId("customer-support-agent"), byId("analyse-conversation"));
+        .hasCompletedElementsInOrder(byId("customer-support-agent"), byId("analyze-conversation"));
   }
 }
