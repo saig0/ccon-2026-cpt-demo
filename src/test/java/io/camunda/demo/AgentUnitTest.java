@@ -13,10 +13,15 @@ import io.camunda.client.api.search.enums.ElementInstanceType;
 import io.camunda.demo.dto.AddressDto;
 import io.camunda.demo.dto.CustomerDto;
 import io.camunda.demo.dto.PaymentInfoDto;
+import io.camunda.demo.dto.RobotDto;
+import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
+import io.camunda.demo.services.ProductCatalogService;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +42,7 @@ public class AgentUnitTest {
   @Autowired private CamundaProcessTestContext processTestContext;
 
   @MockitoBean private CustomerDatabaseService customerDatabaseService;
+  @MockitoBean private ProductCatalogService productCatalogService;
 
   private ProcessInstanceEvent processInstance;
 
@@ -138,4 +144,41 @@ public class AgentUnitTest {
             CustomerDto.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(customer));
   }
+
+  @Test
+  void shouldLoadProductCatalog() {
+    // given
+    final RobotDto robot =
+        new RobotDto(
+            1L,
+            "C3PO",
+            "1.0",
+            "C-3PO Protocol Droid v1.0",
+            "The original human-cyborg relations droid, fluent in over six million forms of communication. Polite, knowledgeable, and occasionally over-dramatic.",
+            RobotIntent.TRANSLATION,
+            BigDecimal.valueOf(9999.99),
+            List.of());
+
+    final List<RobotDto> robots = List.of(robot);
+
+    when(productCatalogService.findAllRobots()).thenReturn(robots);
+
+    // when
+    processTestContext.completeJobOfAdHocSubProcess(
+        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+        result -> result.activateElement("load-product-catalog"));
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .isActive()
+        .hasCompletedElements(byName("Load product catalog"))
+        .hasCompletedElement(
+            byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        .hasVariableSatisfies(
+            "toolCallResult",
+            RobotList.class,
+            toolCallResult -> assertThat(toolCallResult).isEqualTo(robots));
+  }
+
+  private static class RobotList extends ArrayList<RobotDto> {}
 }
