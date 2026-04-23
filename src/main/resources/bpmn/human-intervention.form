@@ -1,0 +1,54 @@
+{
+  "components": [
+    {
+      "text": "# Human intervention\n\nConversation: [{{conversationId}}]({{coversationLink}})",
+      "type": "text",
+      "layout": {
+        "row": "Row_0otc91b",
+        "columns": null
+      },
+      "id": "Field_0wao8vi"
+    },
+    {
+      "label": "Summary",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_03tz913",
+        "columns": null
+      },
+      "id": "Field_0iz6iyz",
+      "key": "conversation_summary",
+      "readonly": true
+    },
+    {
+      "label": "Recommendation",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_0zhc74o",
+        "columns": null
+      },
+      "id": "Field_0da00hd",
+      "key": "recommendation",
+      "readonly": true
+    },
+    {
+      "label": "Your notes",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_0kp49rp",
+        "columns": null
+      },
+      "id": "Field_130fj4d",
+      "key": "textarea_k8hz3c"
+    }
+  ],
+  "type": "default",
+  "id": "Human-intervention",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.45.0"
+  },
+  "schemaVersion": 19
+}
