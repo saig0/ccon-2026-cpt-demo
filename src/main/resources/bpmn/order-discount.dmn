@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             id="order-discount-definitions"
+             name="Order Discount Definitions"
+             namespace="http://camunda.org/schema/1.0/dmn">
+
+  <decision id="order-discount" name="Order Discount">
+    <decisionTable id="decisionTable_order_discount" hitPolicy="FIRST">
+
+      <input id="input_has_robot" label="Has Robot in Order">
+        <inputExpression id="inputExpression_has_robot" typeRef="boolean">
+          <text>hasRobotInOrder</text>
+        </inputExpression>
+      </input>
+
+      <input id="input_has_upgrade" label="Has Upgrade in Order">
+        <inputExpression id="inputExpression_has_upgrade" typeRef="boolean">
+          <text>hasUpgradeInOrder</text>
+        </inputExpression>
+      </input>
+
+      <input id="input_prev_robots" label="Customer's Previous Robot Count">
+        <inputExpression id="inputExpression_prev_robots" typeRef="integer">
+          <text>customerPreviousRobotCount</text>
+        </inputExpression>
+      </input>
+
+      <input id="input_prev_upgrades" label="Customer's Previous Upgrade Count">
+        <inputExpression id="inputExpression_prev_upgrades" typeRef="integer">
+          <text>customerPreviousUpgradeCount</text>
+        </inputExpression>
+      </input>
+
+      <output id="output_discount" label="Discount (%)" name="discountPercentage" typeRef="integer"/>
+      <output id="output_reason" label="Discount Reason" name="discountReason" typeRef="string"/>
+
+      <!-- Rule 1: Loyalty - 6th or more robot -->
+      <rule id="rule_loyalty_6th_plus">
+        <description>Loyalty: buying the 6th or more robot</description>
+        <inputEntry id="ie_r1_robot"><text>true</text></inputEntry>
+        <inputEntry id="ie_r1_upgrade"><text></text></inputEntry>
+        <inputEntry id="ie_r1_prev_robot"><text>&gt;= 5</text></inputEntry>
+        <inputEntry id="ie_r1_prev_upgrade"><text></text></inputEntry>
+        <outputEntry id="oe_r1_discount"><text>20</text></outputEntry>
+        <outputEntry id="oe_r1_reason"><text>"Loyalty: 6th or more robot"</text></outputEntry>
+      </rule>
+
+      <!-- Rule 2: Bundle + Expand - robot + upgrade when customer already has robots -->
+      <rule id="rule_bundle_expand">
+        <description>Bundle + Expand: robot and upgrade ordered, customer already owns robots</description>
+        <inputEntry id="ie_r2_robot"><text>true</text></inputEntry>
+        <inputEntry id="ie_r2_upgrade"><text>true</text></inputEntry>
+        <inputEntry id="ie_r2_prev_robot"><text>&gt;= 1</text></inputEntry>
+        <inputEntry id="ie_r2_prev_upgrade"><text></text></inputEntry>
+        <outputEntry id="oe_r2_discount"><text>15</text></outputEntry>
+        <outputEntry id="oe_r2_reason"><text>"Bundle + Expand: robot and upgrade for an existing fleet"</text></outputEntry>
+      </rule>
+
+      <!-- Rule 3: Loyalty - 3rd robot -->
+      <rule id="rule_loyalty_3rd">
+        <description>Loyalty: buying the 3rd robot</description>
+        <inputEntry id="ie_r3_robot"><text>true</text></inputEntry>
+        <inputEntry id="ie_r3_upgrade"><text></text></inputEntry>
+        <inputEntry id="ie_r3_prev_robot"><text>2</text></inputEntry>
+        <inputEntry id="ie_r3_prev_upgrade"><text></text></inputEntry>
+        <outputEntry id="oe_r3_discount"><text>10</text></outputEntry>
+        <outputEntry id="oe_r3_reason"><text>"Loyalty: 3rd robot"</text></outputEntry>
+      </rule>
+
+      <!-- Rule 4: Bundle - robot + upgrade, new customer (no previous robots) -->
+      <rule id="rule_bundle">
+        <description>Bundle: robot and upgrade ordered together by a new customer</description>
+        <inputEntry id="ie_r4_robot"><text>true</text></inputEntry>
+        <inputEntry id="ie_r4_upgrade"><text>true</text></inputEntry>
+        <inputEntry id="ie_r4_prev_robot"><text>0</text></inputEntry>
+        <inputEntry id="ie_r4_prev_upgrade"><text></text></inputEntry>
+        <outputEntry id="oe_r4_discount"><text>10</text></outputEntry>
+        <outputEntry id="oe_r4_reason"><text>"Bundle: robot + upgrade"</text></outputEntry>
+      </rule>
+
+      <!-- Rule 5: Loyalty - 2nd robot -->
+      <rule id="rule_loyalty_2nd">
+        <description>Loyalty: buying the 2nd robot</description>
+        <inputEntry id="ie_r5_robot"><text>true</text></inputEntry>
+        <inputEntry id="ie_r5_upgrade"><text></text></inputEntry>
+        <inputEntry id="ie_r5_prev_robot"><text>1</text></inputEntry>
+        <inputEntry id="ie_r5_prev_upgrade"><text></text></inputEntry>
+        <outputEntry id="oe_r5_discount"><text>5</text></outputEntry>
+        <outputEntry id="oe_r5_reason"><text>"Loyalty: 2nd robot"</text></outputEntry>
+      </rule>
+
+      <!-- Rule 6: Expand - buying a new robot version (customer already owns 3–4 robots).
+           Customers with exactly 1 previous robot are handled by Rule 5 (Loyalty 2nd),
+           exactly 2 by Rule 3 (Loyalty 3rd), and 5 or more by Rule 1 (Loyalty 6th+). -->
+      <rule id="rule_expand_robot">
+        <description>Expand: buying a new robot version, customer already owns 3 or 4 robots</description>
+        <inputEntry id="ie_r6_robot"><text>true</text></inputEntry>
+        <inputEntry id="ie_r6_upgrade"><text></text></inputEntry>
+        <inputEntry id="ie_r6_prev_robot"><text>[3..4]</text></inputEntry>
+        <inputEntry id="ie_r6_prev_upgrade"><text></text></inputEntry>
+        <outputEntry id="oe_r6_discount"><text>10</text></outputEntry>
+        <outputEntry id="oe_r6_reason"><text>"Expand: new robot version"</text></outputEntry>
+      </rule>
+
+      <!-- Rule 7: Expand - buying a second upgrade -->
+      <rule id="rule_expand_upgrade">
+        <description>Expand: buying an additional upgrade, customer already owns upgrades</description>
+        <inputEntry id="ie_r7_robot"><text></text></inputEntry>
+        <inputEntry id="ie_r7_upgrade"><text>true</text></inputEntry>
+        <inputEntry id="ie_r7_prev_robot"><text></text></inputEntry>
+        <inputEntry id="ie_r7_prev_upgrade"><text>&gt;= 1</text></inputEntry>
+        <outputEntry id="oe_r7_discount"><text>5</text></outputEntry>
+        <outputEntry id="oe_r7_reason"><text>"Expand: additional upgrade"</text></outputEntry>
+      </rule>
+
+      <!-- Rule 8: Default - no discount -->
+      <rule id="rule_no_discount">
+        <description>No applicable discount</description>
+        <inputEntry id="ie_r8_robot"><text></text></inputEntry>
+        <inputEntry id="ie_r8_upgrade"><text></text></inputEntry>
+        <inputEntry id="ie_r8_prev_robot"><text></text></inputEntry>
+        <inputEntry id="ie_r8_prev_upgrade"><text></text></inputEntry>
+        <outputEntry id="oe_r8_discount"><text>0</text></outputEntry>
+        <outputEntry id="oe_r8_reason"><text>"No discount"</text></outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape dmnElementRef="order-discount">
+        <dc:Bounds height="80" width="180" x="160" y="100"/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+
+</definitions>
