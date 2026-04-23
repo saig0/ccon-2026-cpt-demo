@@ -10,12 +10,10 @@ import static org.mockito.Mockito.when;
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
 import io.camunda.client.api.search.enums.ElementInstanceType;
-import io.camunda.demo.dto.AddressDto;
-import io.camunda.demo.dto.CustomerDto;
-import io.camunda.demo.dto.PaymentInfoDto;
-import io.camunda.demo.dto.RobotDto;
+import io.camunda.demo.dto.*;
 import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
+import io.camunda.demo.services.KnowledgeBaseService;
 import io.camunda.demo.services.ProductCatalogService;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
@@ -43,6 +41,7 @@ public class AgentUnitTest {
 
   @MockitoBean private CustomerDatabaseService customerDatabaseService;
   @MockitoBean private ProductCatalogService productCatalogService;
+  @MockitoBean private KnowledgeBaseService knowledgeBaseService;
 
   private ProcessInstanceEvent processInstance;
 
@@ -76,6 +75,7 @@ public class AgentUnitTest {
     final JobWorkerMock sendChatMessageMockWorker =
         processTestContext.mockJobWorker("send-chat-message").thenComplete();
 
+    // when
     processTestContext.completeJobOfAdHocSubProcess(
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
         result ->
@@ -83,7 +83,6 @@ public class AgentUnitTest {
                 .activateElement("send-agent-reply")
                 .variable("toolCall", Map.of("agentReply", agentReply)));
 
-    // when
     assertThatProcessInstance(processInstance).isWaitingForMessage("user-message", CONVERSATION_ID);
 
     client
@@ -148,18 +147,17 @@ public class AgentUnitTest {
   @Test
   void shouldLoadProductCatalog() {
     // given
-    final RobotDto robot =
-        new RobotDto(
-            1L,
-            "C3PO",
-            "1.0",
-            "C-3PO Protocol Droid v1.0",
-            "The original human-cyborg relations droid, fluent in over six million forms of communication. Polite, knowledgeable, and occasionally over-dramatic.",
-            RobotIntent.TRANSLATION,
-            BigDecimal.valueOf(9999.99),
-            List.of());
-
-    final List<RobotDto> robots = List.of(robot);
+    final List<RobotDto> robots =
+        List.of(
+            new RobotDto(
+                1L,
+                "C3PO",
+                "1.0",
+                "C-3PO Protocol Droid v1.0",
+                "The original human-cyborg relations droid, fluent in over six million forms of communication. Polite, knowledgeable, and occasionally over-dramatic.",
+                RobotIntent.TRANSLATION,
+                BigDecimal.valueOf(9999.99),
+                List.of()));
 
     when(productCatalogService.findAllRobots()).thenReturn(robots);
 
@@ -180,5 +178,40 @@ public class AgentUnitTest {
             toolCallResult -> assertThat(toolCallResult).isEqualTo(robots));
   }
 
+  @Test
+  void shouldLoadKnowledgeBase() {
+    // given
+    final List<KnowledgeBaseEntryDto> knowledgeBaseEntries =
+        List.of(
+            new KnowledgeBaseEntryDto(
+                4L,
+                "C-3PO is talking too much and cannot be silenced.",
+                List.of("c3po", "verbosity", "talking", "silence"),
+                "This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%."));
+
+    when(knowledgeBaseService.findByKeyword("c3po")).thenReturn(knowledgeBaseEntries);
+
+    // when
+    processTestContext.completeJobOfAdHocSubProcess(
+        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+        result ->
+            result
+                .activateElement("seach-knowledge-base")
+                .variable("toolCall", Map.of("keyword", "c3po")));
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .isActive()
+        .hasCompletedElements(byName("Search knowledge base"))
+        .hasCompletedElement(
+            byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        .hasVariableSatisfies(
+            "toolCallResult",
+            KnowledgeBaseEntryList.class,
+            toolCallResult -> assertThat(toolCallResult).isEqualTo(knowledgeBaseEntries));
+  }
+
   private static class RobotList extends ArrayList<RobotDto> {}
+
+  private static class KnowledgeBaseEntryList extends ArrayList<KnowledgeBaseEntryDto> {}
 }
