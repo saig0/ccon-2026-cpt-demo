@@ -386,37 +386,42 @@ VALUES (18, 19), -- Tactical Analysis Matrix
 -- Camunda Robotics – Customer Database: Example Data
 -- =============================================================================
 -- Customers:
---   1 – Zee          (Berlin, Germany)          robot: WALL-E
---   2 – Luke         (Tatooine, Outer Rim)      robots: C3PO, R2-D2
---   3 – Philip J.    (New York, USA)            robot: Bender
---   4 – Hiro         (San Francisco, USA)       robot: Baymax
---   5 – Jean-Luc     (Enterprise, Deep Space)   robot: Data
+--   1 – Zee          (Berlin, Germany)          robot: WALL-E            canBuyRobots: true,  canBuySecurityRobots: false
+--   2 – Luke         (Tatooine, Outer Rim)      robots: C3PO, R2-D2     canBuyRobots: true,  canBuySecurityRobots: false
+--   3 – Philip J.    (New York, USA)            robot: Bender            canBuyRobots: true,  canBuySecurityRobots: false
+--   4 – Hiro         (San Francisco, USA)       robot: Baymax            canBuyRobots: true,  canBuySecurityRobots: false
+--   5 – Jean-Luc     (Enterprise, Deep Space)   robot: Data              canBuyRobots: true,  canBuySecurityRobots: true
 -- =============================================================================
 
 -- ---------------------------------------------------------------------------
 -- Customers
 -- ---------------------------------------------------------------------------
 INSERT INTO customers (id, name, email, address_street, address_city, address_country,
-                       payment_method, payment_reference)
+                       payment_method, payment_reference, can_buy_robots, can_buy_security_robots)
 VALUES (1, 'Zee', 'zee@camunda-robotics.io',
         'Zossener Str. 55-58', 'Berlin', 'Germany',
-        'CREDIT_CARD', '**** **** **** 4200'),
+        'CREDIT_CARD', '**** **** **** 4200',
+        TRUE, FALSE),
 
        (2, 'Luke', 'luke.skywalker@tatooine.galaxy',
         'Moisture Farm, Jundland Wastes', 'Tatooine', 'Outer Rim Territories',
-        'GALACTIC_CREDITS', 'GC-77890-SKY'),
+        'GALACTIC_CREDITS', 'GC-77890-SKY',
+        TRUE, FALSE),
 
        (3, 'Philip J.', 'p.fry@planet-express.com',
         '57th Street', 'New York', 'USA',
-        'CREDIT_CARD', '**** **** **** 3000'),
+        'CREDIT_CARD', '**** **** **** 3000',
+        TRUE, FALSE),
 
        (4, 'Hiro', 'hiro.hamada@sfit.edu',
         '1234 Lucky Cat Cafe, Akihabara District', 'San Francisco', 'USA',
-        'PAYPAL', 'hiro.hamada@sfit.edu'),
+        'PAYPAL', 'hiro.hamada@sfit.edu',
+        TRUE, FALSE),
 
        (5, 'Jean-Luc', 'picard@starfleet.fed',
         'Ready Room, Deck 8', 'USS Enterprise NCC-1701-D', 'United Federation of Planets',
-        'FEDERATION_CREDITS', 'FC-1701D-CAP');
+        'FEDERATION_CREDITS', 'FC-1701D-CAP',
+        TRUE, TRUE);
 
 -- ---------------------------------------------------------------------------
 -- Orders

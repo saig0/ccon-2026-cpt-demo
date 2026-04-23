@@ -15,7 +15,15 @@
     <bpmn:startEvent id="StartEvent_1" name="Order received">
       <bpmn:outgoing>Flow_1mpm94e</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_1mpm94e" sourceRef="StartEvent_1" targetRef="Activity_0tw2fu0"/>
+    <bpmn:sequenceFlow id="Flow_1mpm94e" sourceRef="StartEvent_1" targetRef="Activity_validate_order"/>
+    <bpmn:serviceTask id="Activity_validate_order" name="Validate order">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="validate-order"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1mpm94e</bpmn:incoming>
+      <bpmn:outgoing>Flow_validate_to_inventory</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_validate_to_inventory" sourceRef="Activity_validate_order" targetRef="Activity_0tw2fu0"/>
     <bpmn:sequenceFlow id="Flow_0udsae3" sourceRef="Activity_0tw2fu0" targetRef="Activity_1ppsbgi"/>
     <bpmn:sequenceFlow id="Flow_0g2bnlp" sourceRef="Activity_1ppsbgi" targetRef="Activity_08pg6im"/>
     <bpmn:endEvent id="Event_0f9sbko" name="Order shipped">
@@ -26,7 +34,7 @@
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="check-inventory"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1mpm94e</bpmn:incoming>
+      <bpmn:incoming>Flow_validate_to_inventory</bpmn:incoming>
       <bpmn:outgoing>Flow_0udsae3</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_1ppsbgi" name="Charge payment method">
@@ -52,39 +60,47 @@
           <dc:Bounds x="164" y="255" width="73" height="14"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0f9sbko_di" bpmnElement="Event_0f9sbko">
-        <dc:Bounds x="752" y="212" width="36" height="36"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="735" y="255" width="70" height="14"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0k3wkox_di" bpmnElement="Activity_0tw2fu0">
+      <bpmndi:BPMNShape id="Activity_validate_order_di" bpmnElement="Activity_validate_order">
         <dc:Bounds x="270" y="190" width="100" height="80"/>
         <bpmndi:BPMNLabel/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_09v1se8_di" bpmnElement="Activity_1ppsbgi">
+      <bpmndi:BPMNShape id="Event_0f9sbko_di" bpmnElement="Event_0f9sbko">
+        <dc:Bounds x="912" y="212" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="895" y="255" width="70" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0k3wkox_di" bpmnElement="Activity_0tw2fu0">
         <dc:Bounds x="430" y="190" width="100" height="80"/>
         <bpmndi:BPMNLabel/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0eyyzvu_di" bpmnElement="Activity_08pg6im">
+      <bpmndi:BPMNShape id="Activity_09v1se8_di" bpmnElement="Activity_1ppsbgi">
         <dc:Bounds x="590" y="190" width="100" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0eyyzvu_di" bpmnElement="Activity_08pg6im">
+        <dc:Bounds x="750" y="190" width="100" height="80"/>
         <bpmndi:BPMNLabel/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1mpm94e_di" bpmnElement="Flow_1mpm94e">
         <di:waypoint x="218" y="230"/>
         <di:waypoint x="270" y="230"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0udsae3_di" bpmnElement="Flow_0udsae3">
+      <bpmndi:BPMNEdge id="Flow_validate_to_inventory_di" bpmnElement="Flow_validate_to_inventory">
         <di:waypoint x="370" y="230"/>
         <di:waypoint x="430" y="230"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0g2bnlp_di" bpmnElement="Flow_0g2bnlp">
+      <bpmndi:BPMNEdge id="Flow_0udsae3_di" bpmnElement="Flow_0udsae3">
         <di:waypoint x="530" y="230"/>
         <di:waypoint x="590" y="230"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1asktip_di" bpmnElement="Flow_1asktip">
+      <bpmndi:BPMNEdge id="Flow_0g2bnlp_di" bpmnElement="Flow_0g2bnlp">
         <di:waypoint x="690" y="230"/>
-        <di:waypoint x="752" y="230"/>
+        <di:waypoint x="750" y="230"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1asktip_di" bpmnElement="Flow_1asktip">
+        <di:waypoint x="850" y="230"/>
+        <di:waypoint x="912" y="230"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

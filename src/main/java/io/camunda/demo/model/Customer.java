@@ -46,6 +46,17 @@ public class Customer {
   @Column(nullable = false)
   private String paymentReference;
 
+  /** Whether the customer is allowed to purchase robots. */
+  @Column(nullable = false)
+  private boolean canBuyRobots;
+
+  /**
+   * Whether the customer is allowed to purchase security robots (intent: GUARD).
+   * Requires an additional compliance check.
+   */
+  @Column(nullable = false)
+  private boolean canBuySecurityRobots;
+
   @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Order> orders = new ArrayList<>();
 
@@ -54,7 +65,8 @@ public class Customer {
 
   public Customer(String name, String email,
       String addressStreet, String addressCity, String addressCountry,
-      String paymentMethod, String paymentReference) {
+      String paymentMethod, String paymentReference,
+      boolean canBuyRobots, boolean canBuySecurityRobots) {
     this.name = name;
     this.email = email;
     this.addressStreet = addressStreet;
@@ -62,6 +74,8 @@ public class Customer {
     this.addressCountry = addressCountry;
     this.paymentMethod = paymentMethod;
     this.paymentReference = paymentReference;
+    this.canBuyRobots = canBuyRobots;
+    this.canBuySecurityRobots = canBuySecurityRobots;
   }
 
   public Long getId() {
@@ -122,6 +136,22 @@ public class Customer {
 
   public void setPaymentReference(String paymentReference) {
     this.paymentReference = paymentReference;
+  }
+
+  public boolean isCanBuyRobots() {
+    return canBuyRobots;
+  }
+
+  public void setCanBuyRobots(boolean canBuyRobots) {
+    this.canBuyRobots = canBuyRobots;
+  }
+
+  public boolean isCanBuySecurityRobots() {
+    return canBuySecurityRobots;
+  }
+
+  public void setCanBuySecurityRobots(boolean canBuySecurityRobots) {
+    this.canBuySecurityRobots = canBuySecurityRobots;
   }
 
   public List<Order> getOrders() {
