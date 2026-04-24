@@ -2,7 +2,6 @@ package io.camunda.demo;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
-import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
 import static java.util.Map.entry;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -22,14 +21,15 @@ import io.camunda.demo.services.KnowledgeBaseService;
 import io.camunda.demo.services.ProductCatalogService;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
+import io.camunda.process.test.api.assertions.ProcessInstanceSelectors;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -38,25 +38,28 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * Integration test for the customer support agent process using a real LLM (AWS Bedrock) and mock
  * data services.
  *
- * <p>The LLM agent drives the conversation naturally via the {@code connector-agentic-ai}
- * connector. Data services ({@link CustomerDatabaseService}, {@link KnowledgeBaseService},
- * {@link ProductCatalogService}) are replaced with Mockito mocks for full control of the input
- * data.
- *
  * <p>Scenario: User Hiro reports that his robot is losing air. The agent loads his customer data
  * (Baymax), searches the knowledge base for a solution, and replies with the fix.
  *
- * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and
- * {@code AWS_BEDROCK_SECRET_KEY} to be set.
+ * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and {@code
+ * AWS_BEDROCK_SECRET_KEY} to be set.
  */
 @SpringBootTest(
     properties = {
-      // Enable the AI Agent job-worker connector so the real LLM handles the conversation loop
-      "camunda.connector.agenticai.aiagent.job-worker.enabled=true"
+      // Enable the AI connector
+      "camunda.process-test.runtime-mode=managed",
+      "camunda.process-test.connectors-enabled=true",
+      // Set connector secrets for the AI connector
+      "camunda.process-test.connectors-secrets.AWS_BEDROCK_ACCESS_KEY=${AWS_BEDROCK_ACCESS_KEY}",
+      "camunda.process-test.connectors-secrets.AWS_BEDROCK_SECRET_KEY=${AWS_BEDROCK_SECRET_KEY}",
+      // Configure the judge for assertions
+      "camunda.process-test.judge.chat-model.provider=amazon-bedrock",
+      "camunda.process-test.judge.chat-model.model=eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "camunda.process-test.judge.chat-model.region=eu-central-1",
+      "camunda.process-test.judge.chat-model.credentials.access-key=${AWS_BEDROCK_ACCESS_KEY}",
+      "camunda.process-test.judge.chat-model.credentials.secret-key=${AWS_BEDROCK_SECRET_KEY}"
     })
 @CamundaSpringProcessTest
-@EnabledIfEnvironmentVariable(named = "AWS_BEDROCK_ACCESS_KEY", matches = ".+")
-@EnabledIfEnvironmentVariable(named = "AWS_BEDROCK_SECRET_KEY", matches = ".+")
 public class AgentIntegrationWithMockServicesTest {
 
   private static final String USER_NAME = "Hiro";
@@ -85,6 +88,7 @@ public class AgentIntegrationWithMockServicesTest {
             RobotIntent.HEALTHCARE,
             BigDecimal.valueOf(6999.99),
             List.of());
+    when(productCatalogService.findAllRobots()).thenReturn(List.of(baymax));
 
     final OrderDto order =
         new OrderDto(
@@ -118,6 +122,25 @@ public class AgentIntegrationWithMockServicesTest {
                     + "listening for hissing, seal it with industrial-strength duct tape, and "
                     + "schedule a full reinflation."));
     when(knowledgeBaseService.findByKeyword(anyString())).thenReturn(kbEntries);
+
+    processTestContext
+        .when(
+            () ->
+                assertThatProcessInstance(
+                        ProcessInstanceSelectors.byProcessId(
+                            CustomerSupportAgentProcess.PROCESS_ID))
+                    .isWaitingForMessage("user-message", CONVERSATION_ID))
+        .as("Mock user reply")
+        .then(
+            () ->
+                client
+                    .newPublishMessageCommand()
+                    .messageName("user-message")
+                    .correlationKey(CONVERSATION_ID)
+                    .variables(
+                        Map.of("message", "Thank you, that fixed it! I don't need any more help."))
+                    .send()
+                    .join());
   }
 
   @Test
@@ -130,8 +153,8 @@ public class AgentIntegrationWithMockServicesTest {
             .latestVersion()
             .variables(
                 Map.ofEntries(
-                    entry("customerName", USER_NAME),
-                    entry("userRequest", USER_REQUEST),
+                    entry("userName", USER_NAME),
+                    entry("message", USER_REQUEST),
                     entry("conversationId", CONVERSATION_ID)))
             .send()
             .join();
@@ -140,28 +163,23 @@ public class AgentIntegrationWithMockServicesTest {
     //   1. loads customer data for Hiro
     //   2. searches knowledge base for a solution
     //   3. calls send-agent-reply with the fix and waits for user input
-    assertThatProcessInstance(processInstance)
-        .isWaitingForMessage("user-message", CONVERSATION_ID);
-
-    // when - the user confirms the issue is resolved
-    client
-        .newPublishMessageCommand()
-        .messageName("user-message")
-        .correlationKey(CONVERSATION_ID)
-        .variables(Map.of("message", "Thank you, that fixed it! I don't need any more help."))
-        .send()
-        .join();
-
-    // when - the LLM ends the conversation; analyze-conversation is completed manually
-    //   (the outbound connector is disabled in test configuration to allow direct completion)
-    processTestContext.completeJob(
-        byElementId("analyze-conversation"), Map.of("conversation_outcome", "OKAY"));
 
     // then
     assertThatProcessInstance(processInstance)
-        .isCompleted()
+        .withAssertionTimeout(Duration.ofMinutes(2))
         .hasCompletedElementsInOrder(
             byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
             byId("analyze-conversation"));
+
+    assertThatProcessInstance(processInstance)
+        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasLocalVariableSatisfiesJudge(
+            byId("send-agent-reply"),
+            "message",
+            """
+              The reply should be friendly and professional. It should contains: \
+              a greeting to 'Hiro', \
+              confirm that the issue is about Baymax, \
+              propose a solution using a tape.""");
   }
 }

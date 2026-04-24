@@ -83,21 +83,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.camunda.connector</groupId>
-            <artifactId>connector-agentic-ai</artifactId>
-            <version>8.9.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- EL implementation required by Hibernate Validator when connector-agentic-ai is on the classpath -->
-        <dependency>
-            <groupId>org.glassfish.expressly</groupId>
-            <artifactId>expressly</artifactId>
-            <version>6.0.0</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>

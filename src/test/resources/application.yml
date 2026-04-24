@@ -20,17 +20,6 @@ spring:
 camunda:
   process-test:
     runtime-mode: shared
-  connector:
-    agenticai:
-      aiagent:
-        job-worker:
-          # Disabled by default so existing unit/process tests can manually drive the agent.
-          # Enabled explicitly in AgentIntegration*Test via @SpringBootTest properties.
-          enabled: false
-        outbound-connector:
-          # Disabled so the analyze-conversation task can be completed manually in all tests
-          # via processTestContext.completeJob.
-          enabled: false
 
 logging:
   level:
