@@ -9,6 +9,7 @@ logging:
       camunda.demo: debug
       camunda.client: info
       camunda.process: info
+      camunda.connector: info
       # Hide default logging from Testcontainers
     org:
       testcontainers: warn

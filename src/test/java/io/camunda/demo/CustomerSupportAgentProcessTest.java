@@ -39,8 +39,8 @@ public class CustomerSupportAgentProcessTest {
             .latestVersion()
             .variables(
                 Map.ofEntries(
-                    entry("customerName", "Luke"),
-                    entry("userRequest", "I have an issue with my robots"),
+                    entry("userName", "Luke"),
+                    entry("message", "I have an issue with my robots"),
                     entry("conversationId", CONVERSATION_ID)))
             .send()
             .join();
