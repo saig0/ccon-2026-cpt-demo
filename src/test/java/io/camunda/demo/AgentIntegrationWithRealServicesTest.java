@@ -12,19 +12,32 @@ import io.camunda.process.test.api.CamundaSpringProcessTest;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Integration test for the customer support agent process using an LLM (simulated) and the real
- * data services backed by the H2 database pre-loaded with {@code data.sql}.
+ * Integration test for the customer support agent process using a real LLM (AWS Bedrock) and the
+ * real data services backed by the H2 database pre-loaded with {@code data.sql}.
+ *
+ * <p>The LLM agent drives the conversation naturally via the {@code connector-agentic-ai}
+ * connector. Customer, product and knowledge-base data are read from the real in-memory database,
+ * seeded by {@code src/main/resources/data.sql}.
  *
  * <p>Scenario: User Hiro reports that his robot is losing air. The agent loads his customer data
- * from the real database, searches the knowledge base for a solution, and replies with the fix for
- * Baymax's air loss.
+ * (Baymax), searches the knowledge base for a solution, and replies with the fix.
+ *
+ * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and
+ * {@code AWS_BEDROCK_SECRET_KEY} to be set.
  */
-@SpringBootTest
+@SpringBootTest(
+    properties = {
+      // Enable the AI Agent job-worker connector so the real LLM handles the conversation loop
+      "camunda.connector.agenticai.aiagent.job-worker.enabled=true"
+    })
 @CamundaSpringProcessTest
+@EnabledIfEnvironmentVariable(named = "AWS_BEDROCK_ACCESS_KEY", matches = ".+")
+@EnabledIfEnvironmentVariable(named = "AWS_BEDROCK_SECRET_KEY", matches = ".+")
 public class AgentIntegrationWithRealServicesTest {
 
   private static final String USER_NAME = "Hiro";
@@ -55,52 +68,25 @@ public class AgentIntegrationWithRealServicesTest {
             .send()
             .join();
 
-    assertThatProcessInstance(processInstance)
-        .hasActiveElements(byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID));
-
-    // when - Step 1: LLM agent loads customer data for Hiro (from data.sql)
-    processTestContext.completeJobOfAdHocSubProcess(
-        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-        result ->
-            result
-                .activateElement("load-customer-data")
-                .variable("toolCall", Map.of("customerName", USER_NAME)));
-
-    // when - Step 2: LLM agent searches the knowledge base with keyword "air" (from data.sql)
-    processTestContext.completeJobOfAdHocSubProcess(
-        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-        result ->
-            result
-                .activateElement("seach-knowledge-base")
-                .variable("toolCall", Map.of("keyword", "air")));
-
-    // when - Step 3: LLM agent sends a reply to the user with the solution
-    final String agentReply =
-        "I found the issue! Baymax is losing air due to a hole in his inflatable chassis. "
-            + "Fix the hole with duct tape and schedule a full reinflation.";
-    processTestContext.completeJobOfAdHocSubProcess(
-        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-        result ->
-            result
-                .activateElement("send-agent-reply")
-                .variable("toolCall", Map.of("agentReply", agentReply)));
-
+    // when - the LLM agent (via connector-agentic-ai) runs the conversation loop using real
+    //   customer data (Hiro + Baymax from data.sql) and real knowledge base entries:
+    //   1. loads Hiro's customer data including his Baymax v1.0 order
+    //   2. searches the knowledge base for a solution (Baymax air-loss entry)
+    //   3. calls send-agent-reply with the fix and waits for user input
     assertThatProcessInstance(processInstance)
         .isWaitingForMessage("user-message", CONVERSATION_ID);
 
+    // when - the user confirms the issue is resolved
     client
         .newPublishMessageCommand()
         .messageName("user-message")
         .correlationKey(CONVERSATION_ID)
-        .variables(Map.of("message", "Thank you, that fixed it!"))
+        .variables(Map.of("message", "Thank you, that fixed it! I don't need any more help."))
         .send()
         .join();
 
-    // when - Step 4: LLM agent ends the conversation
-    processTestContext.completeJobOfAdHocSubProcess(
-        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-        result -> result.completionConditionFulfilled(true));
-
+    // when - the LLM ends the conversation; analyze-conversation is completed manually
+    //   (the outbound connector is disabled in test configuration to allow direct completion)
     processTestContext.completeJob(
         byElementId("analyze-conversation"), Map.of("conversation_outcome", "OKAY"));
 

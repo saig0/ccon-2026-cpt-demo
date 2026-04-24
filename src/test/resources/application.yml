@@ -1,6 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:product-catalog;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  sql:
+    init:
+      mode: always
+      # Allow SQL init to run in all contexts sharing the same in-memory H2 database.
+      # When a second context starts, data.sql may fail on duplicate keys because the
+      # data is already there from the first context. That is safe to ignore.
+      continue-on-error: true
+
 camunda:
   process-test:
     runtime-mode: shared
+  connector:
+    agenticai:
+      aiagent:
+        job-worker:
+          # Disabled by default so existing unit/process tests can manually drive the agent.
+          # Enabled explicitly in AgentIntegration*Test via @SpringBootTest properties.
+          enabled: false
+        outbound-connector:
+          # Disabled so the analyze-conversation task can be completed manually in all tests
+          # via processTestContext.completeJob.
+          enabled: false
 
 logging:
   level:
@@ -9,6 +39,7 @@ logging:
       camunda.demo: debug
       camunda.client: info
       camunda.process: info
+      camunda.connector: info
       # Hide default logging from Testcontainers
     org:
       testcontainers: warn
