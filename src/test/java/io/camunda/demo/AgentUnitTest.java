@@ -58,6 +58,7 @@ public class AgentUnitTest {
                     entry("userRequest", "I have an issue with my robot."),
                     entry("conversationId", CONVERSATION_ID)))
             .startBeforeElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
+            .terminateAfterElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
             .send()
             .join();
 
