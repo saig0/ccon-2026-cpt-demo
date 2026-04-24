@@ -9,6 +9,7 @@ import io.camunda.client.api.response.ProcessInstanceEvent;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.assertions.ProcessInstanceSelectors;
+import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
 import java.time.Duration;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +59,8 @@ public class AgentIntegrationWithRealServicesTest {
 
   @BeforeEach
   void setupMocks() {
-    processTestContext.mockJobWorker("send-chat-message").thenComplete();
+    JobWorkerMock sendChatMessageMock =
+        processTestContext.mockJobWorker("send-chat-message").thenComplete();
 
     processTestContext
         .when(
@@ -69,15 +71,27 @@ public class AgentIntegrationWithRealServicesTest {
                     .isWaitingForMessage("user-message", CONVERSATION_ID))
         .as("Mock user reply")
         .then(
-            () ->
-                client
-                    .newPublishMessageCommand()
-                    .messageName("user-message")
-                    .correlationKey(CONVERSATION_ID)
-                    .variables(
-                        Map.of("message", "Thank you, that fixed it! I don't need any more help."))
-                    .send()
-                    .join());
+            () -> {
+              final String lastAgentReply =
+                  sendChatMessageMock
+                      .getActivatedJobs()
+                      .getLast()
+                      .getVariable("message")
+                      .toString();
+
+              final String userReply =
+                  lastAgentReply.toLowerCase().contains("tape")
+                      ? "Thank you, that fixed it!"
+                      : "That didn't work, I'm still having the issue.";
+
+              client
+                  .newPublishMessageCommand()
+                  .messageName("user-message")
+                  .correlationKey(CONVERSATION_ID)
+                  .variables(Map.of("message", userReply))
+                  .send()
+                  .join();
+            });
   }
 
   @Test
