@@ -54,8 +54,8 @@ public class AgentUnitTest {
             .latestVersion()
             .variables(
                 Map.ofEntries(
-                    entry("customerName", USER_NAME),
-                    entry("userRequest", "I have an issue with my robot."),
+                    entry("userName", USER_NAME),
+                    entry("message", "I have an issue with my robot."),
                     entry("conversationId", CONVERSATION_ID)))
             .startBeforeElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
             .terminateAfterElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
@@ -197,7 +197,7 @@ public class AgentUnitTest {
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
         result ->
             result
-                .activateElement("seach-knowledge-base")
+                .activateElement("search-knowledge-base")
                 .variable("toolCall", Map.of("keyword", "c3po")));
 
     // then

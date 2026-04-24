@@ -56,7 +56,7 @@
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:serviceTask>
-      <bpmn:serviceTask id="seach-knowledge-base" name="Search knowledge base">
+      <bpmn:serviceTask id="search-knowledge-base" name="Search knowledge base">
         <bpmn:documentation>Use this tool to search the knowledge base about known problems and solutions.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:taskDefinition type="search-knowledge-base" />
@@ -284,7 +284,7 @@
       <bpmndi:BPMNShape id="Activity_0zg515l_di" bpmnElement="load-product-catalog">
         <dc:Bounds x="640" y="330" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_03jguje_di" bpmnElement="seach-knowledge-base">
+      <bpmndi:BPMNShape id="Activity_03jguje_di" bpmnElement="search-knowledge-base">
         <dc:Bounds x="520" y="330" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0ekpygc_di" bpmnElement="Event_08njjqe">
