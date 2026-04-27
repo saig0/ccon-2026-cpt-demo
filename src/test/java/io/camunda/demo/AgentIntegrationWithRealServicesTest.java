@@ -90,12 +90,11 @@ public class AgentIntegrationWithRealServicesTest {
 
     @Override
     public void testFailed(ExtensionContext context, @Nullable Throwable cause) {
-      final String messages =
-          String.join(
-              "\n=======================================\n", conversationLogsSupplier.get());
+      final List<String> messages = conversationLogsSupplier.get();
       LOGGER.info(
-          "Test failed. Dumping conversation logs: \n=======================================\n{}",
-          messages);
+          "Test failed. Dumping conversation logs: (size: {}) \n=======================================\n{}",
+          messages.size(),
+          String.join("\n=======================================\n"));
     }
   }
 
