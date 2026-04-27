@@ -2,27 +2,32 @@ package io.camunda.demo;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
-import static java.util.Map.entry;
+import static io.camunda.process.test.api.assertions.ElementSelectors.byName;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
+import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
-import io.camunda.process.test.api.assertions.ProcessInstanceSelectors;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
 import java.time.Duration;
-import java.util.Map;
+import java.util.List;
+import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.TestWatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Integration test for the customer support agent process using a real LLM (AWS Bedrock) and the
  * real data services backed by the H2 database pre-loaded with {@code data.sql}.
- *
- * <p>Scenario: User Hiro reports that his robot is losing air. The agent loads his customer data
- * (Baymax), searches the knowledge base for a solution, and replies with the fix.
  *
  * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and {@code
  * AWS_BEDROCK_SECRET_KEY} to be set.
@@ -50,25 +55,123 @@ import org.springframework.boot.test.context.SpringBootTest;
 @CamundaSpringProcessTest
 public class AgentIntegrationWithRealServicesTest {
 
-  private static final String USER_NAME = "Hiro";
-  private static final String CONVERSATION_ID = "conversation-hiro-real-1";
-  private static final String USER_REQUEST = "My robot is losing air";
+  private static final Runnable END_CONVERSATION =
+      () -> {
+        // end the conversation
+      };
 
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
 
+  private CustomerSupportAgentProcessUtil processUtil;
+
+  private JobWorkerMock sendChatMessageMock;
+
+  @RegisterExtension
+  private final ConversationLogger conversationLogger =
+      new ConversationLogger(
+          () ->
+              sendChatMessageMock.getActivatedJobs().stream()
+                  .map(job -> (String) job.getVariable("message"))
+                  .toList());
+
   @BeforeEach
   void setupMocks() {
-    JobWorkerMock sendChatMessageMock =
-        processTestContext.mockJobWorker("send-chat-message").thenComplete();
+    sendChatMessageMock = processTestContext.mockJobWorker("send-chat-message").thenComplete();
 
+    processUtil = new CustomerSupportAgentProcessUtil(client, "conversation-1");
+  }
+
+  private static final class ConversationLogger implements TestWatcher {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConversationLogger.class);
+
+    private final Supplier<List<String>> conversationLogsSupplier;
+
+    private ConversationLogger(Supplier<List<String>> conversationLogsSupplier) {
+      this.conversationLogsSupplier = conversationLogsSupplier;
+    }
+
+    @Override
+    public void testFailed(ExtensionContext context, @Nullable Throwable cause) {
+      final List<String> messages = conversationLogsSupplier.get();
+      LOGGER.info(
+          "Test failed. Dumping conversation logs: (size: {}) \n=======================================\n{}",
+          messages.size(),
+          String.join("\n=======================================\n", messages));
+    }
+  }
+
+  @Test
+  void shouldResolveProblem() {
+    // given
+    final ProcessInstanceEvent processInstance =
+        processUtil.createProcessInstance("Hiro", "My robot is losing air");
+
+    // when
     processTestContext
-        .when(
-            () ->
-                assertThatProcessInstance(
-                        ProcessInstanceSelectors.byProcessId(
-                            CustomerSupportAgentProcess.PROCESS_ID))
-                    .isWaitingForMessage("user-message", CONVERSATION_ID))
+        .when(() -> processUtil.awaitUserMessage(processInstance))
+        .as("Mock user reply")
+        .then(() -> processUtil.publishUserMessage("Thank you, that fixed it!"))
+        .then(END_CONVERSATION);
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .withAssertionTimeout(Duration.ofMinutes(2))
+        .hasCompletedElement(byName("Send agent reply"), 2);
+
+    assertThatProcessInstance(processInstance)
+        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasVariableSatisfiesJudge(
+            "conversation",
+            """
+                      The reply should be friendly and professional. It should contains: \
+                      1. A greeting to 'Hiro', \
+                      2. Confirm that the issue is about Baymax, \
+                      3. Propose a solution using a tape.""");
+  }
+
+  @Test
+  void shouldOfferUpgrade() {
+    // given
+    final ProcessInstanceEvent processInstance =
+        processUtil.createProcessInstance("Luke", "I have a problem with my robot");
+
+    // when
+    processTestContext
+        .when(() -> processUtil.awaitUserMessage(processInstance))
+        .as("Mock user reply")
+        .then(() -> processUtil.publishUserMessage("It's about C3P0. He is talking too much."))
+        .then(() -> processUtil.publishUserMessage("Perfect. I want to have this upgrade."))
+        .then(END_CONVERSATION);
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .withAssertionTimeout(Duration.ofMinutes(2))
+        .hasCompletedElement(byName("Send agent reply"), 3);
+
+    assertThatProcessInstance(processInstance)
+        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasVariableSatisfiesJudge(
+            "conversation",
+            """
+                      The reply should be friendly and professional. It should contains: \
+                      1. A greeting to 'Luke', \
+                      2. Ask if the problem is about 'R2-D2' or 'C-3PO', \
+                      3. Confirm that this is expected behavior,
+                      4. Offer an upgrade to reduce the verbosity.""");
+  }
+
+  @Disabled
+  @Test
+  void dynamicConversation() {
+    // given
+    final ProcessInstanceEvent processInstance =
+        processUtil.createProcessInstance("Jean-Luc", "My robot need support");
+
+    // when
+    processTestContext
+        .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
         .then(
             () -> {
@@ -84,37 +187,8 @@ public class AgentIntegrationWithRealServicesTest {
                       ? "Thank you, that fixed it!"
                       : "That didn't work, I'm still having the issue.";
 
-              client
-                  .newPublishMessageCommand()
-                  .messageName("user-message")
-                  .correlationKey(CONVERSATION_ID)
-                  .variables(Map.of("message", userReply))
-                  .send()
-                  .join();
+              processUtil.publishUserMessage(userReply);
             });
-  }
-
-  @Test
-  void shouldResolveRobotAirProblem() {
-    // given
-    final ProcessInstanceEvent processInstance =
-        client
-            .newCreateInstanceCommand()
-            .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
-            .latestVersion()
-            .variables(
-                Map.ofEntries(
-                    entry("userName", USER_NAME),
-                    entry("message", USER_REQUEST),
-                    entry("conversationId", CONVERSATION_ID)))
-            .send()
-            .join();
-
-    // when - the LLM agent (via connector-agentic-ai) runs the conversation loop using real
-    //   customer data (Hiro + Baymax from data.sql) and real knowledge base entries:
-    //   1. loads Hiro's customer data including his Baymax v1.0 order
-    //   2. searches the knowledge base for a solution (Baymax air-loss entry)
-    //   3. calls send-agent-reply with the fix and waits for user input
 
     // then
     assertThatProcessInstance(processInstance)
@@ -130,8 +204,8 @@ public class AgentIntegrationWithRealServicesTest {
             "message",
             """
                       The reply should be friendly and professional. It should contains: \
-                      a greeting to 'Hiro', \
-                      confirm that the issue is about Baymax, \
-                      propose a solution using a tape.""");
+                      1. a greeting to 'Hiro', \
+                      2. confirm that the issue is about Baymax, \
+                      3. propose a solution using a tape.""");
   }
 }

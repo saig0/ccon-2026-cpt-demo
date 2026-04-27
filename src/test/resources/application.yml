@@ -8,9 +8,13 @@ logging:
     io:
       camunda.demo: debug
       camunda.client: info
-      camunda.process: info
+      camunda.process: debug
       camunda.connector: info
       # Hide default logging from Testcontainers
     org:
       testcontainers: warn
     tc: error
+
+#spring:
+#  profiles:
+#    active: local
