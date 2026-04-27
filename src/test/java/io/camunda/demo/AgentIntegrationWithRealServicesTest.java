@@ -3,7 +3,6 @@ package io.camunda.demo;
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byName;
-import static java.util.Map.entry;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
@@ -12,7 +11,6 @@ import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,9 +54,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @CamundaSpringProcessTest
 public class AgentIntegrationWithRealServicesTest {
 
-  private static final String CONVERSATION_ID = "conversation-hiro-real-1";
-  private static final String MESSAGE_NAME = "user-message";
-
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
 
@@ -93,7 +88,7 @@ public class AgentIntegrationWithRealServicesTest {
       LOGGER.info(
           "Test failed. Dumping conversation logs: (size: {}) \n=======================================\n{}",
           messages.size(),
-          String.join("\n=======================================\n"));
+          String.join("\n=======================================\n", messages));
     }
   }
 
@@ -101,31 +96,14 @@ public class AgentIntegrationWithRealServicesTest {
   void shouldResolveProblem() {
     // given
     final ProcessInstanceEvent processInstance =
-        client
-            .newCreateInstanceCommand()
-            .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
-            .latestVersion()
-            .variables(
-                Map.ofEntries(
-                    entry("userName", "Hiro"),
-                    entry("message", "My robot is losing air"),
-                    entry("conversationId", CONVERSATION_ID)))
-            .send()
-            .join();
+        CustomerSupportAgentProcess.createProcessInstance(
+            client, "Hiro", "My robot is losing air", CustomerSupportAgentProcess.CONVERSATION_ID);
 
     // when
     processTestContext
         .when(() -> awaitUserReply(processInstance))
         .as("Mock user reply")
-        .then(
-            () ->
-                client
-                    .newPublishMessageCommand()
-                    .messageName("user-message")
-                    .correlationKey(CONVERSATION_ID)
-                    .variables(Map.of("message", "Thank you, that fixed it!"))
-                    .send()
-                    .join());
+        .then(() -> sendUserReply("Thank you, that fixed it!"));
 
     // then
     assertThatProcessInstance(processInstance)
@@ -146,7 +124,10 @@ public class AgentIntegrationWithRealServicesTest {
   }
 
   private static void awaitUserReply(ProcessInstanceEvent processInstance) {
-    assertThatProcessInstance(processInstance).isWaitingForMessage(MESSAGE_NAME, CONVERSATION_ID);
+    assertThatProcessInstance(processInstance)
+        .isWaitingForMessage(
+            CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME,
+            CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   @Test
@@ -154,7 +135,10 @@ public class AgentIntegrationWithRealServicesTest {
     // given
     final ProcessInstanceEvent processInstance =
         CustomerSupportAgentProcess.createProcessInstance(
-            client, "Luke", "I have a problem with my robot", CONVERSATION_ID);
+            client,
+            "Luke",
+            "I have a problem with my robot",
+            CustomerSupportAgentProcess.CONVERSATION_ID);
 
     // when
     processTestContext
@@ -185,7 +169,8 @@ public class AgentIntegrationWithRealServicesTest {
   }
 
   private void sendUserReply(String message) {
-    CustomerSupportAgentProcess.publishUserMessage(client, message, CONVERSATION_ID);
+    CustomerSupportAgentProcess.publishUserMessage(
+        client, message, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   @Disabled
@@ -193,17 +178,8 @@ public class AgentIntegrationWithRealServicesTest {
   void dynamicConversation() {
     // given
     final ProcessInstanceEvent processInstance =
-        client
-            .newCreateInstanceCommand()
-            .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
-            .latestVersion()
-            .variables(
-                Map.ofEntries(
-                    entry("userName", "Hiro"),
-                    entry("message", "My robot is losing air"),
-                    entry("conversationId", CONVERSATION_ID)))
-            .send()
-            .join();
+        CustomerSupportAgentProcess.createProcessInstance(
+            client, "Hiro", "My robot is losing air", CustomerSupportAgentProcess.CONVERSATION_ID);
 
     // when
     processTestContext
@@ -223,13 +199,7 @@ public class AgentIntegrationWithRealServicesTest {
                       ? "Thank you, that fixed it!"
                       : "That didn't work, I'm still having the issue.";
 
-              client
-                  .newPublishMessageCommand()
-                  .messageName("user-message")
-                  .correlationKey(CONVERSATION_ID)
-                  .variables(Map.of("message", userReply))
-                  .send()
-                  .join();
+              sendUserReply(userReply);
             });
 
     // then
