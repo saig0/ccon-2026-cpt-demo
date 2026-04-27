@@ -3,10 +3,11 @@ package io.camunda.demo;
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
 import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
-import static java.util.Map.entry;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
+import io.camunda.demo.util.CustomerSupportAgentProcess;
+import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import java.util.Map;
@@ -19,42 +20,37 @@ import org.springframework.boot.test.context.SpringBootTest;
 @CamundaSpringProcessTest
 public class CustomerSupportAgentProcessTest {
 
-  private static final String CONVERSATION_ID = "conversation-1";
-
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
 
+  private CustomerSupportAgentProcessUtil processUtil;
+
   @BeforeEach
   void setupMocks() {
-    processTestContext.mockJobWorker("send-chat-message").thenComplete();
+    processTestContext.mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE).thenComplete();
+    processUtil = new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   @Test
   void happyPath() {
     // given
     final ProcessInstanceEvent processInstance =
-        client
-            .newCreateInstanceCommand()
-            .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
-            .latestVersion()
-            .variables(
-                Map.ofEntries(
-                    entry("userName", "Luke"),
-                    entry("message", "I have an issue with my robots"),
-                    entry("conversationId", CONVERSATION_ID)))
-            .send()
-            .join();
+        processUtil.createProcessInstance("Luke", "I have an issue with my robots");
 
     // when
     processTestContext.completeJobOfAdHocSubProcess(
-        byElementId("customer-support-agent"), result -> result.completionConditionFulfilled(true));
+        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+        result -> result.completionConditionFulfilled(true));
 
     processTestContext.completeJob(
-        byElementId("analyze-conversation"), Map.of("conversation_outcome", "OKAY"));
+        byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
+        Map.of("conversation_outcome", "OKAY"));
 
     // then
     assertThatProcessInstance(processInstance)
         .isCompleted()
-        .hasCompletedElementsInOrder(byId("customer-support-agent"), byId("analyze-conversation"));
+        .hasCompletedElementsInOrder(
+            byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID));
   }
 }

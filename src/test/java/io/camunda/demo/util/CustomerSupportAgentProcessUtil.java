@@ -2,7 +2,6 @@ package io.camunda.demo.util;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
-import io.camunda.demo.CustomerSupportAgentProcess;
 
 public class CustomerSupportAgentProcessUtil {
 

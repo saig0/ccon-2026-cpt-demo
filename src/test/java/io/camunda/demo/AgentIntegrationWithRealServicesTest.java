@@ -6,6 +6,7 @@ import static io.camunda.process.test.api.assertions.ElementSelectors.byName;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
+import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
@@ -77,9 +78,9 @@ public class AgentIntegrationWithRealServicesTest {
 
   @BeforeEach
   void setupMocks() {
-    sendChatMessageMock = processTestContext.mockJobWorker("send-chat-message").thenComplete();
+    sendChatMessageMock = processTestContext.mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE).thenComplete();
 
-    processUtil = new CustomerSupportAgentProcessUtil(client, "conversation-1");
+    processUtil = new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   private static final class ConversationLogger implements TestWatcher {
@@ -121,7 +122,9 @@ public class AgentIntegrationWithRealServicesTest {
         .hasCompletedElement(byName("Send agent reply"), 2);
 
     assertThatProcessInstance(processInstance)
-        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
             "conversation",
             """
@@ -151,7 +154,9 @@ public class AgentIntegrationWithRealServicesTest {
         .hasCompletedElement(byName("Send agent reply"), 3);
 
     assertThatProcessInstance(processInstance)
-        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
             "conversation",
             """
@@ -195,12 +200,14 @@ public class AgentIntegrationWithRealServicesTest {
         .withAssertionTimeout(Duration.ofMinutes(2))
         .hasCompletedElementsInOrder(
             byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-            byId("analyze-conversation"));
+            byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID));
 
     assertThatProcessInstance(processInstance)
-        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasLocalVariableSatisfiesJudge(
-            byId("send-agent-reply"),
+            byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID),
             "message",
             """
                       The reply should be friendly and professional. It should contains: \

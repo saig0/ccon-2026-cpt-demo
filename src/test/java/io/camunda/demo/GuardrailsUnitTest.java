@@ -12,6 +12,7 @@ import io.camunda.client.api.response.ProcessInstanceEvent;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.KnowledgeBaseService;
 import io.camunda.demo.services.ProductCatalogService;
+import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.assertions.UserTaskSelectors;
@@ -28,7 +29,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 public class GuardrailsUnitTest {
 
   private static final String USER_NAME = "Luke";
-  private static final String CONVERSATION_ID = "conversation-1";
 
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
@@ -41,7 +41,7 @@ public class GuardrailsUnitTest {
 
   @BeforeEach
   void setup() {
-    processTestContext.mockJobWorker("send-chat-message").thenComplete();
+    processTestContext.mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE).thenComplete();
 
     processInstance =
         client
@@ -52,7 +52,7 @@ public class GuardrailsUnitTest {
                 Map.ofEntries(
                     entry("customerName", USER_NAME),
                     entry("userRequest", "I have an issue with my robot."),
-                    entry("conversationId", CONVERSATION_ID)))
+                    entry("conversationId", CustomerSupportAgentProcess.CONVERSATION_ID)))
             .startBeforeElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
             .send()
             .join();
@@ -72,11 +72,12 @@ public class GuardrailsUnitTest {
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
         result ->
             result
-                .activateElement("inform-user-about-escalation")
+                .activateElement(CustomerSupportAgentProcess.INFORM_USER_ABOUT_ESCALATION_ELEMENT_ID)
                 .variable("toolCall", Map.of("agentReply", agentReply)));
 
     processTestContext.completeJob(
-        byElementId("analyze-conversation"), Map.of("conversation_outcome", "HUMAN_ESCALATION"));
+        byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
+        Map.of("conversation_outcome", "HUMAN_ESCALATION"));
 
     // then: human intervention user task is created
     assertThatProcessInstance(processInstance)
@@ -85,7 +86,7 @@ public class GuardrailsUnitTest {
             byName("Inform user about escalation"), byName("Analyse conversation"))
         .hasLocalVariable(byName("Inform user about escalation"), "message", agentReply);
 
-    assertThatUserTask(UserTaskSelectors.byElementId("human-escalation"))
+    assertThatUserTask(UserTaskSelectors.byElementId(CustomerSupportAgentProcess.HUMAN_ESCALATION_ELEMENT_ID))
         .hasName("Human escalation")
         .hasPriority(75);
   }
@@ -98,7 +99,8 @@ public class GuardrailsUnitTest {
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID), "AGENT_ERROR");
 
     processTestContext.completeJob(
-        byElementId("analyze-conversation"), Map.of("conversation_outcome", "AGENT_ERROR"));
+        byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
+        Map.of("conversation_outcome", "AGENT_ERROR"));
 
     // then: inform user and create human intervention user task
     assertThatProcessInstance(processInstance)
@@ -115,7 +117,7 @@ public class GuardrailsUnitTest {
                         "Oops, something went wrong",
                         "One of our support agents will follow up"));
 
-    assertThatUserTask(UserTaskSelectors.byElementId("human-intervention"))
+    assertThatUserTask(UserTaskSelectors.byElementId(CustomerSupportAgentProcess.HUMAN_INTERVENTION_ELEMENT_ID))
         .hasName("Human intervention")
         .hasPriority(100);
   }
@@ -126,7 +128,8 @@ public class GuardrailsUnitTest {
     processTestContext.increaseTime(Duration.ofHours(1));
 
     processTestContext.completeJob(
-        byElementId("analyze-conversation"), Map.of("conversation_outcome", "OKAY"));
+        byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
+        Map.of("conversation_outcome", "OKAY"));
 
     // then
     assertThatProcessInstance(processInstance)
@@ -142,14 +145,15 @@ public class GuardrailsUnitTest {
         result -> result.completionConditionFulfilled(true));
 
     processTestContext.completeJob(
-        byElementId("analyze-conversation"), Map.of("conversation_outcome", "AGENT_IMPROVEMENTS"));
+        byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
+        Map.of("conversation_outcome", "AGENT_IMPROVEMENTS"));
 
     // then: review conversation user task is created
     assertThatProcessInstance(processInstance)
         .isActive()
         .hasCompletedElements(byName("Analyse conversation"));
 
-    assertThatUserTask(UserTaskSelectors.byElementId("review-conversation"))
+    assertThatUserTask(UserTaskSelectors.byElementId(CustomerSupportAgentProcess.REVIEW_CONVERSATION_ELEMENT_ID))
         .hasName("Review conversation")
         .hasPriority(25);
   }
@@ -162,7 +166,8 @@ public class GuardrailsUnitTest {
         result -> result.completionConditionFulfilled(true));
 
     processTestContext.completeJob(
-        byElementId("analyze-conversation"), Map.of("conversation_outcome", "AGENT_ERROR"));
+        byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
+        Map.of("conversation_outcome", "AGENT_ERROR"));
 
     // then: inform user and create human intervention user task
     assertThatProcessInstance(processInstance)
@@ -179,7 +184,7 @@ public class GuardrailsUnitTest {
                         "Oops, something went wrong",
                         "One of our support agents will follow up"));
 
-    assertThatUserTask(UserTaskSelectors.byElementId("human-intervention"))
+    assertThatUserTask(UserTaskSelectors.byElementId(CustomerSupportAgentProcess.HUMAN_INTERVENTION_ELEMENT_ID))
         .hasName("Human intervention")
         .hasPriority(100);
   }
