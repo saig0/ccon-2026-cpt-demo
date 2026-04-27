@@ -9,7 +9,6 @@ import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
-import io.camunda.process.test.api.assertions.ProcessInstanceSelectors;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
 import java.time.Duration;
 import java.util.List;
@@ -116,12 +115,7 @@ public class AgentIntegrationWithRealServicesTest {
 
     // when
     processTestContext
-        .when(
-            () ->
-                assertThatProcessInstance(
-                        ProcessInstanceSelectors.byProcessId(
-                            CustomerSupportAgentProcess.PROCESS_ID))
-                    .isWaitingForMessage(MESSAGE_NAME, CONVERSATION_ID))
+        .when(() -> awaitUserReply(processInstance))
         .as("Mock user reply")
         .then(
             () ->
@@ -151,49 +145,23 @@ public class AgentIntegrationWithRealServicesTest {
                       3. Propose a solution using a tape.""");
   }
 
+  private static void awaitUserReply(ProcessInstanceEvent processInstance) {
+    assertThatProcessInstance(processInstance).isWaitingForMessage(MESSAGE_NAME, CONVERSATION_ID);
+  }
+
   @Test
   void shouldOfferUpgrade() {
     // given
     final ProcessInstanceEvent processInstance =
-        client
-            .newCreateInstanceCommand()
-            .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
-            .latestVersion()
-            .variables(
-                Map.ofEntries(
-                    entry("userName", "Luke"),
-                    entry("message", "I have a problem with my robot"),
-                    entry("conversationId", CONVERSATION_ID)))
-            .send()
-            .join();
+        CustomerSupportAgentProcess.createProcessInstance(
+            client, "Luke", "I have a problem with my robot", CONVERSATION_ID);
 
     // when
     processTestContext
-        .when(
-            () ->
-                assertThatProcessInstance(
-                        ProcessInstanceSelectors.byProcessId(
-                            CustomerSupportAgentProcess.PROCESS_ID))
-                    .isWaitingForMessage(MESSAGE_NAME, CONVERSATION_ID))
+        .when(() -> awaitUserReply(processInstance))
         .as("Mock user reply")
-        .then(
-            () ->
-                client
-                    .newPublishMessageCommand()
-                    .messageName("user-message")
-                    .correlationKey(CONVERSATION_ID)
-                    .variables(Map.of("message", "It's about C3P0. He is talking too much."))
-                    .send()
-                    .join())
-        .then(
-            () ->
-                client
-                    .newPublishMessageCommand()
-                    .messageName("user-message")
-                    .correlationKey(CONVERSATION_ID)
-                    .variables(Map.of("message", "Perfect. I want to have this upgrade."))
-                    .send()
-                    .join())
+        .then(() -> sendUserReply("It's about C3P0. He is talking too much."))
+        .then(() -> sendUserReply("Perfect. I want to have this upgrade."))
         .then(
             () -> {
               // end the conversation loop after the upgrade is offered
@@ -216,6 +184,10 @@ public class AgentIntegrationWithRealServicesTest {
                       4. Offer an upgrade to reduce the verbosity.""");
   }
 
+  private void sendUserReply(String message) {
+    CustomerSupportAgentProcess.publishUserMessage(client, message, CONVERSATION_ID);
+  }
+
   @Disabled
   @Test
   void dynamicConversation() {
@@ -235,12 +207,7 @@ public class AgentIntegrationWithRealServicesTest {
 
     // when
     processTestContext
-        .when(
-            () ->
-                assertThatProcessInstance(
-                        ProcessInstanceSelectors.byProcessId(
-                            CustomerSupportAgentProcess.PROCESS_ID))
-                    .isWaitingForMessage(MESSAGE_NAME, CONVERSATION_ID))
+        .when(() -> awaitUserReply(processInstance))
         .as("Mock user reply")
         .then(
             () -> {
