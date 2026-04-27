@@ -6,6 +6,7 @@ import static io.camunda.process.test.api.assertions.ElementSelectors.byName;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
+import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
@@ -54,8 +55,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 @CamundaSpringProcessTest
 public class AgentIntegrationWithRealServicesTest {
 
+  private static final Runnable END_CONVERSATION =
+      () -> {
+        // end the conversation
+      };
+
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
+
+  private CustomerSupportAgentProcessUtil processUtil;
 
   private JobWorkerMock sendChatMessageMock;
 
@@ -70,6 +78,8 @@ public class AgentIntegrationWithRealServicesTest {
   @BeforeEach
   void setupMocks() {
     sendChatMessageMock = processTestContext.mockJobWorker("send-chat-message").thenComplete();
+
+    processUtil = new CustomerSupportAgentProcessUtil(client, "conversation-1");
   }
 
   private static final class ConversationLogger implements TestWatcher {
@@ -96,21 +106,19 @@ public class AgentIntegrationWithRealServicesTest {
   void shouldResolveProblem() {
     // given
     final ProcessInstanceEvent processInstance =
-        CustomerSupportAgentProcess.createProcessInstance(
-            client, "Hiro", "My robot is losing air", CustomerSupportAgentProcess.CONVERSATION_ID);
+        processUtil.createProcessInstance("Hiro", "My robot is losing air");
 
     // when
     processTestContext
-        .when(() -> awaitUserReply(processInstance))
+        .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
-        .then(() -> sendUserReply("Thank you, that fixed it!"));
+        .then(() -> processUtil.publishUserMessage("Thank you, that fixed it!"))
+        .then(END_CONVERSATION);
 
     // then
     assertThatProcessInstance(processInstance)
         .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElementsInOrder(
-            byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-            byId("analyze-conversation"));
+        .hasCompletedElement(byName("Send agent reply"), 2);
 
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
@@ -123,33 +131,19 @@ public class AgentIntegrationWithRealServicesTest {
                       3. Propose a solution using a tape.""");
   }
 
-  private static void awaitUserReply(ProcessInstanceEvent processInstance) {
-    assertThatProcessInstance(processInstance)
-        .isWaitingForMessage(
-            CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME,
-            CustomerSupportAgentProcess.CONVERSATION_ID);
-  }
-
   @Test
   void shouldOfferUpgrade() {
     // given
     final ProcessInstanceEvent processInstance =
-        CustomerSupportAgentProcess.createProcessInstance(
-            client,
-            "Luke",
-            "I have a problem with my robot",
-            CustomerSupportAgentProcess.CONVERSATION_ID);
+        processUtil.createProcessInstance("Luke", "I have a problem with my robot");
 
     // when
     processTestContext
-        .when(() -> awaitUserReply(processInstance))
+        .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
-        .then(() -> sendUserReply("It's about C3P0. He is talking too much."))
-        .then(() -> sendUserReply("Perfect. I want to have this upgrade."))
-        .then(
-            () -> {
-              // end the conversation loop after the upgrade is offered
-            });
+        .then(() -> processUtil.publishUserMessage("It's about C3P0. He is talking too much."))
+        .then(() -> processUtil.publishUserMessage("Perfect. I want to have this upgrade."))
+        .then(END_CONVERSATION);
 
     // then
     assertThatProcessInstance(processInstance)
@@ -168,22 +162,16 @@ public class AgentIntegrationWithRealServicesTest {
                       4. Offer an upgrade to reduce the verbosity.""");
   }
 
-  private void sendUserReply(String message) {
-    CustomerSupportAgentProcess.publishUserMessage(
-        client, message, CustomerSupportAgentProcess.CONVERSATION_ID);
-  }
-
   @Disabled
   @Test
   void dynamicConversation() {
     // given
     final ProcessInstanceEvent processInstance =
-        CustomerSupportAgentProcess.createProcessInstance(
-            client, "Hiro", "My robot is losing air", CustomerSupportAgentProcess.CONVERSATION_ID);
+        processUtil.createProcessInstance("Jean-Luc", "My robot need support");
 
     // when
     processTestContext
-        .when(() -> awaitUserReply(processInstance))
+        .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
         .then(
             () -> {
@@ -199,7 +187,7 @@ public class AgentIntegrationWithRealServicesTest {
                       ? "Thank you, that fixed it!"
                       : "That didn't work, I'm still having the issue.";
 
-              sendUserReply(userReply);
+              processUtil.publishUserMessage(userReply);
             });
 
     // then
@@ -215,9 +203,9 @@ public class AgentIntegrationWithRealServicesTest {
             byId("send-agent-reply"),
             "message",
             """
-                                  The reply should be friendly and professional. It should contains: \
-                                  1. a greeting to 'Hiro', \
-                                  2. confirm that the issue is about Baymax, \
-                                  3. propose a solution using a tape.""");
+                      The reply should be friendly and professional. It should contains: \
+                      1. a greeting to 'Hiro', \
+                      2. confirm that the issue is about Baymax, \
+                      3. propose a solution using a tape.""");
   }
 }
