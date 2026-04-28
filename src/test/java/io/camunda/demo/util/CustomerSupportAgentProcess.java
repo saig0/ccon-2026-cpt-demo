@@ -27,11 +27,15 @@ public class CustomerSupportAgentProcess {
 
   public static final String CONVERSATION_ID = "conversation-1";
 
+  public static final String DISCOUNT_DECISION_ID = "discount";
+
   // BPMN data objects
 
   public record ConversationRequest(String userName, String message, String conversationId) {}
 
   public record UserMessage(String message) {}
+
+  public record DiscountDecisionInput(int customerPreviousRobotCount) {}
 
   // Process helpers
 

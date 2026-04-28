@@ -4,9 +4,9 @@ import static io.camunda.process.test.api.CamundaAssert.assertThatDecision;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.EvaluateDecisionResponse;
+import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
-import java.util.Map;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +31,16 @@ public class DiscountDecisionTest {
     "10, 25", //
   })
   void shouldCalculateDiscount(final int customerPreviousRobotCount, final int expectedDiscount) {
+    // given
+    final CustomerSupportAgentProcess.DiscountDecisionInput decisionInput =
+        new CustomerSupportAgentProcess.DiscountDecisionInput(customerPreviousRobotCount);
+
     // when
     final EvaluateDecisionResponse evaluateDecisionResponse =
         client
             .newEvaluateDecisionCommand()
-            .decisionId("discount")
-            .variables(Map.of("customerPreviousRobotCount", customerPreviousRobotCount))
+            .decisionId(CustomerSupportAgentProcess.DISCOUNT_DECISION_ID)
+            .variables(decisionInput)
             .send()
             .join();
 
