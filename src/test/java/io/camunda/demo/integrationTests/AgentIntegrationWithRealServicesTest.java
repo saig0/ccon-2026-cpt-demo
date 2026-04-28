@@ -1,4 +1,4 @@
-package io.camunda.demo;
+package io.camunda.demo.integrationTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
@@ -6,6 +6,7 @@ import static io.camunda.process.test.api.assertions.ElementSelectors.byName;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
+import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Integration test for the customer support agent process using a real LLM (AWS Bedrock) and the
@@ -32,26 +34,8 @@ import org.springframework.boot.test.context.SpringBootTest;
  * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and {@code
  * AWS_BEDROCK_SECRET_KEY} to be set.
  */
-@SpringBootTest(
-    properties = {
-      // Enable the AI connector
-      "camunda.process-test.runtime-mode=managed",
-      "camunda.process-test.connectors-enabled=true",
-      // Set connector secrets for the AI connector
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_ACCESS_KEY=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_SECRET_KEY=${AWS_BEDROCK_SECRET_KEY}",
-      // Configure the judge for assertions
-      "camunda.process-test.judge.chat-model.provider=amazon-bedrock",
-      "camunda.process-test.judge.chat-model.model=eu.anthropic.claude-haiku-4-5-20251001-v1:0",
-      "camunda.process-test.judge.chat-model.region=eu-central-1",
-      "camunda.process-test.judge.chat-model.credentials.access-key=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.judge.chat-model.credentials.secret-key=${AWS_BEDROCK_SECRET_KEY}",
-      // Load example data
-      "spring.sql.init.mode=always",
-      "spring.jpa.hibernate.ddl-auto=none",
-      "spring.datasource.url=jdbc:h2:mem:product-catalog;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
-      "spring.datasource.driver-class-name=org.h2.Driver",
-    })
+@ActiveProfiles({"integration-test", "example-data"})
+@SpringBootTest
 @CamundaSpringProcessTest
 public class AgentIntegrationWithRealServicesTest {
 
@@ -77,9 +61,13 @@ public class AgentIntegrationWithRealServicesTest {
 
   @BeforeEach
   void setupMocks() {
-    sendChatMessageMock = processTestContext.mockJobWorker("send-chat-message").thenComplete();
+    sendChatMessageMock =
+        processTestContext
+            .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+            .thenComplete();
 
-    processUtil = new CustomerSupportAgentProcessUtil(client, "conversation-1");
+    processUtil =
+        new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   private static final class ConversationLogger implements TestWatcher {
@@ -121,7 +109,9 @@ public class AgentIntegrationWithRealServicesTest {
         .hasCompletedElement(byName("Send agent reply"), 2);
 
     assertThatProcessInstance(processInstance)
-        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
             "conversation",
             """
@@ -151,7 +141,9 @@ public class AgentIntegrationWithRealServicesTest {
         .hasCompletedElement(byName("Send agent reply"), 3);
 
     assertThatProcessInstance(processInstance)
-        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
             "conversation",
             """
@@ -195,12 +187,14 @@ public class AgentIntegrationWithRealServicesTest {
         .withAssertionTimeout(Duration.ofMinutes(2))
         .hasCompletedElementsInOrder(
             byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-            byId("analyze-conversation"));
+            byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID));
 
     assertThatProcessInstance(processInstance)
-        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasLocalVariableSatisfiesJudge(
-            byId("send-agent-reply"),
+            byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID),
             "message",
             """
                       The reply should be friendly and professional. It should contains: \

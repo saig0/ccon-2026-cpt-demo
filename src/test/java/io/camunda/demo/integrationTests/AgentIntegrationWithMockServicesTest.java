@@ -1,8 +1,7 @@
-package io.camunda.demo;
+package io.camunda.demo.integrationTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
-import static java.util.Map.entry;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +18,8 @@ import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.KnowledgeBaseService;
 import io.camunda.demo.services.ProductCatalogService;
+import io.camunda.demo.util.CustomerSupportAgentProcess;
+import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.assertions.ProcessInstanceSelectors;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
@@ -44,21 +46,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and {@code
  * AWS_BEDROCK_SECRET_KEY} to be set.
  */
-@SpringBootTest(
-    properties = {
-      // Enable the AI connector
-      "camunda.process-test.runtime-mode=managed",
-      "camunda.process-test.connectors-enabled=true",
-      // Set connector secrets for the AI connector
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_ACCESS_KEY=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_SECRET_KEY=${AWS_BEDROCK_SECRET_KEY}",
-      // Configure the judge for assertions
-      "camunda.process-test.judge.chat-model.provider=amazon-bedrock",
-      "camunda.process-test.judge.chat-model.model=eu.anthropic.claude-haiku-4-5-20251001-v1:0",
-      "camunda.process-test.judge.chat-model.region=eu-central-1",
-      "camunda.process-test.judge.chat-model.credentials.access-key=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.judge.chat-model.credentials.secret-key=${AWS_BEDROCK_SECRET_KEY}"
-    })
+@ActiveProfiles("integration-test")
+@SpringBootTest
 @CamundaSpringProcessTest
 public class AgentIntegrationWithMockServicesTest {
 
@@ -73,9 +62,15 @@ public class AgentIntegrationWithMockServicesTest {
   @MockitoBean private ProductCatalogService productCatalogService;
   @MockitoBean private KnowledgeBaseService knowledgeBaseService;
 
+  private CustomerSupportAgentProcessUtil processUtil;
+
   @BeforeEach
   void setupMocks() {
-    processTestContext.mockJobWorker("send-chat-message").thenComplete();
+    processTestContext
+        .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+        .thenComplete();
+
+    processUtil = new CustomerSupportAgentProcessUtil(client, CONVERSATION_ID);
 
     final RobotDto baymax =
         new RobotDto(
@@ -129,13 +124,14 @@ public class AgentIntegrationWithMockServicesTest {
                 assertThatProcessInstance(
                         ProcessInstanceSelectors.byProcessId(
                             CustomerSupportAgentProcess.PROCESS_ID))
-                    .isWaitingForMessage("user-message", CONVERSATION_ID))
+                    .isWaitingForMessage(
+                        CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME, CONVERSATION_ID))
         .as("Mock user reply")
         .then(
             () ->
                 client
                     .newPublishMessageCommand()
-                    .messageName("user-message")
+                    .messageName(CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME)
                     .correlationKey(CONVERSATION_ID)
                     .variables(
                         Map.of("message", "Thank you, that fixed it! I don't need any more help."))
@@ -147,17 +143,7 @@ public class AgentIntegrationWithMockServicesTest {
   void shouldResolveRobotAirProblem() {
     // given
     final ProcessInstanceEvent processInstance =
-        client
-            .newCreateInstanceCommand()
-            .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
-            .latestVersion()
-            .variables(
-                Map.ofEntries(
-                    entry("userName", USER_NAME),
-                    entry("message", USER_REQUEST),
-                    entry("conversationId", CONVERSATION_ID)))
-            .send()
-            .join();
+        processUtil.createProcessInstance(USER_NAME, USER_REQUEST);
 
     // when - the LLM agent (via connector-agentic-ai) runs the conversation loop:
     //   1. loads customer data for Hiro
@@ -169,12 +155,14 @@ public class AgentIntegrationWithMockServicesTest {
         .withAssertionTimeout(Duration.ofMinutes(2))
         .hasCompletedElementsInOrder(
             byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-            byId("analyze-conversation"));
+            byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID));
 
     assertThatProcessInstance(processInstance)
-        .hasCompletedElements(byId("load-customer-data"), byId("search-knowledge-base"))
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasLocalVariableSatisfiesJudge(
-            byId("send-agent-reply"),
+            byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID),
             "message",
             """
               The reply should be friendly and professional. It should contains: \

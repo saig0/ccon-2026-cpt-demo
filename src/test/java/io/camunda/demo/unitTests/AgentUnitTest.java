@@ -1,9 +1,8 @@
-package io.camunda.demo;
+package io.camunda.demo.unitTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.*;
 import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +14,7 @@ import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.KnowledgeBaseService;
 import io.camunda.demo.services.ProductCatalogService;
+import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
@@ -34,7 +34,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 public class AgentUnitTest {
 
   private static final String USER_NAME = "Luke";
-  private static final String CONVERSATION_ID = "conversation-1";
 
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
@@ -53,10 +52,10 @@ public class AgentUnitTest {
             .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
             .latestVersion()
             .variables(
-                Map.ofEntries(
-                    entry("userName", USER_NAME),
-                    entry("message", "I have an issue with my robot."),
-                    entry("conversationId", CONVERSATION_ID)))
+                new CustomerSupportAgentProcess.ConversationRequest(
+                    USER_NAME,
+                    "I have an issue with my robot.",
+                    CustomerSupportAgentProcess.CONVERSATION_ID))
             .startBeforeElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
             .terminateAfterElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
             .send()
@@ -74,22 +73,27 @@ public class AgentUnitTest {
     final String userReply = "It's C3P0. He doesn't stop talking.";
 
     final JobWorkerMock sendChatMessageMockWorker =
-        processTestContext.mockJobWorker("send-chat-message").thenComplete();
+        processTestContext
+            .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+            .thenComplete();
 
     // when
     processTestContext.completeJobOfAdHocSubProcess(
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
         result ->
             result
-                .activateElement("send-agent-reply")
+                .activateElement(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID)
                 .variable("toolCall", Map.of("agentReply", agentReply)));
 
-    assertThatProcessInstance(processInstance).isWaitingForMessage("user-message", CONVERSATION_ID);
+    assertThatProcessInstance(processInstance)
+        .isWaitingForMessage(
+            CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME,
+            CustomerSupportAgentProcess.CONVERSATION_ID);
 
     client
         .newPublishMessageCommand()
-        .messageName("user-message")
-        .correlationKey(CONVERSATION_ID)
+        .messageName(CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME)
+        .correlationKey(CustomerSupportAgentProcess.CONVERSATION_ID)
         .variables(Map.of("message", userReply))
         .send()
         .join();
@@ -130,7 +134,7 @@ public class AgentUnitTest {
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
         result ->
             result
-                .activateElement("load-customer-data")
+                .activateElement(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID)
                 .variable("toolCall", Map.of("customerName", USER_NAME)));
 
     // then
@@ -165,7 +169,8 @@ public class AgentUnitTest {
     // when
     processTestContext.completeJobOfAdHocSubProcess(
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-        result -> result.activateElement("load-product-catalog"));
+        result ->
+            result.activateElement(CustomerSupportAgentProcess.LOAD_PRODUCT_CATALOG_ELEMENT_ID));
 
     // then
     assertThatProcessInstance(processInstance)
@@ -197,7 +202,7 @@ public class AgentUnitTest {
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
         result ->
             result
-                .activateElement("search-knowledge-base")
+                .activateElement(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID)
                 .variable("toolCall", Map.of("keyword", "c3po")));
 
     // then

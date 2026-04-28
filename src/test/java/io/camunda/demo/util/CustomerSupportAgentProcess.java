@@ -1,4 +1,4 @@
-package io.camunda.demo;
+package io.camunda.demo.util;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 
@@ -11,8 +11,19 @@ public class CustomerSupportAgentProcess {
 
   public static final String PROCESS_ID = "customer-support-agent-process";
   public static final String AD_HOC_SUB_PROCESS_ELEMENT_ID = "customer-support-agent";
+  public static final String ANALYZE_CONVERSATION_ELEMENT_ID = "analyze-conversation";
+  public static final String SEND_AGENT_REPLY_ELEMENT_ID = "send-agent-reply";
+  public static final String LOAD_CUSTOMER_DATA_ELEMENT_ID = "load-customer-data";
+  public static final String LOAD_PRODUCT_CATALOG_ELEMENT_ID = "load-product-catalog";
+  public static final String SEARCH_KNOWLEDGE_BASE_ELEMENT_ID = "search-knowledge-base";
+  public static final String INFORM_USER_ABOUT_ESCALATION_ELEMENT_ID =
+      "inform-user-about-escalation";
+  public static final String HUMAN_ESCALATION_ELEMENT_ID = "human-escalation";
+  public static final String HUMAN_INTERVENTION_ELEMENT_ID = "human-intervention";
+  public static final String REVIEW_CONVERSATION_ELEMENT_ID = "review-conversation";
 
   public static final String USER_MESSAGE_RECEIVED_NAME = "user-message";
+  public static final String SEND_CHAT_MESSAGE_JOB_TYPE = "send-chat-message";
 
   public static final String CONVERSATION_ID = "conversation-1";
 
