@@ -104,8 +104,12 @@
       </bpmn:serviceTask>
       <bpmn:sequenceFlow id="Flow_0ebyntt" sourceRef="inform-user-about-escalation" targetRef="Event_08njjqe" />
       <bpmn:businessRuleTask id="Activity_0b2jdkz" name="Calculate discount">
+        <bpmn:documentation>Use this tool to calculate an order discount.</bpmn:documentation>
         <bpmn:extensionElements>
-          <zeebe:calledDecision decisionId="discount" resultVariable="discount" />
+          <zeebe:calledDecision decisionId="discount" resultVariable="toolCallResult" />
+          <zeebe:ioMapping>
+            <zeebe:input source="=fromAi(toolCall.customerPreviousRobotCount, &#34;The customer&#39;s purchased robots count.&#34;, &#34;number&#34;)" target="customerPreviousRobotCount" />
+          </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:businessRuleTask>
     </bpmn:adHocSubProcess>
@@ -313,7 +317,7 @@
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1aj9rsg_di" bpmnElement="Activity_0b2jdkz">
-        <dc:Bounds x="790" y="330" width="100" height="80" />
+        <dc:Bounds x="840" y="330" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1c80qxp_di" bpmnElement="Flow_1c80qxp">
         <di:waypoint x="500" y="210" />
