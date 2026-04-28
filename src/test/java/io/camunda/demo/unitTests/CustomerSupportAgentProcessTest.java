@@ -1,4 +1,4 @@
-package io.camunda.demo;
+package io.camunda.demo.unitTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
@@ -27,8 +27,11 @@ public class CustomerSupportAgentProcessTest {
 
   @BeforeEach
   void setupMocks() {
-    processTestContext.mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE).thenComplete();
-    processUtil = new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
+    processTestContext
+        .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+        .thenComplete();
+    processUtil =
+        new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   @Test

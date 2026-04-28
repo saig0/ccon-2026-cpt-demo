@@ -1,4 +1,4 @@
-package io.camunda.demo;
+package io.camunda.demo.integrationTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
@@ -78,9 +78,13 @@ public class AgentIntegrationWithRealServicesTest {
 
   @BeforeEach
   void setupMocks() {
-    sendChatMessageMock = processTestContext.mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE).thenComplete();
+    sendChatMessageMock =
+        processTestContext
+            .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+            .thenComplete();
 
-    processUtil = new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
+    processUtil =
+        new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   private static final class ConversationLogger implements TestWatcher {

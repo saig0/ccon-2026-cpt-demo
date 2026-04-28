@@ -1,4 +1,4 @@
-package io.camunda.demo;
+package io.camunda.demo.unitTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.*;
@@ -53,7 +53,9 @@ public class AgentUnitTest {
             .latestVersion()
             .variables(
                 new CustomerSupportAgentProcess.ConversationRequest(
-                    USER_NAME, "I have an issue with my robot.", CustomerSupportAgentProcess.CONVERSATION_ID))
+                    USER_NAME,
+                    "I have an issue with my robot.",
+                    CustomerSupportAgentProcess.CONVERSATION_ID))
             .startBeforeElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
             .terminateAfterElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
             .send()
@@ -71,7 +73,9 @@ public class AgentUnitTest {
     final String userReply = "It's C3P0. He doesn't stop talking.";
 
     final JobWorkerMock sendChatMessageMockWorker =
-        processTestContext.mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE).thenComplete();
+        processTestContext
+            .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+            .thenComplete();
 
     // when
     processTestContext.completeJobOfAdHocSubProcess(
@@ -165,7 +169,8 @@ public class AgentUnitTest {
     // when
     processTestContext.completeJobOfAdHocSubProcess(
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-        result -> result.activateElement(CustomerSupportAgentProcess.LOAD_PRODUCT_CATALOG_ELEMENT_ID));
+        result ->
+            result.activateElement(CustomerSupportAgentProcess.LOAD_PRODUCT_CATALOG_ELEMENT_ID));
 
     // then
     assertThatProcessInstance(processInstance)
