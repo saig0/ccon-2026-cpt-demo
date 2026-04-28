@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1nxnf32" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.45.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
+  <decision id="discount" name="Discount">
+    <decisionTable id="DecisionTable_1yj7evz" hitPolicy="COLLECT" aggregation="MAX">
+      <input id="Input_1" label="Purchased robots">
+        <inputExpression id="InputExpression_1" typeRef="number">
+          <text>customerPreviousRobotCount</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="Discount in %" name="discount" typeRef="number" />
+      <rule id="DecisionRule_1i7bu1h">
+        <description>More than 5 robots</description>
+        <inputEntry id="UnaryTests_1m2b3d9">
+          <text>&gt;= 5</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_02gdxf3">
+          <text>25</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0xuxebx">
+        <description>More than 3 robots</description>
+        <inputEntry id="UnaryTests_04vgdgx">
+          <text>&gt;= 3</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0d89rm0">
+          <text>15</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1eh0wx7">
+        <description>More than 1 robot</description>
+        <inputEntry id="UnaryTests_0couxc0">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_016de2y">
+          <text>10</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_156tqly">
+        <description>No discount</description>
+        <inputEntry id="UnaryTests_1haucif">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1nakr1o">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape id="Decision_0incamg_di" dmnElementRef="discount">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>
