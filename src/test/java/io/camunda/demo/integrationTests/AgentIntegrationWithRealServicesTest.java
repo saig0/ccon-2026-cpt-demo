@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Integration test for the customer support agent process using a real LLM (AWS Bedrock) and the
@@ -33,26 +34,8 @@ import org.springframework.boot.test.context.SpringBootTest;
  * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and {@code
  * AWS_BEDROCK_SECRET_KEY} to be set.
  */
-@SpringBootTest(
-    properties = {
-      // Enable the AI connector
-      "camunda.process-test.runtime-mode=managed",
-      "camunda.process-test.connectors-enabled=true",
-      // Set connector secrets for the AI connector
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_ACCESS_KEY=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_SECRET_KEY=${AWS_BEDROCK_SECRET_KEY}",
-      // Configure the judge for assertions
-      "camunda.process-test.judge.chat-model.provider=amazon-bedrock",
-      "camunda.process-test.judge.chat-model.model=eu.anthropic.claude-haiku-4-5-20251001-v1:0",
-      "camunda.process-test.judge.chat-model.region=eu-central-1",
-      "camunda.process-test.judge.chat-model.credentials.access-key=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.judge.chat-model.credentials.secret-key=${AWS_BEDROCK_SECRET_KEY}",
-      // Load example data
-      "spring.sql.init.mode=always",
-      "spring.jpa.hibernate.ddl-auto=none",
-      "spring.datasource.url=jdbc:h2:mem:product-catalog;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
-      "spring.datasource.driver-class-name=org.h2.Driver",
-    })
+@ActiveProfiles({"integration-test", "example-data"})
+@SpringBootTest
 @CamundaSpringProcessTest
 public class AgentIntegrationWithRealServicesTest {
 

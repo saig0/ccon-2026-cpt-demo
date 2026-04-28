@@ -1,0 +1,12 @@
+spring:
+  # Load SQL scripts for testing
+  sql.init.mode: always
+  jpa:
+    hibernate:
+      ddl-auto: none
+  # Use H2 in-memory database for testing
+  datasource:
+    url: jdbc:h2:mem:product-catalog;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
