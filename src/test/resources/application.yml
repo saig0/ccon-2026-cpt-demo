@@ -14,7 +14,3 @@ logging:
     org:
       testcontainers: warn
     tc: error
-
-#spring:
-#  profiles:
-#    active: local

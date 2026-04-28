@@ -33,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
@@ -45,21 +46,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * <p>Requires the environment variables {@code AWS_BEDROCK_ACCESS_KEY} and {@code
  * AWS_BEDROCK_SECRET_KEY} to be set.
  */
-@SpringBootTest(
-    properties = {
-      // Enable the AI connector
-      "camunda.process-test.runtime-mode=managed",
-      "camunda.process-test.connectors-enabled=true",
-      // Set connector secrets for the AI connector
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_ACCESS_KEY=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.connectors-secrets.AWS_BEDROCK_SECRET_KEY=${AWS_BEDROCK_SECRET_KEY}",
-      // Configure the judge for assertions
-      "camunda.process-test.judge.chat-model.provider=amazon-bedrock",
-      "camunda.process-test.judge.chat-model.model=eu.anthropic.claude-haiku-4-5-20251001-v1:0",
-      "camunda.process-test.judge.chat-model.region=eu-central-1",
-      "camunda.process-test.judge.chat-model.credentials.access-key=${AWS_BEDROCK_ACCESS_KEY}",
-      "camunda.process-test.judge.chat-model.credentials.secret-key=${AWS_BEDROCK_SECRET_KEY}"
-    })
+@ActiveProfiles("integration-test")
+@SpringBootTest
 @CamundaSpringProcessTest
 public class AgentIntegrationWithMockServicesTest {
 
