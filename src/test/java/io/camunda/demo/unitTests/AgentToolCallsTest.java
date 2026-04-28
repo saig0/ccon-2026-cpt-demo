@@ -31,7 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
 @CamundaSpringProcessTest
-public class AgentUnitTest {
+public class AgentToolCallsTest {
 
   private static final String USER_NAME = "Luke";
 
@@ -90,13 +90,8 @@ public class AgentUnitTest {
             CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME,
             CustomerSupportAgentProcess.CONVERSATION_ID);
 
-    client
-        .newPublishMessageCommand()
-        .messageName(CustomerSupportAgentProcess.USER_MESSAGE_RECEIVED_NAME)
-        .correlationKey(CustomerSupportAgentProcess.CONVERSATION_ID)
-        .variables(Map.of("message", userReply))
-        .send()
-        .join();
+    CustomerSupportAgentProcess.publishUserMessage(
+        client, userReply, CustomerSupportAgentProcess.CONVERSATION_ID);
 
     // then
     assertThatProcessInstance(processInstance)

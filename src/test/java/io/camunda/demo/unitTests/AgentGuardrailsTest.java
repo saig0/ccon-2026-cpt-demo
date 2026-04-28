@@ -25,7 +25,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
 @CamundaSpringProcessTest
-public class GuardrailsUnitTest {
+public class AgentGuardrailsTest {
 
   private static final String USER_NAME = "Luke";
 

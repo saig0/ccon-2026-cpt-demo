@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @CamundaSpringProcessTest
-public class CustomerSupportAgentProcessTest {
+public class AgentProcessTest {
 
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
@@ -35,7 +35,7 @@ public class CustomerSupportAgentProcessTest {
   }
 
   @Test
-  void happyPath() {
+  void shouldCompleteProcess() {
     // given
     final ProcessInstanceEvent processInstance =
         processUtil.createProcessInstance("Luke", "I have an issue with my robots");
