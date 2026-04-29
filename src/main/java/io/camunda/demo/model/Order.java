@@ -43,10 +43,10 @@ public class Order {
   @Column(nullable = false)
   private String shipmentAddressCountry;
 
-  @Column(nullable = false)
+  @Column
   private LocalDate shipmentDate;
 
-  @Column(nullable = false)
+  @Column
   private LocalDate paymentDate;
 
   /** Total price of the order in €. */
@@ -70,6 +70,13 @@ public class Order {
     this.shipmentDate = shipmentDate;
     this.paymentDate = paymentDate;
     this.paymentAmount = paymentAmount;
+  }
+
+  public Order(Customer customer, LocalDate orderDate,
+      String shipmentAddressStreet, String shipmentAddressCity, String shipmentAddressCountry,
+      BigDecimal paymentAmount) {
+    this(customer, orderDate, shipmentAddressStreet, shipmentAddressCity, shipmentAddressCountry,
+        null, null, paymentAmount);
   }
 
   public Long getId() {

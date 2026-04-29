@@ -4,6 +4,8 @@ import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstanc
 import static io.camunda.process.test.api.assertions.ElementSelectors.*;
 import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import io.camunda.client.CamundaClient;
@@ -13,12 +15,14 @@ import io.camunda.demo.dto.*;
 import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.KnowledgeBaseService;
+import io.camunda.demo.services.OrderDatabaseService;
 import io.camunda.demo.services.ProductCatalogService;
 import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +48,7 @@ public class AgentToolCallsTest {
   @MockitoBean private CustomerDatabaseService customerDatabaseService;
   @MockitoBean private ProductCatalogService productCatalogService;
   @MockitoBean private KnowledgeBaseService knowledgeBaseService;
+  @MockitoBean private OrderDatabaseService orderDatabaseService;
 
   private ProcessInstanceEvent processInstance;
 
@@ -253,6 +258,53 @@ public class AgentToolCallsTest {
             byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
             "numberOfUpgradesInOrder",
             discountDecisionInput.numberOfUpgradesInOrder());
+  }
+
+  @Test
+  void shouldOrderItems() {
+    // given
+    final Long customerId = 1L;
+    final AddressDto shipmentAddress = new AddressDto("1 Moisture Farm Rd", "Anchorhead", "Tatooine");
+    final BigDecimal paymentAmount = BigDecimal.valueOf(9999.99);
+    final List<OrderItemInput> orderItems = List.of(new OrderItemInput(1L, null, 1));
+
+    final OrderDto createdOrder =
+        new OrderDto(42L, LocalDate.now(), shipmentAddress, null, null, paymentAmount, List.of());
+    final OrderDto chargedOrder =
+        new OrderDto(42L, LocalDate.now(), shipmentAddress, null, LocalDate.now(), paymentAmount, List.of());
+    final OrderDto shippedOrder =
+        new OrderDto(42L, LocalDate.now(), shipmentAddress, LocalDate.now(), LocalDate.now(), paymentAmount, List.of());
+
+    when(orderDatabaseService.createOrder(
+            eq(customerId), any(AddressDto.class), eq(paymentAmount), any()))
+        .thenReturn(createdOrder);
+    when(orderDatabaseService.chargePaymentMethod(createdOrder.id())).thenReturn(chargedOrder);
+    when(orderDatabaseService.prepareShipping(chargedOrder.id())).thenReturn(shippedOrder);
+
+    // when
+    processTestContext.completeJobOfAdHocSubProcess(
+        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+        result ->
+            result
+                .activateElement(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID)
+                .variable(
+                    TOOL_CALL_VARIABLE,
+                    Map.of(
+                        "customerId", customerId,
+                        "shippmentAddress", shipmentAddress,
+                        "paymentAmount", paymentAmount,
+                        "orderItems", orderItems)));
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .isActive()
+        .hasCompletedElements(byName("Order items"))
+        .hasCompletedElement(
+            byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        .hasVariableSatisfies(
+            TOOL_CALL_RESULT_VARIABLE,
+            OrderDto.class,
+            toolCallResult -> assertThat(toolCallResult).isEqualTo(shippedOrder));
   }
 
   private static class RobotList extends ArrayList<RobotDto> {}
