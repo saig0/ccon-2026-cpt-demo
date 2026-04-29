@@ -35,6 +35,9 @@ public class AgentToolCallsTest {
 
   private static final String USER_NAME = "Luke";
 
+  private static final String TOOL_CALL_RESULT_VARIABLE = "toolCallResult";
+  private static final String TOOL_CALL_VARIABLE = "toolCall";
+
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
 
@@ -83,7 +86,7 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID)
-                .variable("toolCall", Map.of("agentReply", agentReply)));
+                .variable(TOOL_CALL_VARIABLE, Map.of("agentReply", agentReply)));
 
     assertThatProcessInstance(processInstance)
         .isWaitingForMessage(
@@ -99,7 +102,7 @@ public class AgentToolCallsTest {
         .hasCompletedElementsInOrder(byName("Send agent reply"), byName("User message received"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
-        .hasVariable("toolCallResult", userReply);
+        .hasVariable(TOOL_CALL_RESULT_VARIABLE, userReply);
 
     assertThat(sendChatMessageMockWorker.getActivatedJobs())
         .hasSize(1)
@@ -130,7 +133,7 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID)
-                .variable("toolCall", Map.of("customerName", USER_NAME)));
+                .variable(TOOL_CALL_VARIABLE, Map.of("customerName", USER_NAME)));
 
     // then
     assertThatProcessInstance(processInstance)
@@ -139,7 +142,7 @@ public class AgentToolCallsTest {
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
         .hasVariableSatisfies(
-            "toolCallResult",
+            TOOL_CALL_RESULT_VARIABLE,
             CustomerDto.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(customer));
   }
@@ -174,7 +177,7 @@ public class AgentToolCallsTest {
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
         .hasVariableSatisfies(
-            "toolCallResult",
+            TOOL_CALL_RESULT_VARIABLE,
             RobotList.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(robots));
   }
@@ -198,7 +201,7 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID)
-                .variable("toolCall", Map.of("keyword", "c3po")));
+                .variable(TOOL_CALL_VARIABLE, Map.of("keyword", "c3po")));
 
     // then
     assertThatProcessInstance(processInstance)
@@ -207,7 +210,7 @@ public class AgentToolCallsTest {
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
         .hasVariableSatisfies(
-            "toolCallResult",
+            TOOL_CALL_RESULT_VARIABLE,
             KnowledgeBaseEntryList.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(knowledgeBaseEntries));
   }
@@ -219,7 +222,7 @@ public class AgentToolCallsTest {
     processTestContext.mockDmnDecision(CustomerSupportAgentProcess.DISCOUNT_DECISION_ID, discount);
 
     final CustomerSupportAgentProcess.DiscountDecisionInput discountDecisionInput =
-        new CustomerSupportAgentProcess.DiscountDecisionInput(1, 1, 0);
+        new CustomerSupportAgentProcess.DiscountDecisionInput(2, 1, 0);
 
     // when
     processTestContext.completeJobOfAdHocSubProcess(
@@ -227,7 +230,7 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID)
-                .variable("toolCall", discountDecisionInput));
+                .variable(TOOL_CALL_VARIABLE, discountDecisionInput));
 
     // then
     assertThatProcessInstance(processInstance)
@@ -235,7 +238,21 @@ public class AgentToolCallsTest {
         .hasCompletedElements(byName("Calculate discount"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
-        .hasVariable("toolCallResult", discount);
+        // Verify decision output mapping
+        .hasVariable(TOOL_CALL_RESULT_VARIABLE, discount)
+        // Verify decision input mapping
+        .hasLocalVariable(
+            byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
+            "numberOfPreviouslyPurchasedRobots",
+            discountDecisionInput.numberOfPreviouslyPurchasedRobots())
+        .hasLocalVariable(
+            byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
+            "numberOfRobotsInOrder",
+            discountDecisionInput.numberOfRobotsInOrder())
+        .hasLocalVariable(
+            byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
+            "numberOfUpgradesInOrder",
+            discountDecisionInput.numberOfUpgradesInOrder());
   }
 
   private static class RobotList extends ArrayList<RobotDto> {}
