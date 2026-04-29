@@ -22,19 +22,23 @@ public class DiscountDecisionTest {
   @ParameterizedTest
   @CsvSource({
     // Purchased robots | Discount
-    "0, 0", // No discount
-    "1, 15", // Loyalty: 1+ robot
-    "2, 15", //
-    "3, 20", // Loyalty: 3+ robots
-    "4, 20", //
-    "5, 30", // Loyalty: 5+ robots
-    "10, 30", //
+    "0, 1, 0, 0", // No discount
+    "1, 1, 0, 15", // Loyalty: 1+ robot
+    "2, 1, 0, 15", //
+    "3, 1, 0, 20", // Loyalty: 3+ robots
+    "4, 1, 0, 20", //
+    "5, 1, 0, 30", // Loyalty: 5+ robots
+    "10, 1, 0, 30", //
   })
   void shouldCalculateDiscount(
-      final Integer customerPreviousRobotCount, final Integer expectedDiscount) {
+      final int numberOfPreviouslyPurchasedRobots,
+      final int numberOfRobotsInOrder,
+      final int numberOfUpgradesInOrder,
+      final int expectedDiscount) {
     // given
     final CustomerSupportAgentProcess.DiscountDecisionInput decisionInput =
-        new CustomerSupportAgentProcess.DiscountDecisionInput(customerPreviousRobotCount, 1, 0);
+        new CustomerSupportAgentProcess.DiscountDecisionInput(
+            numberOfPreviouslyPurchasedRobots, numberOfRobotsInOrder, numberOfUpgradesInOrder);
 
     // when
     final EvaluateDecisionResponse evaluateDecisionResponse =

@@ -4,17 +4,17 @@
     <decisionTable id="DecisionTable_1yj7evz" hitPolicy="COLLECT" aggregation="MAX">
       <input id="Input_1" label="Purchased robots">
         <inputExpression id="InputExpression_1" typeRef="number">
-          <text>customerPreviousRobotCount</text>
+          <text>numberOfPreviouslyPurchasedRobots</text>
         </inputExpression>
       </input>
       <input id="InputClause_0m5fda6" label="Robots in order">
         <inputExpression id="LiteralExpression_0gxhycu" typeRef="number">
-          <text>orderRobotCount</text>
+          <text>numberOfRobotsInOrder</text>
         </inputExpression>
       </input>
       <input id="InputClause_17hm5am" label="Upgrades in order">
         <inputExpression id="LiteralExpression_0xvbwef" typeRef="number">
-          <text>orderUpgradesCount</text>
+          <text>numberOfUpgradesInOrder</text>
         </inputExpression>
       </input>
       <output id="Output_1" label="Discount in %" name="discount" typeRef="number" />
