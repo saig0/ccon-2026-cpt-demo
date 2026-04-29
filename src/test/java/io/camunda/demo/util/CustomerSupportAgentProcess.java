@@ -16,6 +16,8 @@ public class CustomerSupportAgentProcess {
   public static final String LOAD_CUSTOMER_DATA_ELEMENT_ID = "load-customer-data";
   public static final String LOAD_PRODUCT_CATALOG_ELEMENT_ID = "load-product-catalog";
   public static final String SEARCH_KNOWLEDGE_BASE_ELEMENT_ID = "search-knowledge-base";
+  public static final String CALCULATE_DISCOUNT_ELEMENT_ID = "calculate-discount";
+
   public static final String INFORM_USER_ABOUT_ESCALATION_ELEMENT_ID =
       "inform-user-about-escalation";
   public static final String HUMAN_ESCALATION_ELEMENT_ID = "human-escalation";

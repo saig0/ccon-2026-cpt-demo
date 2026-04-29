@@ -91,7 +91,7 @@ public class AgentToolCallsTest {
             CustomerSupportAgentProcess.CONVERSATION_ID);
 
     CustomerSupportAgentProcess.publishUserMessage(
-        client, userReply, CustomerSupportAgentProcess.CONVERSATION_ID);
+            client, userReply, CustomerSupportAgentProcess.CONVERSATION_ID);
 
     // then
     assertThatProcessInstance(processInstance)
@@ -210,6 +210,32 @@ public class AgentToolCallsTest {
             "toolCallResult",
             KnowledgeBaseEntryList.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(knowledgeBaseEntries));
+  }
+
+  @Test
+  void shouldCalculateDiscount() {
+    // given
+    final int discount = 15;
+    processTestContext.mockDmnDecision(CustomerSupportAgentProcess.DISCOUNT_DECISION_ID, discount);
+
+    final CustomerSupportAgentProcess.DiscountDecisionInput discountDecisionInput =
+        new CustomerSupportAgentProcess.DiscountDecisionInput(1, 1, 0);
+
+    // when
+    processTestContext.completeJobOfAdHocSubProcess(
+        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+        result ->
+            result
+                .activateElement(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID)
+                .variable("toolCall", discountDecisionInput));
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .isActive()
+        .hasCompletedElements(byName("Calculate discount"))
+        .hasCompletedElement(
+            byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        .hasVariable("toolCallResult", discount);
   }
 
   private static class RobotList extends ArrayList<RobotDto> {}

@@ -5,7 +5,6 @@ import static io.camunda.process.test.api.CamundaAssert.assertThatDecision;
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.EvaluateDecisionResponse;
 import io.camunda.demo.util.CustomerSupportAgentProcess;
-import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -17,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class DiscountDecisionTest {
 
   @Autowired private CamundaClient client;
-  @Autowired private CamundaProcessTestContext processTestContext;
 
   @ParameterizedTest
   @CsvSource(
