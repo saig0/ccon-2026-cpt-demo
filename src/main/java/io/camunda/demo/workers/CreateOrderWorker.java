@@ -35,14 +35,14 @@ public class CreateOrderWorker {
   public Map<String, Object> createOrder(
       final ActivatedJob job,
       @Variable(name = "customerId") Long customerId,
-      @Variable(name = "shippmentAddress") AddressDto shippmentAddress,
+      @Variable(name = "shippmentAddress") AddressDto shipmentAddress,
       @Variable(name = "paymentAmount") BigDecimal paymentAmount,
       @Variable(name = "orderItems") List<OrderItemInput> orderItems) {
 
     LOG.info("Processing create-order job: {}", job.getKey());
 
     final OrderDto order =
-        orderDatabaseService.createOrder(customerId, shippmentAddress, paymentAmount, orderItems);
+        orderDatabaseService.createOrder(customerId, shipmentAddress, paymentAmount, orderItems);
 
     LOG.info("Created order {} for customer {}", order.id(), customerId);
     return Map.of("order", order);
