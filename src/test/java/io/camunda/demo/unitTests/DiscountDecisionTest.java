@@ -20,16 +20,20 @@ public class DiscountDecisionTest {
   @Autowired private CamundaProcessTestContext processTestContext;
 
   @ParameterizedTest
-  @CsvSource({
-    // Purchased robots | Discount
-    "0, 1, 0, 0", // No discount
-    "1, 1, 0, 15", // Loyalty: 1+ robot
-    "2, 1, 0, 15", //
-    "3, 1, 0, 20", // Loyalty: 3+ robots
-    "4, 1, 0, 20", //
-    "5, 1, 0, 30", // Loyalty: 5+ robots
-    "10, 1, 0, 30", //
-  })
+  @CsvSource(
+      delimiter = '|',
+      useHeadersInDisplayName = true,
+      textBlock =
+          """
+          Purchased Robots | Robots in Order | Upgrades in Order | Discount in % |
+                  0        |         1       |         0         |        0      |
+                  1        |         1       |         0         |       15      |
+                  2        |         1       |         0         |       15      |
+                  3        |         1       |         0         |       20      |
+                  4        |         1       |         0         |       20      |
+                  5        |         1       |         0         |       25      |
+                 10        |         1       |         0         |       25      |
+          """)
   void shouldCalculateDiscount(
       final int numberOfPreviouslyPurchasedRobots,
       final int numberOfRobotsInOrder,
