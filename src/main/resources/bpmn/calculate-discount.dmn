@@ -7,40 +7,119 @@
           <text>customerPreviousRobotCount</text>
         </inputExpression>
       </input>
+      <input id="InputClause_0m5fda6" label="Robots in order">
+        <inputExpression id="LiteralExpression_0gxhycu" typeRef="number">
+          <text>orderRobotCount</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_17hm5am" label="Upgrades in order">
+        <inputExpression id="LiteralExpression_0xvbwef" typeRef="number">
+          <text>orderUpgradesCount</text>
+        </inputExpression>
+      </input>
       <output id="Output_1" label="Discount in %" name="discount" typeRef="number" />
       <rule id="DecisionRule_1i7bu1h">
-        <description>More than 5 robots</description>
+        <description>Loyalty: 5+ robots</description>
         <inputEntry id="UnaryTests_1m2b3d9">
           <text>&gt;= 5</text>
         </inputEntry>
+        <inputEntry id="UnaryTests_1ffw076">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0xy4cw7">
+          <text></text>
+        </inputEntry>
         <outputEntry id="LiteralExpression_02gdxf3">
-          <text>25</text>
+          <text>30</text>
         </outputEntry>
       </rule>
       <rule id="DecisionRule_0xuxebx">
-        <description>More than 3 robots</description>
+        <description>Loyalty: 3+ robots</description>
         <inputEntry id="UnaryTests_04vgdgx">
           <text>&gt;= 3</text>
         </inputEntry>
+        <inputEntry id="UnaryTests_1hxn1si">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0o1z66f">
+          <text></text>
+        </inputEntry>
         <outputEntry id="LiteralExpression_0d89rm0">
-          <text>15</text>
+          <text>20</text>
         </outputEntry>
       </rule>
       <rule id="DecisionRule_1eh0wx7">
-        <description>More than 1 robot</description>
+        <description>Loyalty: 1+ robot</description>
         <inputEntry id="UnaryTests_0couxc0">
           <text>&gt;= 1</text>
         </inputEntry>
+        <inputEntry id="UnaryTests_154d1xe">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0kjte1w">
+          <text></text>
+        </inputEntry>
         <outputEntry id="LiteralExpression_016de2y">
-          <text>10</text>
+          <text>15</text>
         </outputEntry>
       </rule>
       <rule id="DecisionRule_156tqly">
-        <description>No discount</description>
+        <description>Bundle: Robot + upgrade</description>
         <inputEntry id="UnaryTests_1haucif">
           <text></text>
         </inputEntry>
+        <inputEntry id="UnaryTests_1qa5orh">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_19l2n1n">
+          <text>&gt;= 1</text>
+        </inputEntry>
         <outputEntry id="LiteralExpression_1nakr1o">
+          <text>10</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_00bzvo1">
+        <description>Bundle: 4+ upgrades</description>
+        <inputEntry id="UnaryTests_043msz1">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1kvmol1">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0prory0">
+          <text>&gt;= 4</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1h8riud">
+          <text>10</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1ysa4bd">
+        <description>Bundle: 2+ upgrades</description>
+        <inputEntry id="UnaryTests_1d6x24c">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1dy07ju">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0a4ctmf">
+          <text>&gt;= 2</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1jj5ejb">
+          <text>5</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1btxrea">
+        <description>No discount</description>
+        <inputEntry id="UnaryTests_1lmc89p">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1ouhw50">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0759d4s">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1ld38sm">
           <text>0</text>
         </outputEntry>
       </rule>

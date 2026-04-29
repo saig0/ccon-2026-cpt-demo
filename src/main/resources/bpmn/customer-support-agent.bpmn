@@ -109,6 +109,8 @@
           <zeebe:calledDecision decisionId="discount" resultVariable="toolCallResult" />
           <zeebe:ioMapping>
             <zeebe:input source="=fromAi(toolCall.customerPreviousRobotCount, &#34;The customer&#39;s purchased robots count.&#34;, &#34;number&#34;)" target="customerPreviousRobotCount" />
+            <zeebe:input source="=fromAi(toolCall.orderRobotCount, &#34;The number of robots in the order.&#34;, &#34;number&#34;)" target="orderRobotCount" />
+            <zeebe:input source="=fromAi(toolCall.orderUpgradesCount, &#34;The number of upgrades in the order.&#34;, &#34;number&#34;)" target="orderUpgradesCount" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:businessRuleTask>

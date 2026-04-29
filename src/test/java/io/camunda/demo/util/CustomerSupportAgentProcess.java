@@ -35,7 +35,8 @@ public class CustomerSupportAgentProcess {
 
   public record UserMessage(String message) {}
 
-  public record DiscountDecisionInput(int customerPreviousRobotCount) {}
+  public record DiscountDecisionInput(
+      Integer customerPreviousRobotCount, Integer orderRobotCount, Integer orderUpgradesCount) {}
 
   // Process helpers
 
