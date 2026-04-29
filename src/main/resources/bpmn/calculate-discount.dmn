@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1nxnf32" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.45.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
+  <decision id="discount" name="Discount">
+    <decisionTable id="DecisionTable_1yj7evz" hitPolicy="COLLECT" aggregation="MAX">
+      <input id="Input_1" label="Purchased robots">
+        <inputExpression id="InputExpression_1" typeRef="number">
+          <text>numberOfPreviouslyPurchasedRobots</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_0m5fda6" label="Robots in order">
+        <inputExpression id="LiteralExpression_0gxhycu" typeRef="number">
+          <text>numberOfRobotsInOrder</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_17hm5am" label="Upgrades in order">
+        <inputExpression id="LiteralExpression_0xvbwef" typeRef="number">
+          <text>numberOfUpgradesInOrder</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="Discount in %" name="discount" typeRef="number" />
+      <rule id="DecisionRule_1i7bu1h">
+        <description>Loyalty: 5+ robots</description>
+        <inputEntry id="UnaryTests_1m2b3d9">
+          <text>&gt;= 5</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1ffw076">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0xy4cw7">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_02gdxf3">
+          <text>25</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0xuxebx">
+        <description>Loyalty: 3+ robots</description>
+        <inputEntry id="UnaryTests_04vgdgx">
+          <text>&gt;= 3</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1hxn1si">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0o1z66f">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0d89rm0">
+          <text>20</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1eh0wx7">
+        <description>Loyalty: 1+ robot</description>
+        <inputEntry id="UnaryTests_0couxc0">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_154d1xe">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0kjte1w">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_016de2y">
+          <text>15</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_156tqly">
+        <description>Bundle: Robot + upgrade</description>
+        <inputEntry id="UnaryTests_1haucif">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1qa5orh">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_19l2n1n">
+          <text>&gt;= 1</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1nakr1o">
+          <text>10</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_00bzvo1">
+        <description>Bundle: 4+ upgrades</description>
+        <inputEntry id="UnaryTests_043msz1">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1kvmol1">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0prory0">
+          <text>&gt;= 4</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1h8riud">
+          <text>10</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1ysa4bd">
+        <description>Bundle: 2+ upgrades</description>
+        <inputEntry id="UnaryTests_1d6x24c">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1dy07ju">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0a4ctmf">
+          <text>&gt;= 2</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1jj5ejb">
+          <text>5</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1btxrea">
+        <description>No discount</description>
+        <inputEntry id="UnaryTests_1lmc89p">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1ouhw50">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0759d4s">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1ld38sm">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape id="Decision_0incamg_di" dmnElementRef="discount">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

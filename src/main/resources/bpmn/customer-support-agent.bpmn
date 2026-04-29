@@ -103,6 +103,17 @@
         <bpmn:outgoing>Flow_0ebyntt</bpmn:outgoing>
       </bpmn:serviceTask>
       <bpmn:sequenceFlow id="Flow_0ebyntt" sourceRef="inform-user-about-escalation" targetRef="Event_08njjqe" />
+      <bpmn:businessRuleTask id="calculate-discount" name="Calculate discount">
+        <bpmn:documentation>Use this tool to calculate an order discount.</bpmn:documentation>
+        <bpmn:extensionElements>
+          <zeebe:calledDecision decisionId="discount" resultVariable="toolCallResult" />
+          <zeebe:ioMapping>
+            <zeebe:input source="=fromAi(toolCall.numberOfPreviouslyPurchasedRobots, &#34;The number of previously purchased robots of the customer.&#34;, &#34;number&#34;)" target="numberOfPreviouslyPurchasedRobots" />
+            <zeebe:input source="=fromAi(toolCall.numberOfRobotsInOrder, &#34;The number of robots in the order.&#34;, &#34;number&#34;)" target="numberOfRobotsInOrder" />
+            <zeebe:input source="=fromAi(toolCall.numberOfUpgradesInOrder, &#34;The number of upgrades in the order.&#34;, &#34;number&#34;)" target="numberOfUpgradesInOrder" />
+          </zeebe:ioMapping>
+        </bpmn:extensionElements>
+      </bpmn:businessRuleTask>
     </bpmn:adHocSubProcess>
     <bpmn:sequenceFlow id="Flow_15xih2a" sourceRef="StartEvent_1" targetRef="customer-support-agent" />
     <bpmn:startEvent id="StartEvent_1" name="New conversation">
@@ -306,6 +317,9 @@
       <bpmndi:BPMNShape id="BPMNShape_0prgba2" bpmnElement="inform-user-about-escalation">
         <dc:Bounds x="400" y="440" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1aj9rsg_di" bpmnElement="calculate-discount">
+        <dc:Bounds x="840" y="330" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1c80qxp_di" bpmnElement="Flow_1c80qxp">
         <di:waypoint x="500" y="210" />
