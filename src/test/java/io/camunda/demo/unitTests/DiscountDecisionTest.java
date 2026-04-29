@@ -26,13 +26,21 @@ public class DiscountDecisionTest {
       textBlock =
           """
           Purchased Robots | Robots in Order | Upgrades in Order | Discount in % |
-                  0        |         1       |         0         |        0      |
-                  1        |         1       |         0         |       15      |
-                  2        |         1       |         0         |       15      |
-                  3        |         1       |         0         |       20      |
-                  4        |         1       |         0         |       20      |
-                  5        |         1       |         0         |       25      |
-                 10        |         1       |         0         |       25      |
+                 10        |         1       |         0         |       25      | # Loyalty: 5+ robots
+                  5        |         1       |         0         |       25      | # Loyalty: 5+ robots
+                  4        |         1       |         0         |       20      | # Loyalty: 3+ robots
+                  3        |         1       |         0         |       20      | # Loyalty: 3+ robots
+                  2        |         1       |         0         |       15      | # Loyalty: 1+ robots
+                  1        |         1       |         1         |       15      | # Loyalty: 1+ robots
+                  0        |         2       |         2         |       10      | # Bundle: Robot + upgrade
+                  0        |         1       |         1         |       10      | # Bundle: Robot + upgrade
+                  0        |         0       |         5         |       10      | # Bundle: 4+ upgrades
+                  0        |         0       |         4         |       10      | # Bundle: 4+ upgrades
+                  0        |         0       |         3         |        5      | # Bundle: 2+ upgrades
+                  0        |         0       |         2         |        5      | # Bundle: 2+ upgrades
+                  0        |         1       |         0         |        0      | # First robot
+                  0        |         0       |         1         |        0      | # Upgrade only
+                  0        |         0       |         0         |        0      | # No discount
           """)
   void shouldCalculateDiscount(
       final int numberOfPreviouslyPurchasedRobots,
