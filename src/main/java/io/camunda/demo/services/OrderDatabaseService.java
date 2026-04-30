@@ -6,6 +6,7 @@ import io.camunda.demo.dto.OrderItemInput;
 import io.camunda.demo.model.Customer;
 import io.camunda.demo.model.Order;
 import io.camunda.demo.model.OrderItem;
+import io.camunda.demo.model.OrderStatus;
 import io.camunda.demo.model.Robot;
 import io.camunda.demo.model.Upgrade;
 import io.camunda.demo.repositories.CustomerRepository;
@@ -58,6 +59,39 @@ public class OrderDatabaseService {
       BigDecimal paymentAmount,
       List<OrderItemInput> orderItems) {
 
+    if (customerId == null) {
+      throw new IllegalArgumentException("customerId must not be null");
+    }
+    if (shipmentAddress == null) {
+      throw new IllegalArgumentException("shipmentAddress must not be null");
+    }
+    if (isBlank(shipmentAddress.street())) {
+      throw new IllegalArgumentException("shipmentAddress.street must not be blank");
+    }
+    if (isBlank(shipmentAddress.city())) {
+      throw new IllegalArgumentException("shipmentAddress.city must not be blank");
+    }
+    if (isBlank(shipmentAddress.country())) {
+      throw new IllegalArgumentException("shipmentAddress.country must not be blank");
+    }
+    if (paymentAmount == null) {
+      throw new IllegalArgumentException("paymentAmount must not be null");
+    }
+    if (paymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("paymentAmount must be greater than zero");
+    }
+    if (orderItems == null || orderItems.isEmpty()) {
+      throw new IllegalArgumentException("orderItems must not be null or empty");
+    }
+    for (final OrderItemInput item : orderItems) {
+      if (item.robotId() == null && item.upgradeId() == null) {
+        throw new IllegalArgumentException("Each order item must have a robotId or upgradeId");
+      }
+      if (item.quantity() <= 0) {
+        throw new IllegalArgumentException("Each order item must have a positive quantity");
+      }
+    }
+
     final Customer customer =
         customerRepository
             .findById(customerId)
@@ -101,7 +135,8 @@ public class OrderDatabaseService {
   }
 
   /**
-   * Confirms payment for the given order by setting the payment date to today.
+   * Confirms payment for the given order by setting the payment date to today
+   * and advancing the status to {@link OrderStatus#PAID}.
    *
    * @param orderId the ID of the order to charge
    * @return the updated order as a DTO
@@ -114,13 +149,16 @@ public class OrderDatabaseService {
                 () -> new IllegalArgumentException("Order not found with id: " + orderId));
 
     order.setPaymentDate(LocalDate.now());
+    order.setStatus(OrderStatus.PAID);
     return OrderDto.from(orderRepository.save(order));
   }
 
   /**
-   * Prepares shipping for the given order by setting the shipment date to today.
+   * Prepares shipping for the given order by setting an estimated delivery date
+   * (7 days from today) and advancing the status to
+   * {@link OrderStatus#PREPARED_FOR_SHIPPING}.
    *
-   * @param orderId the ID of the order to ship
+   * @param orderId the ID of the order to prepare for shipping
    * @return the updated order as a DTO
    */
   public OrderDto prepareShipping(Long orderId) {
@@ -130,7 +168,12 @@ public class OrderDatabaseService {
             .orElseThrow(
                 () -> new IllegalArgumentException("Order not found with id: " + orderId));
 
-    order.setShipmentDate(LocalDate.now());
+    order.setEstimatedDeliveryDate(LocalDate.now().plusDays(7));
+    order.setStatus(OrderStatus.PREPARED_FOR_SHIPPING);
     return OrderDto.from(orderRepository.save(order));
+  }
+
+  private static boolean isBlank(String value) {
+    return value == null || value.isBlank();
   }
 }

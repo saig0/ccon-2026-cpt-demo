@@ -35,7 +35,7 @@ public class CreateOrderWorker {
   public Map<String, Object> createOrder(
       final ActivatedJob job,
       @Variable(name = "customerId") Long customerId,
-      @Variable(name = "shippmentAddress") AddressDto shipmentAddress,
+      @Variable(name = "shipmentAddress") AddressDto shipmentAddress,
       @Variable(name = "paymentAmount") BigDecimal paymentAmount,
       @Variable(name = "orderItems") List<OrderItemInput> orderItems) {
 

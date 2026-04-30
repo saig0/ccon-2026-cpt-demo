@@ -66,9 +66,10 @@ CREATE TABLE IF NOT EXISTS orders (
     shipment_address_street    VARCHAR(255)    NOT NULL,
     shipment_address_city      VARCHAR(255)    NOT NULL,
     shipment_address_country   VARCHAR(255)    NOT NULL,
-    shipment_date              DATE,
+    estimated_delivery_date    DATE,
     payment_date               DATE,
     payment_amount             DECIMAL(10, 2)  NOT NULL,
+    status                     VARCHAR(50)     NOT NULL DEFAULT 'CREATED',
     PRIMARY KEY (id),
     CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers(id)
 );

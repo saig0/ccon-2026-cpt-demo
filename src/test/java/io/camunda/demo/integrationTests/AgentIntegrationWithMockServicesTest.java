@@ -93,7 +93,8 @@ public class AgentIntegrationWithMockServicesTest {
             LocalDate.of(2024, 12, 29),
             LocalDate.of(2024, 12, 24),
             BigDecimal.valueOf(6999.99),
-            List.of(new OrderItemDto(baymax, null, 1)));
+            List.of(new OrderItemDto(baymax, null, 1)),
+            io.camunda.demo.model.OrderStatus.DELIVERED);
 
     final CustomerDto hiro =
         new CustomerDto(

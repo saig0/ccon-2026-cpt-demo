@@ -11,10 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Job worker that prepares shipping for an order by setting its shipment date.
+ * Job worker that prepares shipping for an order by setting an estimated delivery date
+ * and advancing the order status to PREPARED_FOR_SHIPPING.
  *
- * <p>Receives the current {@code order} as an input variable, updates the shipment date in the
- * database, and outputs the updated order as an {@code order} variable.
+ * <p>Receives the current {@code order} as an input variable, updates the estimated delivery date
+ * in the database, and outputs the updated order as an {@code order} variable.
  */
 @Component
 public class PrepareShippingWorker {

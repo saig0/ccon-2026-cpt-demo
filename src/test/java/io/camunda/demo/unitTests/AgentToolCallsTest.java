@@ -4,18 +4,16 @@ import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstanc
 import static io.camunda.process.test.api.assertions.ElementSelectors.*;
 import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
 import io.camunda.client.api.search.enums.ElementInstanceType;
 import io.camunda.demo.dto.*;
+import io.camunda.demo.model.OrderStatus;
 import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.KnowledgeBaseService;
-import io.camunda.demo.services.OrderDatabaseService;
 import io.camunda.demo.services.ProductCatalogService;
 import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaProcessTestContext;
@@ -48,7 +46,6 @@ public class AgentToolCallsTest {
   @MockitoBean private CustomerDatabaseService customerDatabaseService;
   @MockitoBean private ProductCatalogService productCatalogService;
   @MockitoBean private KnowledgeBaseService knowledgeBaseService;
-  @MockitoBean private OrderDatabaseService orderDatabaseService;
 
   private ProcessInstanceEvent processInstance;
 
@@ -263,23 +260,23 @@ public class AgentToolCallsTest {
   @Test
   void shouldOrderItems() {
     // given
-    final Long customerId = 1L;
-    final AddressDto shipmentAddress = new AddressDto("1 Moisture Farm Rd", "Anchorhead", "Tatooine");
+    final AddressDto shipmentAddress =
+        new AddressDto("1 Moisture Farm Rd", "Anchorhead", "Tatooine");
     final BigDecimal paymentAmount = BigDecimal.valueOf(9999.99);
     final List<OrderItemInput> orderItems = List.of(new OrderItemInput(1L, null, 1));
 
-    final OrderDto createdOrder =
-        new OrderDto(42L, LocalDate.now(), shipmentAddress, null, null, paymentAmount, List.of());
-    final OrderDto chargedOrder =
-        new OrderDto(42L, LocalDate.now(), shipmentAddress, null, LocalDate.now(), paymentAmount, List.of());
-    final OrderDto shippedOrder =
-        new OrderDto(42L, LocalDate.now(), shipmentAddress, LocalDate.now(), LocalDate.now(), paymentAmount, List.of());
+    final OrderDto finalOrder =
+        new OrderDto(
+            42L,
+            LocalDate.now(),
+            shipmentAddress,
+            LocalDate.now().plusDays(7),
+            LocalDate.now(),
+            paymentAmount,
+            List.of(),
+            OrderStatus.PREPARED_FOR_SHIPPING);
 
-    when(orderDatabaseService.createOrder(
-            eq(customerId), any(AddressDto.class), eq(paymentAmount), any()))
-        .thenReturn(createdOrder);
-    when(orderDatabaseService.chargePaymentMethod(createdOrder.id())).thenReturn(chargedOrder);
-    when(orderDatabaseService.prepareShipping(chargedOrder.id())).thenReturn(shippedOrder);
+    processTestContext.mockChildProcess("order-process", Map.of("order", finalOrder));
 
     // when
     processTestContext.completeJobOfAdHocSubProcess(
@@ -290,8 +287,8 @@ public class AgentToolCallsTest {
                 .variable(
                     TOOL_CALL_VARIABLE,
                     Map.of(
-                        "customerId", customerId,
-                        "shippmentAddress", shipmentAddress,
+                        "customerId", 1L,
+                        "shipmentAddress", shipmentAddress,
                         "paymentAmount", paymentAmount,
                         "orderItems", orderItems)));
 
@@ -304,7 +301,7 @@ public class AgentToolCallsTest {
         .hasVariableSatisfies(
             TOOL_CALL_RESULT_VARIABLE,
             OrderDto.class,
-            toolCallResult -> assertThat(toolCallResult).isEqualTo(shippedOrder));
+            toolCallResult -> assertThat(toolCallResult).isEqualTo(finalOrder));
   }
 
   private static class RobotList extends ArrayList<RobotDto> {}

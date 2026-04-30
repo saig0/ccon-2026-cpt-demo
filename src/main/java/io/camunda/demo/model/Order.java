@@ -3,6 +3,8 @@ package io.camunda.demo.model;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,10 +46,15 @@ public class Order {
   private String shipmentAddressCountry;
 
   @Column
-  private LocalDate shipmentDate;
+  private LocalDate estimatedDeliveryDate;
 
   @Column
   private LocalDate paymentDate;
+
+  /** Lifecycle status of the order. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private OrderStatus status;
 
   /** Total price of the order in €. */
   @Column(nullable = false, precision = 10, scale = 2)
@@ -61,22 +68,24 @@ public class Order {
 
   public Order(Customer customer, LocalDate orderDate,
       String shipmentAddressStreet, String shipmentAddressCity, String shipmentAddressCountry,
-      LocalDate shipmentDate, LocalDate paymentDate, BigDecimal paymentAmount) {
+      LocalDate estimatedDeliveryDate, LocalDate paymentDate, BigDecimal paymentAmount,
+      OrderStatus status) {
     this.customer = customer;
     this.orderDate = orderDate;
     this.shipmentAddressStreet = shipmentAddressStreet;
     this.shipmentAddressCity = shipmentAddressCity;
     this.shipmentAddressCountry = shipmentAddressCountry;
-    this.shipmentDate = shipmentDate;
+    this.estimatedDeliveryDate = estimatedDeliveryDate;
     this.paymentDate = paymentDate;
     this.paymentAmount = paymentAmount;
+    this.status = status;
   }
 
   public Order(Customer customer, LocalDate orderDate,
       String shipmentAddressStreet, String shipmentAddressCity, String shipmentAddressCountry,
       BigDecimal paymentAmount) {
     this(customer, orderDate, shipmentAddressStreet, shipmentAddressCity, shipmentAddressCountry,
-        null, null, paymentAmount);
+        null, null, paymentAmount, OrderStatus.CREATED);
   }
 
   public Long getId() {
@@ -123,12 +132,12 @@ public class Order {
     this.shipmentAddressCountry = shipmentAddressCountry;
   }
 
-  public LocalDate getShipmentDate() {
-    return shipmentDate;
+  public LocalDate getEstimatedDeliveryDate() {
+    return estimatedDeliveryDate;
   }
 
-  public void setShipmentDate(LocalDate shipmentDate) {
-    this.shipmentDate = shipmentDate;
+  public void setEstimatedDeliveryDate(LocalDate estimatedDeliveryDate) {
+    this.estimatedDeliveryDate = estimatedDeliveryDate;
   }
 
   public LocalDate getPaymentDate() {
@@ -137,6 +146,14 @@ public class Order {
 
   public void setPaymentDate(LocalDate paymentDate) {
     this.paymentDate = paymentDate;
+  }
+
+  public OrderStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(OrderStatus status) {
+    this.status = status;
   }
 
   public BigDecimal getPaymentAmount() {
@@ -157,6 +174,7 @@ public class Order {
 
   @Override
   public String toString() {
-    return "Order{id=" + id + ", orderDate=" + orderDate + ", paymentAmount=" + paymentAmount + "}";
+    return "Order{id=" + id + ", orderDate=" + orderDate + ", paymentAmount=" + paymentAmount
+        + ", status=" + status + "}";
   }
 }

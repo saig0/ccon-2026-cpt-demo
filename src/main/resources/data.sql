@@ -430,54 +430,54 @@ VALUES (1, 'Zee', 'zee@camunda-robotics.io',
 -- Zee's orders (robot: WALL-E)
 INSERT INTO orders (id, customer_id, order_date,
                     shipment_address_street, shipment_address_city, shipment_address_country,
-                    shipment_date, payment_date, payment_amount)
+                    estimated_delivery_date, payment_date, payment_amount, status)
 VALUES (1, 1, '2025-01-10',
         'Zossener Str. 55-58', 'Berlin', 'Germany',
-        '2025-01-15', '2025-01-10', 3999.99),
+        '2025-01-15', '2025-01-10', 3999.99, 'DELIVERED'),
        (2, 1, '2025-06-01',
         'Zossener Str. 55-58', 'Berlin', 'Germany',
-        '2025-06-07', '2025-06-01', 449.99);
+        '2025-06-07', '2025-06-01', 449.99, 'DELIVERED');
 
 -- Luke's orders (robots: C3PO, R2-D2)
 INSERT INTO orders (id, customer_id, order_date,
                     shipment_address_street, shipment_address_city, shipment_address_country,
-                    shipment_date, payment_date, payment_amount)
+                    estimated_delivery_date, payment_date, payment_amount, status)
 VALUES (3, 2, '2024-11-20',
         'Moisture Farm, Jundland Wastes', 'Tatooine', 'Outer Rim Territories',
-        '2024-11-30', '2024-11-20', 9999.99),
+        '2024-11-30', '2024-11-20', 9999.99, 'DELIVERED'),
        (4, 2, '2025-02-14',
         'Moisture Farm, Jundland Wastes', 'Tatooine', 'Outer Rim Territories',
-        '2025-02-21', '2025-02-14', 8999.99);
+        '2025-02-21', '2025-02-14', 8999.99, 'DELIVERED');
 
 -- Philip J.'s orders (robot: Bender)
 INSERT INTO orders (id, customer_id, order_date,
                     shipment_address_street, shipment_address_city, shipment_address_country,
-                    shipment_date, payment_date, payment_amount)
+                    estimated_delivery_date, payment_date, payment_amount, status)
 VALUES (5, 3, '2025-03-01',
         '57th Street', 'New York', 'USA',
-        '2025-03-08', '2025-03-01', 7499.99);
+        '2025-03-08', '2025-03-01', 7499.99, 'DELIVERED');
 
 -- Hiro's orders (robot: Baymax)
 INSERT INTO orders (id, customer_id, order_date,
                     shipment_address_street, shipment_address_city, shipment_address_country,
-                    shipment_date, payment_date, payment_amount)
+                    estimated_delivery_date, payment_date, payment_amount, status)
 VALUES (6, 4, '2024-12-24',
         '1234 Lucky Cat Cafe, Akihabara District', 'San Francisco', 'USA',
-        '2024-12-29', '2024-12-24', 6999.99),
+        '2024-12-29', '2024-12-24', 6999.99, 'DELIVERED'),
        (7, 4, '2025-04-05',
         '1234 Lucky Cat Cafe, Akihabara District', 'San Francisco', 'USA',
-        '2025-04-12', '2025-04-05', 799.99);
+        '2025-04-12', '2025-04-05', 799.99, 'DELIVERED');
 
 -- Jean-Luc's orders (robot: Data)
 INSERT INTO orders (id, customer_id, order_date,
                     shipment_address_street, shipment_address_city, shipment_address_country,
-                    shipment_date, payment_date, payment_amount)
+                    estimated_delivery_date, payment_date, payment_amount, status)
 VALUES (8, 5, '2025-05-10',
         'Ready Room, Deck 8', 'USS Enterprise NCC-1701-D', 'United Federation of Planets',
-        '2025-05-20', '2025-05-10', 14999.99),
+        '2025-05-20', '2025-05-10', 14999.99, 'DELIVERED'),
        (9, 5, '2025-09-01',
         'Ready Room, Deck 8', 'USS Enterprise NCC-1701-D', 'United Federation of Planets',
-        '2025-09-08', '2025-09-01', 5999.99);
+        '2025-09-08', '2025-09-01', 5999.99, 'DELIVERED');
 
 -- ---------------------------------------------------------------------------
 -- Order Items
