@@ -114,15 +114,12 @@
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:businessRuleTask>
-      <bpmn:callActivity id="Activity_1n34g8u" name="Order items">
+      <bpmn:callActivity id="order-items" name="Order items">
         <bpmn:documentation>Use this tool to order items for the customer.</bpmn:documentation>
         <bpmn:extensionElements>
-          <zeebe:calledElement processId="order-process" propagateAllChildVariables="false" />
+          <zeebe:calledElement processId="order-process" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
-            <zeebe:input source="=fromAi(toolCall.customerId, &#34;The ID of the customer.&#34;, &#34;number&#34;)" target="customerId" />
-            <zeebe:input source="=fromAi(toolCall.shippmentAddress, &#34;The destination address of the order&#34;, &#34;object&#34;, { properties: {street: {type: &#34;string&#34;}, city: {type: &#34;string&#34;}, country: {type: &#34;string&#34;}} })" target="shippmentAddress" />
-            <zeebe:input source="=fromAi(toolCall.paymentAmount, &#34;The amount to pay for the order.&#34;, &#34;number&#34;)" target="paymentAmount" />
-            <zeebe:input source="=fromAi(toolCall.orderItems, &#34;The items of the order (robots, upgrades). Only with ID references&#34;, &#34;array&#34;, {items: {type: &#34;object&#34;, properties: {robotId: {type: &#34;integer&#34;}, upgradeId: {type: &#34;integer&#34;}, quantity: {type: &#34;integer&#34;}} }})" target="orderItems" />
+            <zeebe:input source="=fromAi(toolCall.orderRequest, &#34;The customer request to place a new order, including the customer ID, the destination address, the amount to pay, and the items of the order (robots, upgrades - Only with ID references).&#34;, &#34;object&#34;, { properties: { customerId: {type: &#34;number&#34;}, paymentAmount: {type: &#34;number&#34;}, shipmentAddress: {type: &#34;object&#34;, properties: {street: {type: &#34;string&#34;}, city: {type: &#34;string&#34;}, country: {type: &#34;string&#34;}}}, orderItems: {type: &#34;array&#34;, items: {type: &#34;object&#34;, properties: {robotId: {type: &#34;integer&#34;}, upgradeId: {type: &#34;integer&#34;}, quantity: {type: &#34;integer&#34;}} }} } })" target="orderRequest" />
             <zeebe:output source="=order" target="toolCallResult" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
@@ -314,6 +311,21 @@
         <dc:Bounds x="340" y="80" width="750" height="520" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vtx4cj_di" bpmnElement="load-customer-data">
+        <dc:Bounds x="380" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zg515l_di" bpmnElement="load-product-catalog">
+        <dc:Bounds x="650" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03jguje_di" bpmnElement="search-knowledge-base">
+        <dc:Bounds x="520" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ekpygc_di" bpmnElement="Event_08njjqe">
+        <dc:Bounds x="932" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="906" y="235" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0os7pko_di" bpmnElement="send-agent-reply">
         <dc:Bounds x="400" y="170" width="100" height="80" />
         <bpmndi:BPMNLabel />
@@ -328,26 +340,11 @@
         <dc:Bounds x="740" y="170" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0ekpygc_di" bpmnElement="Event_08njjqe">
-        <dc:Bounds x="932" y="192" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="906" y="235" width="89" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1vtx4cj_di" bpmnElement="load-customer-data">
-        <dc:Bounds x="380" y="360" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1aj9rsg_di" bpmnElement="calculate-discount">
         <dc:Bounds x="380" y="460" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_00xfl0z_di" bpmnElement="Activity_1n34g8u">
+      <bpmndi:BPMNShape id="Activity_00xfl0z_di" bpmnElement="order-items">
         <dc:Bounds x="520" y="460" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_03jguje_di" bpmnElement="search-knowledge-base">
-        <dc:Bounds x="520" y="360" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0zg515l_di" bpmnElement="load-product-catalog">
-        <dc:Bounds x="650" y="360" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1c80qxp_di" bpmnElement="Flow_1c80qxp">
         <di:waypoint x="500" y="210" />
@@ -394,6 +391,24 @@
       <bpmndi:BPMNShape id="BPMNShape_0qxgglh" bpmnElement="human-escalation">
         <dc:Bounds x="1500" y="380" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Group_03hh3l3_di" bpmnElement="Group_03hh3l3">
+        <dc:Bounds x="370" y="130" width="270" height="168" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="467" y="137" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Group_0cwg2jx_di" bpmnElement="Group_0cwg2jx">
+        <dc:Bounds x="710" y="130" width="300" height="168" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="835" y="137" width="51" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Group_1s9rzg2_di" bpmnElement="Group_1s9rzg2">
+        <dc:Bounds x="370" y="317" width="400" height="245" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="537" y="324" width="66" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0hj551s_di" bpmnElement="Event_0nnnt3i">
         <dc:Bounds x="1072" y="432" width="36" height="36" />
@@ -478,24 +493,6 @@
           <dc:Bounds x="1389" y="393" width="82" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Group_03hh3l3_di" bpmnElement="Group_03hh3l3">
-        <dc:Bounds x="370" y="130" width="270" height="168" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="467" y="137" width="77" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Group_0cwg2jx_di" bpmnElement="Group_0cwg2jx">
-        <dc:Bounds x="710" y="130" width="300" height="168" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="835" y="137" width="51" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Group_1s9rzg2_di" bpmnElement="Group_1s9rzg2">
-        <dc:Bounds x="370" y="317" width="400" height="245" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="537" y="324" width="66" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

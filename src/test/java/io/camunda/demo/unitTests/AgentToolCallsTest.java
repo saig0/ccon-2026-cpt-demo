@@ -3,6 +3,7 @@ package io.camunda.demo.unitTests;
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.*;
 import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
+import static io.camunda.process.test.api.assertions.ProcessInstanceSelectors.byProcessId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
 import io.camunda.client.api.search.enums.ElementInstanceType;
 import io.camunda.demo.dto.*;
+import io.camunda.demo.model.OrderStatus;
 import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.KnowledgeBaseService;
@@ -19,6 +21,7 @@ import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -253,6 +256,59 @@ public class AgentToolCallsTest {
             byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
             "numberOfUpgradesInOrder",
             discountDecisionInput.numberOfUpgradesInOrder());
+  }
+
+  @Test
+  void shouldOrderItems() {
+    // given
+    final AddressDto shipmentAddress =
+        new AddressDto("1 Moisture Farm Rd", "Anchorhead", "Tatooine");
+    final BigDecimal paymentAmount = BigDecimal.valueOf(9999.99);
+
+    final OrderRequestDto orderRequest =
+        new OrderRequestDto(
+            1L, shipmentAddress, paymentAmount, List.of(new OrderItemInputDto(1L, null, 1)));
+
+    final OrderDto order =
+        new OrderDto(
+            42L,
+            LocalDate.now(),
+            shipmentAddress,
+            LocalDate.now().plusDays(7),
+            LocalDate.now(),
+            paymentAmount,
+            List.of(),
+            OrderStatus.PREPARED_FOR_SHIPPING);
+
+    processTestContext.mockChildProcess(
+        CustomerSupportAgentProcess.ORDER_PROCESS_ID, Map.of("order", order));
+
+    // when
+    processTestContext.completeJobOfAdHocSubProcess(
+        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+        result ->
+            result
+                .activateElement(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID)
+                .variable(TOOL_CALL_VARIABLE, Map.of("orderRequest", orderRequest)));
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .isActive()
+        .hasCompletedElements(byName("Order items"))
+        .hasCompletedElement(
+            byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        // Verify call activity output mapping
+        .hasVariableSatisfies(
+            TOOL_CALL_RESULT_VARIABLE,
+            OrderDto.class,
+            toolCallResult -> assertThat(toolCallResult).isEqualTo(order));
+
+    // Verify call activity input mapping
+    assertThatProcessInstance(byProcessId(CustomerSupportAgentProcess.ORDER_PROCESS_ID))
+        .hasVariableSatisfies(
+            "orderRequest",
+            OrderRequestDto.class,
+            value -> assertThat(value).isEqualTo(orderRequest));
   }
 
   private static class RobotList extends ArrayList<RobotDto> {}
