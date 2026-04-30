@@ -117,12 +117,9 @@
       <bpmn:callActivity id="order-items" name="Order items">
         <bpmn:documentation>Use this tool to order items for the customer.</bpmn:documentation>
         <bpmn:extensionElements>
-          <zeebe:calledElement processId="order-process" propagateAllChildVariables="false" />
+          <zeebe:calledElement processId="order-process" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
-            <zeebe:input source="=fromAi(toolCall.customerId, &#34;The ID of the customer.&#34;, &#34;number&#34;)" target="customerId" />
-            <zeebe:input source="=fromAi(toolCall.shipmentAddress, &#34;The destination address of the order&#34;, &#34;object&#34;, { properties: {street: {type: &#34;string&#34;}, city: {type: &#34;string&#34;}, country: {type: &#34;string&#34;}} })" target="shipmentAddress" />
-            <zeebe:input source="=fromAi(toolCall.paymentAmount, &#34;The amount to pay for the order.&#34;, &#34;number&#34;)" target="paymentAmount" />
-            <zeebe:input source="=fromAi(toolCall.orderItems, &#34;The items of the order (robots, upgrades). Only with ID references&#34;, &#34;array&#34;, {items: {type: &#34;object&#34;, properties: {robotId: {type: &#34;integer&#34;}, upgradeId: {type: &#34;integer&#34;}, quantity: {type: &#34;integer&#34;}} }})" target="orderItems" />
+            <zeebe:input source="=fromAi(toolCall.orderRequest, &#34;The customer request to place a new order, including the customer ID, the destination address, the amount to pay, and the items of the order (robots, upgrades - Only with ID references).&#34;, &#34;object&#34;, { properties: { customerId: {type: &#34;number&#34;}, paymentAmount: {type: &#34;number&#34;}, shipmentAddress: {type: &#34;object&#34;, properties: {street: {type: &#34;string&#34;}, city: {type: &#34;string&#34;}, country: {type: &#34;string&#34;}}}, orderItems: {type: &#34;array&#34;, items: {type: &#34;object&#34;, properties: {robotId: {type: &#34;integer&#34;}, upgradeId: {type: &#34;integer&#34;}, quantity: {type: &#34;integer&#34;}} }} } })" target="orderRequest" />
             <zeebe:output source="=order" target="toolCallResult" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>

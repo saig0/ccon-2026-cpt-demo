@@ -3,12 +3,9 @@ package io.camunda.demo.workers;
 import io.camunda.client.annotation.JobWorker;
 import io.camunda.client.annotation.Variable;
 import io.camunda.client.api.response.ActivatedJob;
-import io.camunda.demo.dto.AddressDto;
 import io.camunda.demo.dto.OrderDto;
-import io.camunda.demo.dto.OrderItemInput;
+import io.camunda.demo.dto.OrderRequestDto;
 import io.camunda.demo.services.OrderDatabaseService;
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,24 +24,19 @@ public class CreateOrderWorker {
 
   private final OrderDatabaseService orderDatabaseService;
 
-  public CreateOrderWorker(OrderDatabaseService orderDatabaseService) {
+  public CreateOrderWorker(final OrderDatabaseService orderDatabaseService) {
     this.orderDatabaseService = orderDatabaseService;
   }
 
   @JobWorker(type = "create-order")
   public Map<String, Object> createOrder(
-      final ActivatedJob job,
-      @Variable(name = "customerId") Long customerId,
-      @Variable(name = "shipmentAddress") AddressDto shipmentAddress,
-      @Variable(name = "paymentAmount") BigDecimal paymentAmount,
-      @Variable(name = "orderItems") List<OrderItemInput> orderItems) {
+      final ActivatedJob job, @Variable(name = "orderRequest") final OrderRequestDto orderRequest) {
 
     LOG.info("Processing create-order job: {}", job.getKey());
 
-    final OrderDto order =
-        orderDatabaseService.createOrder(customerId, shipmentAddress, paymentAmount, orderItems);
+    final OrderDto order = orderDatabaseService.createOrder(orderRequest);
 
-    LOG.info("Created order {} for customer {}", order.id(), customerId);
+    LOG.info("Created order {} for customer {}", order.id(), orderRequest.customerId());
     return Map.of("order", order);
   }
 }

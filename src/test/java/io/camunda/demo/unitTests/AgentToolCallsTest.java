@@ -264,8 +264,10 @@ public class AgentToolCallsTest {
     final AddressDto shipmentAddress =
         new AddressDto("1 Moisture Farm Rd", "Anchorhead", "Tatooine");
     final BigDecimal paymentAmount = BigDecimal.valueOf(9999.99);
-    final long customerId = 1L;
-    final List<OrderItemInput> orderItems = List.of(new OrderItemInput(1L, null, 1));
+
+    final OrderRequestDto orderRequest =
+        new OrderRequestDto(
+            1L, shipmentAddress, paymentAmount, List.of(new OrderItemInputDto(1L, null, 1)));
 
     final OrderDto order =
         new OrderDto(
@@ -287,13 +289,7 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID)
-                .variable(
-                    TOOL_CALL_VARIABLE,
-                    Map.of(
-                        "customerId", customerId,
-                        "shipmentAddress", shipmentAddress,
-                        "paymentAmount", paymentAmount,
-                        "orderItems", orderItems)));
+                .variable(TOOL_CALL_VARIABLE, Map.of("orderRequest", orderRequest)));
 
     // then
     assertThatProcessInstance(processInstance)
@@ -309,19 +305,13 @@ public class AgentToolCallsTest {
 
     // Verify call activity input mapping
     assertThatProcessInstance(byProcessId(CustomerSupportAgentProcess.ORDER_PROCESS_ID))
-        .hasVariable("customerId", (int) customerId)
-        .hasVariable("paymentAmount", paymentAmount.doubleValue())
         .hasVariableSatisfies(
-            "shipmentAddress",
-            AddressDto.class,
-            value -> assertThat(value).isEqualTo(shipmentAddress))
-        .hasVariableSatisfies(
-            "orderItems", OrderItemList.class, value -> assertThat(value).isEqualTo(orderItems));
+            "orderRequest",
+            OrderRequestDto.class,
+            value -> assertThat(value).isEqualTo(orderRequest));
   }
 
   private static class RobotList extends ArrayList<RobotDto> {}
 
   private static class KnowledgeBaseEntryList extends ArrayList<KnowledgeBaseEntryDto> {}
-
-  private static class OrderItemList extends ArrayList<OrderItemInput> {}
 }
