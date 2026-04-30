@@ -3,6 +3,7 @@ package io.camunda.demo.unitTests;
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.*;
 import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
+import static io.camunda.process.test.api.assertions.ProcessInstanceSelectors.byProcessId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -263,9 +264,10 @@ public class AgentToolCallsTest {
     final AddressDto shipmentAddress =
         new AddressDto("1 Moisture Farm Rd", "Anchorhead", "Tatooine");
     final BigDecimal paymentAmount = BigDecimal.valueOf(9999.99);
+    final long customerId = 1L;
     final List<OrderItemInput> orderItems = List.of(new OrderItemInput(1L, null, 1));
 
-    final OrderDto finalOrder =
+    final OrderDto order =
         new OrderDto(
             42L,
             LocalDate.now(),
@@ -276,7 +278,8 @@ public class AgentToolCallsTest {
             List.of(),
             OrderStatus.PREPARED_FOR_SHIPPING);
 
-    processTestContext.mockChildProcess("order-process", Map.of("order", finalOrder));
+    processTestContext.mockChildProcess(
+        CustomerSupportAgentProcess.ORDER_PROCESS_ID, Map.of("order", order));
 
     // when
     processTestContext.completeJobOfAdHocSubProcess(
@@ -287,7 +290,7 @@ public class AgentToolCallsTest {
                 .variable(
                     TOOL_CALL_VARIABLE,
                     Map.of(
-                        "customerId", 1L,
+                        "customerId", customerId,
                         "shipmentAddress", shipmentAddress,
                         "paymentAmount", paymentAmount,
                         "orderItems", orderItems)));
@@ -298,13 +301,27 @@ public class AgentToolCallsTest {
         .hasCompletedElements(byName("Order items"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        // Verify call activity output mapping
         .hasVariableSatisfies(
             TOOL_CALL_RESULT_VARIABLE,
             OrderDto.class,
-            toolCallResult -> assertThat(toolCallResult).isEqualTo(finalOrder));
+            toolCallResult -> assertThat(toolCallResult).isEqualTo(order));
+
+    // Verify call activity input mapping
+    assertThatProcessInstance(byProcessId(CustomerSupportAgentProcess.ORDER_PROCESS_ID))
+        .hasVariable("customerId", (int) customerId)
+        .hasVariable("paymentAmount", paymentAmount.doubleValue())
+        .hasVariableSatisfies(
+            "shipmentAddress",
+            AddressDto.class,
+            value -> assertThat(value).isEqualTo(shipmentAddress))
+        .hasVariableSatisfies(
+            "orderItems", OrderItemList.class, value -> assertThat(value).isEqualTo(orderItems));
   }
 
   private static class RobotList extends ArrayList<RobotDto> {}
 
   private static class KnowledgeBaseEntryList extends ArrayList<KnowledgeBaseEntryDto> {}
+
+  private static class OrderItemList extends ArrayList<OrderItemInput> {}
 }

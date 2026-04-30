@@ -14,6 +14,7 @@ import io.camunda.demo.dto.OrderDto;
 import io.camunda.demo.dto.OrderItemDto;
 import io.camunda.demo.dto.PaymentInfoDto;
 import io.camunda.demo.dto.RobotDto;
+import io.camunda.demo.model.OrderStatus;
 import io.camunda.demo.model.RobotIntent;
 import io.camunda.demo.services.CustomerDatabaseService;
 import io.camunda.demo.services.KnowledgeBaseService;
@@ -94,7 +95,7 @@ public class AgentIntegrationWithMockServicesTest {
             LocalDate.of(2024, 12, 24),
             BigDecimal.valueOf(6999.99),
             List.of(new OrderItemDto(baymax, null, 1)),
-            io.camunda.demo.model.OrderStatus.DELIVERED);
+            OrderStatus.DELIVERED);
 
     final CustomerDto hiro =
         new CustomerDto(

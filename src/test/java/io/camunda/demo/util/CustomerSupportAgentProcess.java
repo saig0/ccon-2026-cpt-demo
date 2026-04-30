@@ -17,7 +17,7 @@ public class CustomerSupportAgentProcess {
   public static final String LOAD_PRODUCT_CATALOG_ELEMENT_ID = "load-product-catalog";
   public static final String SEARCH_KNOWLEDGE_BASE_ELEMENT_ID = "search-knowledge-base";
   public static final String CALCULATE_DISCOUNT_ELEMENT_ID = "calculate-discount";
-  public static final String ORDER_ITEMS_ELEMENT_ID = "Activity_1n34g8u";
+  public static final String ORDER_ITEMS_ELEMENT_ID = "order-items";
 
   public static final String INFORM_USER_ABOUT_ESCALATION_ELEMENT_ID =
       "inform-user-about-escalation";
@@ -31,6 +31,8 @@ public class CustomerSupportAgentProcess {
   public static final String CONVERSATION_ID = "conversation-1";
 
   public static final String DISCOUNT_DECISION_ID = "discount";
+
+  public static final String ORDER_PROCESS_ID = "order-process";
 
   // BPMN data objects
 
