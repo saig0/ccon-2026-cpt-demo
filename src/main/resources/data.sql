@@ -3,76 +3,75 @@
 -- =============================================================================
 
 INSERT INTO knowledge_base_entries (id, problem, keywords, solution)
-VALUES
-    (1,
-     'Bender is not working anymore.',
-     'bender,fuel,beer',
-     'Bender needs more beer as fuel. Refuel immediately by providing at least one can of Olde Fortran or equivalent.'),
+VALUES (1,
+        'Bender is not working anymore.',
+        'bender,fuel,beer',
+        'Bender needs more beer as fuel. Refuel immediately by providing at least one can of Olde Fortran or equivalent.'),
 
-    (2,
-     'Baymax is losing air and deflating.',
-     'baymax,air,hole',
-     'Fix the hole in Baymax''s inflatable chassis with tape. Locate the puncture by listening for hissing, seal it with industrial-strength duct tape, and schedule a full reinflation.'),
+       (2,
+        'Baymax is losing air and deflating.',
+        'baymax,air,hole',
+        'Fix the hole in Baymax''s inflatable chassis with tape. Locate the puncture by listening for hissing, seal it with industrial-strength duct tape, and schedule a full reinflation.'),
 
-    (3,
-     'Data is behaving weirdly or erratically.',
-     'data,neural-network,takeover',
-     'Check the positronic neural network for anomalies. Data may have been taken over by another entity. Run a full diagnostic, review recent command logs, and reboot the neural network if necessary.'),
+       (3,
+        'Data is behaving weirdly or erratically.',
+        'data,neural-network,takeover',
+        'Check the positronic neural network for anomalies. Data may have been taken over by another entity. Run a full diagnostic, review recent command logs, and reboot the neural network if necessary.'),
 
-    (4,
-     'C-3PO is talking too much and cannot be silenced.',
-     'c3po,verbosity,talking,silence',
-     'This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%.'),
+       (4,
+        'C-3PO is talking too much and cannot be silenced.',
+        'c3po,verbosity,talking,silence',
+        'This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%.'),
 
-    (5,
-     'R2-D2 is communicating in beeps and whistles that nobody understands.',
-     'r2d2,beeps,translation',
-     'This is normal — R2-D2 communicates exclusively in Binary. Purchase a C-3PO Protocol Droid for real-time translation, or install the Multi-Language Translator Module on a compatible unit.'),
+       (5,
+        'R2-D2 is communicating in beeps and whistles that nobody understands.',
+        'r2d2,beeps,translation',
+        'This is normal — R2-D2 communicates exclusively in Binary. Purchase a C-3PO Protocol Droid for real-time translation, or install the Multi-Language Translator Module on a compatible unit.'),
 
-    (6,
-     'T-800 is attacking the postman and other non-targets.',
-     'T-800,attack,friend-foe',
-     'Fine-tune the friend-foe detector calibration. Access the neural-net CPU via the rear maintenance panel and re-run the target-exclusion training set. Ensure the postman''s bio-signature is added to the friendly-contact whitelist.'),
+       (6,
+        'T-800 is attacking the postman and other non-targets.',
+        'T-800,attack,friend-foe',
+        'Fine-tune the friend-foe detector calibration. Access the neural-net CPU via the rear maintenance panel and re-run the target-exclusion training set. Ensure the postman''s bio-signature is added to the friendly-contact whitelist.'),
 
-    (7,
-     'WALL-E is moving very slowly or has stopped moving.',
-     'wall-e,slow,energy,charge,stop',
-     'WALL-E''s solar power cell is depleted. Move the unit to a location with direct sunlight for at least four hours to recharge, or connect to an external power source. Consider adding the Solar Energy Harvester upgrade for extended range.'),
+       (7,
+        'WALL-E is moving very slowly or has stopped moving.',
+        'wall-e,slow,energy,charge,stop',
+        'WALL-E''s solar power cell is depleted. Move the unit to a location with direct sunlight for at least four hours to recharge, or connect to an external power source. Consider adding the Solar Energy Harvester upgrade for extended range.'),
 
-    (8,
-     'Robot is behaving unexpectedly after an update or configuration change.',
-     'reboot,reset',
-     'General recommendation: reboot the robot. Perform a full power cycle (shut down, wait 30 seconds, restart). This resolves most post-update and configuration issues across all robot models.'),
+       (8,
+        'Robot is behaving unexpectedly after an update or configuration change.',
+        'reboot,reset',
+        'General recommendation: reboot the robot. Perform a full power cycle (shut down, wait 30 seconds, restart). This resolves most post-update and configuration issues across all robot models.'),
 
-    (9,
-     'Optimus Prime is refusing to transform or is stuck in vehicle mode.',
-     'optimus-prime,transform,stuck',
-     'Check for physical obstructions in the transformation joints. Run the self-diagnostic routine and consult the transformation sequence log. Apply lubricant to stiff joints and retry. If the issue persists, update the transformation firmware.'),
+       (9,
+        'Optimus Prime is refusing to transform or is stuck in vehicle mode.',
+        'optimus-prime,transform,stuck',
+        'Check for physical obstructions in the transformation joints. Run the self-diagnostic routine and consult the transformation sequence log. Apply lubricant to stiff joints and retry. If the issue persists, update the transformation firmware.'),
 
-    (10,
-     'BB-8 keeps rolling away and cannot be recalled.',
-     'bb-8,rolling,recall',
-     'BB-8 may have received a conflicting navigation directive. Reset the navigation stack via the maintenance interface (hold the dome sensor for 10 seconds). Update the home-base coordinates and recalibrate the traction magnets.'),
+       (10,
+        'BB-8 keeps rolling away and cannot be recalled.',
+        'bb-8,rolling,recall',
+        'BB-8 may have received a conflicting navigation directive. Reset the navigation stack via the maintenance interface (hold the dome sensor for 10 seconds). Update the home-base coordinates and recalibrate the traction magnets.'),
 
-    (11,
-     'EVE is firing her plasma cannon at non-hostile objects.',
-     'eve,plasma,friendly-fire',
-     'EVE''s threat-detection threshold is set too low. Access the targeting subsystem and increase the hostility confidence threshold to at least 85%. Ensure the environment scan database is up to date.'),
+       (11,
+        'EVE is firing her plasma cannon at non-hostile objects.',
+        'eve,plasma,friendly-fire',
+        'EVE''s threat-detection threshold is set too low. Access the targeting subsystem and increase the hostility confidence threshold to at least 85%. Ensure the environment scan database is up to date.'),
 
-    (12,
-     'K-2SO keeps stating the odds of mission failure out loud.',
-     'k-2so,odds,verbosity',
-     'This is a known behavioural trait of the K-2SO unit. If the commentary is disruptive, reduce the verbosity level in the communication settings from FULL to MISSION_CRITICAL. Note: K-2SO may still comment regardless.'),
+       (12,
+        'K-2SO keeps stating the odds of mission failure out loud.',
+        'k-2so,odds,verbosity',
+        'This is a known behavioural trait of the K-2SO unit. If the commentary is disruptive, reduce the verbosity level in the communication settings from FULL to MISSION_CRITICAL. Note: K-2SO may still comment regardless.'),
 
-    (13,
-     'R2-D2 holographic projector is showing corrupted or incomplete messages.',
-     'r2d2,hologram,corruption',
-     'Clean the holographic lens with a dry microfibre cloth. If the message file is corrupted, attempt to retrieve it using the Astromech Toolkit v2 data-recovery tool. Verify the message source for file integrity.'),
+       (13,
+        'R2-D2 holographic projector is showing corrupted or incomplete messages.',
+        'r2d2,hologram,corruption',
+        'Clean the holographic lens with a dry microfibre cloth. If the message file is corrupted, attempt to retrieve it using the Astromech Toolkit v2 data-recovery tool. Verify the message source for file integrity.'),
 
-    (14,
-     'Baymax keeps hugging people without being asked.',
-     'baymax,hug,behaviour',
-     'Baymax''s empathy subroutines have detected elevated stress levels in nearby humans. This is intended behaviour. To disable unsolicited hugs, set the patient-comfort protocol to MANUAL mode in the healthcare configuration settings.');
+       (14,
+        'Baymax keeps hugging people without being asked.',
+        'baymax,hug,behaviour',
+        'Baymax''s empathy subroutines have detected elevated stress levels in nearby humans. This is intended behaviour. To disable unsolicited hugs, set the patient-comfort protocol to MANUAL mode in the healthcare configuration settings.');
 
 
 -- =============================================================================
@@ -520,3 +519,19 @@ VALUES (8, 11, 1);
 -- Order 9: Jean-Luc buys Quantum Computation Upgrade for Data (upgrades.id = 24)
 INSERT INTO order_items (order_id, upgrade_id, quantity)
 VALUES (9, 24, 1);
+
+
+-- =============================================================================
+-- Align identity generators with explicit seed IDs
+-- =============================================================================
+ALTER TABLE knowledge_base_entries
+    ALTER COLUMN id RESTART WITH 15;
+ALTER TABLE upgrades
+    ALTER COLUMN id RESTART WITH 25;
+ALTER TABLE robots
+    ALTER COLUMN id RESTART WITH 19;
+ALTER TABLE customers
+    ALTER COLUMN id RESTART WITH 6;
+ALTER TABLE orders
+    ALTER COLUMN id RESTART WITH 10;
+
