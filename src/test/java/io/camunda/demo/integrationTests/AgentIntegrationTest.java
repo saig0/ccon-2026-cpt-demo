@@ -2,7 +2,6 @@ package io.camunda.demo.integrationTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
-import static io.camunda.process.test.api.assertions.ElementSelectors.byName;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,7 +35,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles({"integration-test", "example-data"})
 @SpringBootTest
 @CamundaSpringProcessTest
-public class AgentIntegrationWithRealServicesTest {
+public class AgentIntegrationTest {
 
   private static final Runnable END_CONVERSATION =
       () -> {
@@ -53,14 +51,11 @@ public class AgentIntegrationWithRealServicesTest {
 
   @RegisterExtension
   private final ConversationLogger conversationLogger =
-      new ConversationLogger(
-          () ->
-              sendChatMessageMock.getActivatedJobs().stream()
-                  .map(job -> (String) job.getVariable("message"))
-                  .toList());
+      new ConversationLogger(() -> sendChatMessageMock);
 
   @BeforeEach
-  void setupMocks() {
+  void setup() {
+    // Complete all send chat message jobs
     sendChatMessageMock =
         processTestContext
             .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
@@ -68,26 +63,6 @@ public class AgentIntegrationWithRealServicesTest {
 
     processUtil =
         new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
-  }
-
-  private static final class ConversationLogger implements TestWatcher {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConversationLogger.class);
-
-    private final Supplier<List<String>> conversationLogsSupplier;
-
-    private ConversationLogger(Supplier<List<String>> conversationLogsSupplier) {
-      this.conversationLogsSupplier = conversationLogsSupplier;
-    }
-
-    @Override
-    public void testFailed(ExtensionContext context, @Nullable Throwable cause) {
-      final List<String> messages = conversationLogsSupplier.get();
-      LOGGER.info(
-          "Test failed. Dumping conversation logs: (size: {}) \n=======================================\n{}",
-          messages.size(),
-          String.join("\n=======================================\n", messages));
-    }
   }
 
   @Test
@@ -106,14 +81,14 @@ public class AgentIntegrationWithRealServicesTest {
     // then
     assertThatProcessInstance(processInstance)
         .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElement(byName("Send agent reply"), 2);
+        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 2);
 
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(
             byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
             byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
-            "conversation",
+            CustomerSupportAgentProcess.Variables.CONVERSATION,
             """
                       The reply should be friendly and professional. It should contains: \
                       1. A greeting to 'Hiro', \
@@ -138,14 +113,14 @@ public class AgentIntegrationWithRealServicesTest {
     // then
     assertThatProcessInstance(processInstance)
         .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElement(byName("Send agent reply"), 3);
+        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 3);
 
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(
             byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
             byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
-            "conversation",
+            CustomerSupportAgentProcess.Variables.CONVERSATION,
             """
                       The reply should be friendly and professional. It should contains: \
                       1. A greeting to 'Luke', \
@@ -154,52 +129,33 @@ public class AgentIntegrationWithRealServicesTest {
                       4. Offer an upgrade to reduce the verbosity.""");
   }
 
-  @Disabled
-  @Test
-  void dynamicConversation() {
-    // given
-    final ProcessInstanceEvent processInstance =
-        processUtil.createProcessInstance("Jean-Luc", "My robot need support");
+  private static final class ConversationLogger implements TestWatcher {
 
-    // when
-    processTestContext
-        .when(() -> processUtil.awaitUserMessage(processInstance))
-        .as("Mock user reply")
-        .then(
-            () -> {
-              final String lastAgentReply =
-                  sendChatMessageMock
-                      .getActivatedJobs()
-                      .getLast()
-                      .getVariable("message")
-                      .toString();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConversationLogger.class);
 
-              final String userReply =
-                  lastAgentReply.toLowerCase().contains("tape")
-                      ? "Thank you, that fixed it!"
-                      : "That didn't work, I'm still having the issue.";
+    private static final String DELIMITER = "\n=======================================\n";
 
-              processUtil.publishUserMessage(userReply);
-            });
+    private final Supplier<JobWorkerMock> sendChatMessageMockSupplier;
 
-    // then
-    assertThatProcessInstance(processInstance)
-        .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElementsInOrder(
-            byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-            byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID));
+    private ConversationLogger(final Supplier<JobWorkerMock> sendChatMessageMockSupplier) {
+      this.sendChatMessageMockSupplier = sendChatMessageMockSupplier;
+    }
 
-    assertThatProcessInstance(processInstance)
-        .hasCompletedElements(
-            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
-            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
-        .hasLocalVariableSatisfiesJudge(
-            byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID),
-            "message",
-            """
-                      The reply should be friendly and professional. It should contains: \
-                      1. a greeting to 'Hiro', \
-                      2. confirm that the issue is about Baymax, \
-                      3. propose a solution using a tape.""");
+    @Override
+    public void testFailed(final ExtensionContext context, @Nullable final Throwable cause) {
+      final List<String> messages =
+          sendChatMessageMockSupplier.get().getActivatedJobs().stream()
+              .map(
+                  job ->
+                      (String)
+                          job.getVariable(CustomerSupportAgentProcess.Variables.SEND_CHAT_MESSAGE))
+              .toList();
+
+      LOGGER.info(
+          "Test failed. Dumping conversation logs: (size: {}){}{}",
+          messages.size(),
+          DELIMITER,
+          String.join(DELIMITER, messages));
+    }
   }
 }
