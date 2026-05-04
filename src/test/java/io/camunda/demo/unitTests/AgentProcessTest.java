@@ -30,6 +30,7 @@ public class AgentProcessTest {
     processTestContext
         .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
         .thenComplete();
+
     processUtil =
         new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
@@ -47,7 +48,7 @@ public class AgentProcessTest {
 
     processTestContext.completeJob(
         byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
-        Map.of("conversation_outcome", "OKAY"));
+        Map.of(CustomerSupportAgentProcess.Variables.CONVERSATION_OUTCOME, "OKAY"));
 
     // then
     assertThatProcessInstance(processInstance)
