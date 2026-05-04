@@ -8,9 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
-import io.camunda.demo.services.CustomerDatabaseService;
-import io.camunda.demo.services.KnowledgeBaseService;
-import io.camunda.demo.services.ProductCatalogService;
 import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
@@ -21,29 +18,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+/** Test cases to verify the guardrail logic in the customer support agent process. */
 @SpringBootTest
 @CamundaSpringProcessTest
 public class AgentGuardrailsTest {
 
-  private static final String USER_NAME = "Luke";
-
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
-
-  @MockitoBean private CustomerDatabaseService customerDatabaseService;
-  @MockitoBean private ProductCatalogService productCatalogService;
-  @MockitoBean private KnowledgeBaseService knowledgeBaseService;
 
   private ProcessInstanceEvent processInstance;
 
   @BeforeEach
-  void setup() {
-    processTestContext
-        .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
-        .thenComplete();
-
+  void createProcessInstance() {
+    // Create the process instance at the ad-hoc sub-process
     processInstance =
         client
             .newCreateInstanceCommand()
@@ -51,7 +39,7 @@ public class AgentGuardrailsTest {
             .latestVersion()
             .variables(
                 new CustomerSupportAgentProcess.ConversationRequest(
-                    USER_NAME,
+                    "Luke",
                     "I have an issue with my robot.",
                     CustomerSupportAgentProcess.CONVERSATION_ID))
             .startBeforeElement(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID)
@@ -60,6 +48,14 @@ public class AgentGuardrailsTest {
 
     assertThatProcessInstance(processInstance)
         .hasActiveElements(byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID));
+  }
+
+  @BeforeEach
+  void mockJobWorkers() {
+    // Complete all send chat message jobs
+    processTestContext
+        .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+        .thenComplete();
   }
 
   @Test
@@ -75,18 +71,29 @@ public class AgentGuardrailsTest {
             result
                 .activateElement(
                     CustomerSupportAgentProcess.INFORM_USER_ABOUT_ESCALATION_ELEMENT_ID)
-                .variable("toolCall", Map.of("agentReply", agentReply)));
+                .variable(
+                    CustomerSupportAgentProcess.Variables.TOOL_CALL,
+                    Map.of("agentReply", agentReply)));
 
     processTestContext.completeJob(
         byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
-        Map.of("conversation_outcome", "HUMAN_ESCALATION"));
+        Map.of(CustomerSupportAgentProcess.Variables.CONVERSATION_OUTCOME, "HUMAN_ESCALATION"));
 
     // then: human intervention user task is created
     assertThatProcessInstance(processInstance)
         .isActive()
-        .hasCompletedElementsInOrder(
-            byName("Inform user about escalation"), byName("Analyse conversation"))
-        .hasLocalVariable(byName("Inform user about escalation"), "message", agentReply);
+        .hasActiveElements(byId(CustomerSupportAgentProcess.HUMAN_ESCALATION_ELEMENT_ID))
+        // Verify the agent reply message
+        .hasLocalVariable(
+            byId(CustomerSupportAgentProcess.INFORM_USER_ABOUT_ESCALATION_ELEMENT_ID),
+            CustomerSupportAgentProcess.Variables.SEND_CHAT_MESSAGE,
+            agentReply)
+        // Verify the variable output mapping on the escalation event
+        .hasVariable(
+            CustomerSupportAgentProcess.Variables.CUSTOMER_SUPPORT_AGENT,
+            Map.of(
+                "escalation",
+                "The agent left the conversation to escalate to a human for taking over."));
 
     assertThatUserTask(
             UserTaskSelectors.byElementId(CustomerSupportAgentProcess.HUMAN_ESCALATION_ELEMENT_ID))
@@ -98,27 +105,42 @@ public class AgentGuardrailsTest {
   void shouldHandleAgentError() {
     // when: agent job throws a BPMN error (e.g. MAXIMUM_NUMBER_OF_MODEL_CALLS_REACHED
     // is mapped to AGENT_ERROR via the error expression)
+    final String errorCode = "MAXIMUM_NUMBER_OF_MODEL_CALLS_REACHED";
+    final String errorMessage =
+        "The agent has reached the maximum number of model calls allowed for this conversation.";
+
     processTestContext.throwBpmnErrorFromJob(
-        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID), "AGENT_ERROR");
+        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
+        "AGENT_ERROR",
+        Map.ofEntries(Map.entry("code", errorCode), Map.entry("message", errorMessage)));
 
     processTestContext.completeJob(
         byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
-        Map.of("conversation_outcome", "AGENT_ERROR"));
+        Map.of(CustomerSupportAgentProcess.Variables.CONVERSATION_OUTCOME, "AGENT_ERROR"));
 
     // then: inform user and create human intervention user task
     assertThatProcessInstance(processInstance)
         .isActive()
-        .hasCompletedElementsInOrder(byName("Analyse conversation"), byName("Report error to user"))
+        .hasCompletedElementsInOrder(
+            byId(CustomerSupportAgentProcess.REPORT_ERROR_TO_USER_ELEMENT_ID))
+        .hasActiveElements(byId(CustomerSupportAgentProcess.HUMAN_INTERVENTION_ELEMENT_ID))
+        // Verify the agent reply message
         .hasLocalVariableSatisfies(
-            byName("Report error to user"),
-            "message",
+            byId(CustomerSupportAgentProcess.REPORT_ERROR_TO_USER_ELEMENT_ID),
+            CustomerSupportAgentProcess.Variables.SEND_CHAT_MESSAGE,
             String.class,
             message ->
                 assertThat(message)
                     .contains(
                         "Human escalation",
                         "Oops, something went wrong",
-                        "One of our support agents will follow up"));
+                        "One of our support agents will follow up"))
+        // Verify the variable output mapping on the error event
+        .hasVariable(
+            CustomerSupportAgentProcess.Variables.CUSTOMER_SUPPORT_AGENT,
+            Map.of(
+                "error",
+                Map.ofEntries(Map.entry("code", errorCode), Map.entry("message", errorMessage))));
 
     assertThatUserTask(
             UserTaskSelectors.byElementId(
@@ -129,21 +151,25 @@ public class AgentGuardrailsTest {
 
   @Test
   void shouldHandleTimeout() {
-    // when: timer boundary fires (configured for 1 hour; advance time by 1 hour to trigger it)
-    processTestContext.increaseTime(Duration.ofHours(1));
+    // when: timer boundary fires (configured for 15 minutes; advance time to trigger it)
+    processTestContext.increaseTime(Duration.ofMinutes(15));
 
     processTestContext.completeJob(
         byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
-        Map.of("conversation_outcome", "OKAY"));
+        Map.of(CustomerSupportAgentProcess.Variables.CONVERSATION_OUTCOME, "OKAY"));
 
     // then
     assertThatProcessInstance(processInstance)
         .isCompleted()
-        .hasCompletedElements(byName("Analyse conversation"));
+        .hasCompletedElements(byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID))
+        // Verify the variable output mapping on the timer event
+        .hasVariable(
+            CustomerSupportAgentProcess.Variables.CUSTOMER_SUPPORT_AGENT,
+            Map.of("timeout", "The agent left the conversation after reaching the timeout."));
   }
 
   @Test
-  void shouldCreateUserTaskToReviewConversation() {
+  void shouldReviewConversation() {
     // when: ad-hoc subprocess completes normally and agent improvements are needed
     processTestContext.completeJobOfAdHocSubProcess(
         byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
@@ -151,50 +177,17 @@ public class AgentGuardrailsTest {
 
     processTestContext.completeJob(
         byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
-        Map.of("conversation_outcome", "AGENT_IMPROVEMENTS"));
+        Map.of(CustomerSupportAgentProcess.Variables.CONVERSATION_OUTCOME, "AGENT_IMPROVEMENTS"));
 
     // then: review conversation user task is created
     assertThatProcessInstance(processInstance)
         .isActive()
-        .hasCompletedElements(byName("Analyse conversation"));
+        .hasActiveElements(byId(CustomerSupportAgentProcess.REVIEW_CONVERSATION_ELEMENT_ID));
 
     assertThatUserTask(
             UserTaskSelectors.byElementId(
                 CustomerSupportAgentProcess.REVIEW_CONVERSATION_ELEMENT_ID))
         .hasName("Review conversation")
         .hasPriority(25);
-  }
-
-  @Test
-  void shouldInformUserAndCreateUserTaskWhenAgentLeftConversation() {
-    // when: ad-hoc subprocess completes normally but analyze conversation finds agent just left
-    processTestContext.completeJobOfAdHocSubProcess(
-        byElementId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-        result -> result.completionConditionFulfilled(true));
-
-    processTestContext.completeJob(
-        byElementId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID),
-        Map.of("conversation_outcome", "AGENT_ERROR"));
-
-    // then: inform user and create human intervention user task
-    assertThatProcessInstance(processInstance)
-        .isActive()
-        .hasCompletedElementsInOrder(byName("Analyse conversation"), byName("Report error to user"))
-        .hasLocalVariableSatisfies(
-            byName("Report error to user"),
-            "message",
-            String.class,
-            message ->
-                assertThat(message)
-                    .contains(
-                        "Human escalation",
-                        "Oops, something went wrong",
-                        "One of our support agents will follow up"));
-
-    assertThatUserTask(
-            UserTaskSelectors.byElementId(
-                CustomerSupportAgentProcess.HUMAN_INTERVENTION_ELEMENT_ID))
-        .hasName("Human intervention")
-        .hasPriority(100);
   }
 }

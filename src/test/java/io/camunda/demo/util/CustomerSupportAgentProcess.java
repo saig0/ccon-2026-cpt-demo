@@ -24,6 +24,7 @@ public class CustomerSupportAgentProcess {
   public static final String HUMAN_ESCALATION_ELEMENT_ID = "human-escalation";
   public static final String HUMAN_INTERVENTION_ELEMENT_ID = "human-intervention";
   public static final String REVIEW_CONVERSATION_ELEMENT_ID = "review-conversation";
+  public static final String REPORT_ERROR_TO_USER_ELEMENT_ID = "report-error-to-user";
 
   public static final String USER_MESSAGE_RECEIVED_NAME = "user-message";
   public static final String SEND_CHAT_MESSAGE_JOB_TYPE = "send-chat-message";
@@ -33,6 +34,14 @@ public class CustomerSupportAgentProcess {
   public static final String DISCOUNT_DECISION_ID = "discount";
 
   public static final String ORDER_PROCESS_ID = "order-process";
+
+  public static final class Variables {
+
+    public static final String TOOL_CALL = "toolCall";
+    public static final String CONVERSATION_OUTCOME = "conversation_outcome";
+    public static final String CUSTOMER_SUPPORT_AGENT = "customer_support_agent";
+    public static final String SEND_CHAT_MESSAGE = "message";
+  }
 
   // BPMN data objects
 
