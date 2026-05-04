@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,6 +76,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should reply to user with agent message and receive user reply")
   void shouldReplyToUser() {
     // given
     final String agentReply =
@@ -121,6 +123,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should load user data from the customer database service")
   void shouldLoadUser() {
     // given
     final CustomerDto customer =
@@ -162,6 +165,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should load product catalog")
   void shouldLoadProductCatalog() {
     // given
     final List<RobotDto> robots =
@@ -200,6 +204,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should load knowledge base entries")
   void shouldLoadKnowledgeBase() {
     // given
     final String keyword = "c3po";
@@ -237,6 +242,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should calculate discount based on the decision table")
   void shouldCalculateDiscount() {
     // given
     // Mock the decision to return a 15% discount. We verify the decision logic separately.
@@ -276,6 +282,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should call the order process as a child process")
   void shouldOrderItems() {
     // given
     final AddressDto shipmentAddress =

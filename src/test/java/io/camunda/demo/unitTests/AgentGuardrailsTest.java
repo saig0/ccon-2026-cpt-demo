@@ -15,6 +15,7 @@ import io.camunda.process.test.api.assertions.UserTaskSelectors;
 import java.time.Duration;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,6 +60,7 @@ public class AgentGuardrailsTest {
   }
 
   @Test
+  @DisplayName("Should escalate to human when agent cannot resolve the issue")
   void shouldEscalateToHuman() {
     // when: activate "Inform user about escalation" inside the ad-hoc subprocess,
     // which sends a message and then throws an escalation event caught by the boundary event
@@ -102,6 +104,7 @@ public class AgentGuardrailsTest {
   }
 
   @Test
+  @DisplayName("Should handle agent errors and inform the user about it")
   void shouldHandleAgentError() {
     // when: agent job throws a BPMN error (e.g. MAXIMUM_NUMBER_OF_MODEL_CALLS_REACHED
     // is mapped to AGENT_ERROR via the error expression)
@@ -150,6 +153,7 @@ public class AgentGuardrailsTest {
   }
 
   @Test
+  @DisplayName("Should handle conversation timeout")
   void shouldHandleTimeout() {
     // when: timer boundary fires (configured for 15 minutes; advance time to trigger it)
     processTestContext.increaseTime(Duration.ofMinutes(15));
@@ -169,6 +173,7 @@ public class AgentGuardrailsTest {
   }
 
   @Test
+  @DisplayName("Should review conversation and provide feedback for agent improvements")
   void shouldReviewConversation() {
     // when: ad-hoc subprocess completes normally and agent improvements are needed
     processTestContext.completeJobOfAdHocSubProcess(

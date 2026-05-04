@@ -12,6 +12,7 @@ import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +37,7 @@ public class AgentProcessTest {
   }
 
   @Test
+  @DisplayName("Should complete process when all steps are executed successfully")
   void shouldCompleteProcess() {
     // given
     final ProcessInstanceEvent processInstance =

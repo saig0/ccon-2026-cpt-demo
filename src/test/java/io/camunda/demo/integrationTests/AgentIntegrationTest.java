@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -55,17 +56,21 @@ public class AgentIntegrationTest {
 
   @BeforeEach
   void setup() {
+    processUtil =
+        new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
+  }
+
+  @BeforeEach
+  void mockJobWorkers() {
     // Complete all send chat message jobs
     sendChatMessageMock =
         processTestContext
             .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
             .thenComplete();
-
-    processUtil =
-        new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
   @Test
+  @DisplayName("Should identify the customer and solve the problem using the knowledge base")
   void shouldResolveProblem() {
     // given
     final ProcessInstanceEvent processInstance =
@@ -97,6 +102,7 @@ public class AgentIntegrationTest {
   }
 
   @Test
+  @DisplayName("Should offer an upgrade to reduce the verbosity if the problem is about C-3PO")
   void shouldOfferUpgrade() {
     // given
     final ProcessInstanceEvent processInstance =
