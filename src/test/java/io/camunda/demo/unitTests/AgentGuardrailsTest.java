@@ -88,7 +88,7 @@ public class AgentGuardrailsTest {
             byId(CustomerSupportAgentProcess.INFORM_USER_ABOUT_ESCALATION_ELEMENT_ID),
             CustomerSupportAgentProcess.Variables.SEND_CHAT_MESSAGE,
             agentReply)
-        // Verify the variable output mapping on the escalation event
+        // Verify the agent variable as an input for the "Analyze conversation" task
         .hasVariable(
             CustomerSupportAgentProcess.Variables.CUSTOMER_SUPPORT_AGENT,
             Map.of(
@@ -135,7 +135,7 @@ public class AgentGuardrailsTest {
                         "Human escalation",
                         "Oops, something went wrong",
                         "One of our support agents will follow up"))
-        // Verify the variable output mapping on the error event
+        // Verify the agent variable as an input for the "Analyze conversation" task
         .hasVariable(
             CustomerSupportAgentProcess.Variables.CUSTOMER_SUPPORT_AGENT,
             Map.of(
@@ -162,7 +162,7 @@ public class AgentGuardrailsTest {
     assertThatProcessInstance(processInstance)
         .isCompleted()
         .hasCompletedElements(byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID))
-        // Verify the variable output mapping on the timer event
+        // Verify the agent variable as an input for the "Analyze conversation" task
         .hasVariable(
             CustomerSupportAgentProcess.Variables.CUSTOMER_SUPPORT_AGENT,
             Map.of("timeout", "The agent left the conversation after reaching the timeout."));
