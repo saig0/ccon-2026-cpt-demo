@@ -38,6 +38,7 @@ public class CustomerSupportAgentProcess {
   public static final class Variables {
 
     public static final String TOOL_CALL = "toolCall";
+    public static final String TOOL_CALL_RESULT = "toolCallResult";
     public static final String CONVERSATION_OUTCOME = "conversation_outcome";
     public static final String CUSTOMER_SUPPORT_AGENT = "customer_support_agent";
     public static final String SEND_CHAT_MESSAGE = "message";
