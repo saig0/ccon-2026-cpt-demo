@@ -6,6 +6,9 @@ import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.EvaluateDecisionResponse;
 import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
+import io.camunda.process.test.api.testCases.TestCase;
+import io.camunda.process.test.api.testCases.TestCaseRunner;
+import io.camunda.process.test.api.testCases.TestCaseSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -17,6 +20,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class DiscountDecisionTest {
 
   @Autowired private CamundaClient client;
+  @Autowired private TestCaseRunner testCaseRunner;
+
+  @ParameterizedTest
+  @TestCaseSource(fileNames = "discount-decision-test.json")
+  void runJsonTestCase(final TestCase testCase, final String fileName) {
+    testCaseRunner.run(testCase);
+  }
 
   @ParameterizedTest
   @CsvSource(

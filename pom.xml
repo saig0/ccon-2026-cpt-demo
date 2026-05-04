@@ -80,6 +80,13 @@
         </dependency>
 
         <dependency>
+            <groupId>io.camunda</groupId>
+            <artifactId>camunda-process-test-json-test-cases</artifactId>
+            <version>8.9.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
