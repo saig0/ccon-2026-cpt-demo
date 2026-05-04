@@ -108,7 +108,43 @@ public class AgentIntegrationTest {
         .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
         .then(() -> processUtil.publishUserMessage("It's about C3P0. He is talking too much."))
-        .then(() -> processUtil.publishUserMessage("Sounds good. Do I get any discount?"))
+        .then(() -> processUtil.publishUserMessage("Sounds good. Please order it for me."))
+        .then(END_CONVERSATION);
+
+    // then
+    assertThatProcessInstance(processInstance)
+        .withAssertionTimeout(Duration.ofMinutes(2))
+        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 3);
+
+    assertThatProcessInstance(processInstance)
+        .hasCompletedElements(
+            byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID))
+        .hasVariableSatisfiesJudge(
+            CustomerSupportAgentProcess.Variables.CONVERSATION,
+            """
+                      The reply should be friendly and professional. It should contains: \
+                      1. A greeting to 'Luke', \
+                      2. Ask if the problem is about 'R2-D2' or 'C-3PO', \
+                      3. Confirm that this is expected behavior,
+                      4. Offer an upgrade to reduce the verbosity,
+                      5. Confirm the order of the upgrade.""");
+  }
+
+  @Test
+  @DisplayName("Should offer a new robot and place an order")
+  void shouldOfferNewRobotAndPlaceOrder() {
+    // given
+    final ProcessInstanceEvent processInstance =
+        processUtil.createProcessInstance("Zee", "I'm looking for a friend for my robot");
+
+    // when
+    processTestContext
+        .when(() -> processUtil.awaitUserMessage(processInstance))
+        .as("Mock user reply")
+        .then(() -> processUtil.publishUserMessage("EVE sounds like a great match for WALL-E."))
+        .then(() -> processUtil.publishUserMessage("Do I get any discount?"))
         .then(() -> processUtil.publishUserMessage("Perfect. Please order it for me."))
         .then(END_CONVERSATION);
 
@@ -120,18 +156,16 @@ public class AgentIntegrationTest {
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(
             byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
-            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID),
             byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
             byId(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
             CustomerSupportAgentProcess.Variables.CONVERSATION,
             """
-                      The reply should be friendly and professional. It should contains: \
-                      1. A greeting to 'Luke', \
-                      2. Ask if the problem is about 'R2-D2' or 'C-3PO', \
-                      3. Confirm that this is expected behavior,
-                      4. Offer an upgrade to reduce the verbosity,
-                      6. Offer a discount of 15% for the upgrade,
-                      7. Confirm the order of the upgrade.""");
+                        The reply should be friendly and professional. It should contains: \
+                        1. A greeting to 'Zee', \
+                        2. Confirm that Zee has a robot 'WALL-E',
+                        3. Propose different robots such as 'EVE', \
+                        4. Offer a discount of 15%,
+                        5. Confirm the order of the new robot.""");
   }
 }
