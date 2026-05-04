@@ -6,6 +6,7 @@ import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.EvaluateDecisionResponse;
 import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class DiscountDecisionTest {
                   0        |         0       |         1         |        0      | # Upgrade only
                   0        |         0       |         0         |        0      | # No discount
           """)
+  @DisplayName("Should calculate discount")
   void shouldCalculateDiscount(
       final int numberOfPreviouslyPurchasedRobots,
       final int numberOfRobotsInOrder,

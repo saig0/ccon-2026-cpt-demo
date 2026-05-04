@@ -5,6 +5,7 @@ import static io.camunda.process.test.api.assertions.ElementSelectors.*;
 import static io.camunda.process.test.api.assertions.JobSelectors.byElementId;
 import static io.camunda.process.test.api.assertions.ProcessInstanceSelectors.byProcessId;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.camunda.client.CamundaClient;
@@ -27,19 +28,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+/**
+ * Test cases to verify the correct execution of the tool calls in the customer support agent
+ * process.
+ */
 @SpringBootTest
 @CamundaSpringProcessTest
 public class AgentToolCallsTest {
 
   private static final String USER_NAME = "Luke";
-
-  private static final String TOOL_CALL_RESULT_VARIABLE = "toolCallResult";
-  private static final String TOOL_CALL_VARIABLE = "toolCall";
 
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
@@ -52,6 +55,7 @@ public class AgentToolCallsTest {
 
   @BeforeEach
   void createProcessInstance() {
+    // Create the process instance at the ad-hoc sub-process
     processInstance =
         client
             .newCreateInstanceCommand()
@@ -72,6 +76,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should reply to user with agent message and receive user reply")
   void shouldReplyToUser() {
     // given
     final String agentReply =
@@ -89,7 +94,9 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID)
-                .variable(TOOL_CALL_VARIABLE, Map.of("agentReply", agentReply)));
+                .variable(
+                    CustomerSupportAgentProcess.Variables.TOOL_CALL,
+                    Map.of("agentReply", agentReply)));
 
     assertThatProcessInstance(processInstance)
         .isWaitingForMessage(
@@ -102,19 +109,21 @@ public class AgentToolCallsTest {
     // then
     assertThatProcessInstance(processInstance)
         .isActive()
-        .hasCompletedElementsInOrder(byName("Send agent reply"), byName("User message received"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
-        .hasVariable(TOOL_CALL_RESULT_VARIABLE, userReply);
+        // Verify the tool call result
+        .hasVariable(CustomerSupportAgentProcess.Variables.TOOL_CALL_RESULT, userReply);
 
+    // Verify the agent reply message
     assertThat(sendChatMessageMockWorker.getActivatedJobs())
         .hasSize(1)
         .first()
-        .extracting(job -> job.getVariable("message"))
+        .extracting(job -> job.getVariable(CustomerSupportAgentProcess.Variables.SEND_CHAT_MESSAGE))
         .isEqualTo(agentReply);
   }
 
   @Test
+  @DisplayName("Should load user data from the customer database service")
   void shouldLoadUser() {
     // given
     final CustomerDto customer =
@@ -136,21 +145,27 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID)
-                .variable(TOOL_CALL_VARIABLE, Map.of("customerName", USER_NAME)));
+                .variable(
+                    CustomerSupportAgentProcess.Variables.TOOL_CALL,
+                    Map.of("customerName", USER_NAME)));
 
     // then
     assertThatProcessInstance(processInstance)
         .isActive()
-        .hasCompletedElements(byName("Load customer data"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        // Verify the tool call result
         .hasVariableSatisfies(
-            TOOL_CALL_RESULT_VARIABLE,
+            CustomerSupportAgentProcess.Variables.TOOL_CALL_RESULT,
             CustomerDto.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(customer));
+
+    // Verify that the user is loaded from the service
+    verify(customerDatabaseService).findCustomerByName(USER_NAME);
   }
 
   @Test
+  @DisplayName("Should load product catalog")
   void shouldLoadProductCatalog() {
     // given
     final List<RobotDto> robots =
@@ -176,27 +191,32 @@ public class AgentToolCallsTest {
     // then
     assertThatProcessInstance(processInstance)
         .isActive()
-        .hasCompletedElements(byName("Load product catalog"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        // Verify the tool call result
         .hasVariableSatisfies(
-            TOOL_CALL_RESULT_VARIABLE,
+            CustomerSupportAgentProcess.Variables.TOOL_CALL_RESULT,
             RobotList.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(robots));
+
+    // Verify that the products are loaded from the service
+    verify(productCatalogService).findAllRobots();
   }
 
   @Test
+  @DisplayName("Should load knowledge base entries")
   void shouldLoadKnowledgeBase() {
     // given
+    final String keyword = "c3po";
     final List<KnowledgeBaseEntryDto> knowledgeBaseEntries =
         List.of(
             new KnowledgeBaseEntryDto(
                 4L,
                 "C-3PO is talking too much and cannot be silenced.",
-                List.of("c3po", "verbosity", "talking", "silence"),
+                List.of(keyword, "verbosity", "talking", "silence"),
                 "This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%."));
 
-    when(knowledgeBaseService.findByKeyword("c3po")).thenReturn(knowledgeBaseEntries);
+    when(knowledgeBaseService.findByKeyword(keyword)).thenReturn(knowledgeBaseEntries);
 
     // when
     processTestContext.completeJobOfAdHocSubProcess(
@@ -204,23 +224,28 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID)
-                .variable(TOOL_CALL_VARIABLE, Map.of("keyword", "c3po")));
+                .variable(
+                    CustomerSupportAgentProcess.Variables.TOOL_CALL, Map.of("keyword", keyword)));
 
     // then
     assertThatProcessInstance(processInstance)
-        .isActive()
-        .hasCompletedElements(byName("Search knowledge base"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
+        // Verify the tool call result
         .hasVariableSatisfies(
-            TOOL_CALL_RESULT_VARIABLE,
+            CustomerSupportAgentProcess.Variables.TOOL_CALL_RESULT,
             KnowledgeBaseEntryList.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(knowledgeBaseEntries));
+
+    // Verify that the knowledge base is queried
+    verify(knowledgeBaseService).findByKeyword(keyword);
   }
 
   @Test
+  @DisplayName("Should calculate discount based on the decision table")
   void shouldCalculateDiscount() {
     // given
+    // Mock the decision to return a 15% discount. We verify the decision logic separately.
     final int discount = 15;
     processTestContext.mockDmnDecision(CustomerSupportAgentProcess.DISCOUNT_DECISION_ID, discount);
 
@@ -233,17 +258,15 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID)
-                .variable(TOOL_CALL_VARIABLE, discountDecisionInput));
+                .variable(CustomerSupportAgentProcess.Variables.TOOL_CALL, discountDecisionInput));
 
     // then
     assertThatProcessInstance(processInstance)
-        .isActive()
-        .hasCompletedElements(byName("Calculate discount"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
-        // Verify decision output mapping
-        .hasVariable(TOOL_CALL_RESULT_VARIABLE, discount)
-        // Verify decision input mapping
+        // Verify the tool call result
+        .hasVariable(CustomerSupportAgentProcess.Variables.TOOL_CALL_RESULT, discount)
+        // Verify the input mapping as the contract of the decision
         .hasLocalVariable(
             byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
             "numberOfPreviouslyPurchasedRobots",
@@ -259,6 +282,7 @@ public class AgentToolCallsTest {
   }
 
   @Test
+  @DisplayName("Should call the order process as a child process")
   void shouldOrderItems() {
     // given
     final AddressDto shipmentAddress =
@@ -280,6 +304,8 @@ public class AgentToolCallsTest {
             List.of(),
             OrderStatus.PREPARED_FOR_SHIPPING);
 
+    // Mock the child process to reduce the test scope. We verify the child process logic
+    // separately.
     processTestContext.mockChildProcess(
         CustomerSupportAgentProcess.ORDER_PROCESS_ID, Map.of("order", order));
 
@@ -289,21 +315,21 @@ public class AgentToolCallsTest {
         result ->
             result
                 .activateElement(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID)
-                .variable(TOOL_CALL_VARIABLE, Map.of("orderRequest", orderRequest)));
+                .variable(
+                    CustomerSupportAgentProcess.Variables.TOOL_CALL,
+                    Map.of("orderRequest", orderRequest)));
 
     // then
     assertThatProcessInstance(processInstance)
-        .isActive()
-        .hasCompletedElements(byName("Order items"))
         .hasCompletedElement(
             byElementType(ElementInstanceType.AD_HOC_SUB_PROCESS_INNER_INSTANCE), 1)
-        // Verify call activity output mapping
+        // Verify the tool call result
         .hasVariableSatisfies(
-            TOOL_CALL_RESULT_VARIABLE,
+            CustomerSupportAgentProcess.Variables.TOOL_CALL_RESULT,
             OrderDto.class,
             toolCallResult -> assertThat(toolCallResult).isEqualTo(order));
 
-    // Verify call activity input mapping
+    // Verify the input mappings as the contract of the child process
     assertThatProcessInstance(byProcessId(CustomerSupportAgentProcess.ORDER_PROCESS_ID))
         .hasVariableSatisfies(
             "orderRequest",

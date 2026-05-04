@@ -2,7 +2,6 @@ package io.camunda.demo.integrationTests;
 
 import static io.camunda.process.test.api.CamundaAssert.assertThatProcessInstance;
 import static io.camunda.process.test.api.assertions.ElementSelectors.byId;
-import static io.camunda.process.test.api.assertions.ElementSelectors.byName;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
@@ -10,17 +9,10 @@ import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
-import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
 import java.time.Duration;
-import java.util.List;
-import java.util.function.Supplier;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.extension.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +29,9 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles({"integration-test", "example-data"})
 @SpringBootTest
 @CamundaSpringProcessTest
-public class AgentIntegrationWithRealServicesTest {
+public class AgentIntegrationTest {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AgentIntegrationTest.class);
 
   private static final Runnable END_CONVERSATION =
       () -> {
@@ -49,48 +43,29 @@ public class AgentIntegrationWithRealServicesTest {
 
   private CustomerSupportAgentProcessUtil processUtil;
 
-  private JobWorkerMock sendChatMessageMock;
-
-  @RegisterExtension
-  private final ConversationLogger conversationLogger =
-      new ConversationLogger(
-          () ->
-              sendChatMessageMock.getActivatedJobs().stream()
-                  .map(job -> (String) job.getVariable("message"))
-                  .toList());
-
   @BeforeEach
-  void setupMocks() {
-    sendChatMessageMock =
-        processTestContext
-            .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
-            .thenComplete();
-
+  void setup() {
     processUtil =
         new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
   }
 
-  private static final class ConversationLogger implements TestWatcher {
+  @BeforeEach
+  void mockJobWorkers() {
+    // Complete all send chat message jobs
+    processTestContext
+        .mockJobWorker(CustomerSupportAgentProcess.SEND_CHAT_MESSAGE_JOB_TYPE)
+        .withHandler(
+            (jobClient, job) -> {
+              LOGGER.info(
+                  "Send agent message: '{}'",
+                  job.getVariable(CustomerSupportAgentProcess.Variables.SEND_CHAT_MESSAGE));
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConversationLogger.class);
-
-    private final Supplier<List<String>> conversationLogsSupplier;
-
-    private ConversationLogger(Supplier<List<String>> conversationLogsSupplier) {
-      this.conversationLogsSupplier = conversationLogsSupplier;
-    }
-
-    @Override
-    public void testFailed(ExtensionContext context, @Nullable Throwable cause) {
-      final List<String> messages = conversationLogsSupplier.get();
-      LOGGER.info(
-          "Test failed. Dumping conversation logs: (size: {}) \n=======================================\n{}",
-          messages.size(),
-          String.join("\n=======================================\n", messages));
-    }
+              jobClient.newCompleteCommand(job).send();
+            });
   }
 
   @Test
+  @DisplayName("Should identify the customer and solve the problem using the knowledge base")
   void shouldResolveProblem() {
     // given
     final ProcessInstanceEvent processInstance =
@@ -106,14 +81,14 @@ public class AgentIntegrationWithRealServicesTest {
     // then
     assertThatProcessInstance(processInstance)
         .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElement(byName("Send agent reply"), 2);
+        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 2);
 
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(
             byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
             byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
-            "conversation",
+            CustomerSupportAgentProcess.Variables.CONVERSATION,
             """
                       The reply should be friendly and professional. It should contains: \
                       1. A greeting to 'Hiro', \
@@ -122,7 +97,8 @@ public class AgentIntegrationWithRealServicesTest {
   }
 
   @Test
-  void shouldOfferUpgrade() {
+  @DisplayName("Should offer an upgrade and place an order")
+  void shouldOfferUpgradeAndPlaceOrder() {
     // given
     final ProcessInstanceEvent processInstance =
         processUtil.createProcessInstance("Luke", "I have a problem with my robot");
@@ -132,74 +108,64 @@ public class AgentIntegrationWithRealServicesTest {
         .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
         .then(() -> processUtil.publishUserMessage("It's about C3P0. He is talking too much."))
-        .then(() -> processUtil.publishUserMessage("Perfect. I want to have this upgrade."))
+        .then(() -> processUtil.publishUserMessage("Sounds good. Please order it for me."))
         .then(END_CONVERSATION);
 
     // then
     assertThatProcessInstance(processInstance)
         .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElement(byName("Send agent reply"), 3);
+        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 3);
 
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(
             byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
-            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
+            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID))
         .hasVariableSatisfiesJudge(
-            "conversation",
+            CustomerSupportAgentProcess.Variables.CONVERSATION,
             """
                       The reply should be friendly and professional. It should contains: \
                       1. A greeting to 'Luke', \
                       2. Ask if the problem is about 'R2-D2' or 'C-3PO', \
                       3. Confirm that this is expected behavior,
-                      4. Offer an upgrade to reduce the verbosity.""");
+                      4. Offer an upgrade to reduce the verbosity,
+                      5. Confirm the order of the upgrade.""");
   }
 
-  @Disabled
   @Test
-  void dynamicConversation() {
+  @DisplayName("Should offer a new robot and place an order")
+  void shouldOfferNewRobotAndPlaceOrder() {
     // given
     final ProcessInstanceEvent processInstance =
-        processUtil.createProcessInstance("Jean-Luc", "My robot need support");
+        processUtil.createProcessInstance("Zee", "I'm looking for a friend for my robot");
 
     // when
     processTestContext
         .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
-        .then(
-            () -> {
-              final String lastAgentReply =
-                  sendChatMessageMock
-                      .getActivatedJobs()
-                      .getLast()
-                      .getVariable("message")
-                      .toString();
-
-              final String userReply =
-                  lastAgentReply.toLowerCase().contains("tape")
-                      ? "Thank you, that fixed it!"
-                      : "That didn't work, I'm still having the issue.";
-
-              processUtil.publishUserMessage(userReply);
-            });
+        .then(() -> processUtil.publishUserMessage("EVE sounds like a great match for WALL-E."))
+        .then(() -> processUtil.publishUserMessage("Do I get any discount?"))
+        .then(() -> processUtil.publishUserMessage("Perfect. Please order it for me."))
+        .then(END_CONVERSATION);
 
     // then
     assertThatProcessInstance(processInstance)
         .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElementsInOrder(
-            byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID),
-            byId(CustomerSupportAgentProcess.ANALYZE_CONVERSATION_ELEMENT_ID));
+        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 4);
 
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(
             byId(CustomerSupportAgentProcess.LOAD_CUSTOMER_DATA_ELEMENT_ID),
-            byId(CustomerSupportAgentProcess.SEARCH_KNOWLEDGE_BASE_ELEMENT_ID))
-        .hasLocalVariableSatisfiesJudge(
-            byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID),
-            "message",
+            byId(CustomerSupportAgentProcess.CALCULATE_DISCOUNT_ELEMENT_ID),
+            byId(CustomerSupportAgentProcess.ORDER_ITEMS_ELEMENT_ID))
+        .hasVariableSatisfiesJudge(
+            CustomerSupportAgentProcess.Variables.CONVERSATION,
             """
-                      The reply should be friendly and professional. It should contains: \
-                      1. a greeting to 'Hiro', \
-                      2. confirm that the issue is about Baymax, \
-                      3. propose a solution using a tape.""");
+                        The reply should be friendly and professional. It should contains: \
+                        1. A greeting to 'Zee', \
+                        2. Confirm that Zee has a robot 'WALL-E',
+                        3. Propose different robots such as 'EVE', \
+                        4. Offer a discount of 15%,
+                        5. Confirm the order of the new robot.""");
   }
 }
