@@ -1,0 +1,233 @@
+{
+  "$schema": "https://camunda.com/json-schema/cpt-test-cases/8.9/schema.json",
+  "testCases": [
+    {
+      "name": "Should identify the customer and solve the problem using the knowledge base",
+      "description": "The agent uses the real data services to load customer data and search the knowledge base. The 'send-chat-message' job worker is mocked since no real UI is available in tests.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Hiro",
+            "message": "My robot is losing air",
+            "conversationId": "conversation-1"
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "Thank you, that fixed it!"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {
+              "elementId": "load-customer-data"
+            },
+            {
+              "elementId": "search-knowledge-base"
+            }
+          ],
+          "state": "IS_COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "Should offer an upgrade and place an order",
+      "description": "The agent uses the real data service to load customer data and then offers an upgrade based on the customer's robot model. The user accepts the offer and the agent completes the order-items task. The 'send-chat-message' job worker is mocked since no real UI is available in tests.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have a problem with my robot",
+            "conversationId": "conversation-1"
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "It's about C3P0. He is talking too much."
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "Sounds good. Please order it for me."
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {
+              "elementId": "load-customer-data"
+            },
+            {
+              "elementId": "search-knowledge-base"
+            },
+            {
+              "elementId": "order-items"
+            }
+          ],
+          "state": "IS_COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "Should offer a new robot and place an order",
+      "description": "The agent uses the real data service to load customer data and then offers a new robot based on the customer's robot model. The user accepts the offer and the agent completes the order-items task. The 'send-chat-message' job worker is mocked since no real UI is available in tests.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Zee",
+            "message": "I'm looking for a friend for my robot",
+            "conversationId": "conversation-1"
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "EVE sounds like a great match for WALL-E."
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "Do I get any discount?"
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "Perfect. Please order it for me."
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {
+              "elementId": "load-customer-data"
+            },
+            {
+              "elementId": "calculate-discount"
+            },
+            {
+              "elementId": "order-items"
+            }
+          ],
+          "state": "IS_COMPLETED"
+        }
+      ]
+    }
+  ]
+}

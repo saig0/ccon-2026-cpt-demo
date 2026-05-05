@@ -22,7 +22,7 @@ public class AgentUnitJsonTest {
 
   @ParameterizedTest(name = "[{index}] {0} ({1})")
   @TestCaseSource(directory = "/test-cases/unit-tests")
-  @DisplayName("Run JSON-based test case for customer support agent process")
+  @DisplayName("Run JSON-based unit test case for customer support agent process")
   void runJsonTestCase(final TestCase testCase, final String fileName) {
     // when/then: run and verify the test case
     testCaseRunner.run(testCase);
