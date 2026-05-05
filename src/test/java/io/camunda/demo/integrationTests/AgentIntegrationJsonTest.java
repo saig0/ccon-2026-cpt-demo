@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -21,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles({"integration-test", "example-data"})
 @SpringBootTest(properties = {"camunda.process-test.assertion.timeout=PT2M"})
 @CamundaSpringProcessTest
+@DirtiesContext // Clean the database after all tests
 public class AgentIntegrationJsonTest {
 
   @Autowired private TestCaseRunner testCaseRunner;
