@@ -1,5 +1,6 @@
 package io.camunda.demo.unitTests;
 
+import io.camunda.demo.dto.*;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.testCases.TestCase;
 import io.camunda.process.test.api.testCases.TestCaseRunner;
@@ -13,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * JSON-based unit tests for the customer support agent process. The tests are counterparts of the
  * Java-based unit tests.
  */
-@SpringBootTest
+@SpringBootTest(properties = {"camunda.client.worker.defaults.enabled=false"})
 @CamundaSpringProcessTest
 public class AgentUnitJsonTest {
 
