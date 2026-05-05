@@ -21,18 +21,15 @@ import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
 import io.camunda.process.test.api.mock.JobWorkerMockBuilder.JobWorkerMock;
-import io.camunda.process.test.api.testCases.TestCase;
-import io.camunda.process.test.api.testCases.TestCaseRunner;
-import io.camunda.process.test.api.testCases.TestCaseSource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -49,20 +46,17 @@ public class AgentToolCallsTest {
 
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
-  @Autowired private TestCaseRunner testCaseRunner;
 
   @MockitoBean private CustomerDatabaseService customerDatabaseService;
   @MockitoBean private ProductCatalogService productCatalogService;
   @MockitoBean private KnowledgeBaseService knowledgeBaseService;
 
-  @ParameterizedTest
-  @TestCaseSource(fileNames = "agent-tool-calls-test.json")
-  void runJsonTestCase(final TestCase testCase, final String fileName) {
-    testCaseRunner.run(testCase);
-  }
+  private ProcessInstanceEvent processInstance;
 
-  private ProcessInstanceEvent createProcessInstance() {
-    final ProcessInstanceEvent processInstance =
+  @BeforeEach
+  void createProcessInstance() {
+    // Create the process instance at the ad-hoc sub-process
+    processInstance =
         client
             .newCreateInstanceCommand()
             .bpmnProcessId(CustomerSupportAgentProcess.PROCESS_ID)
@@ -79,16 +73,12 @@ public class AgentToolCallsTest {
 
     assertThatProcessInstance(processInstance)
         .hasActiveElements(byId(CustomerSupportAgentProcess.AD_HOC_SUB_PROCESS_ELEMENT_ID));
-
-    return processInstance;
   }
 
   @Test
   @DisplayName("Should reply to user with agent message and receive user reply")
   void shouldReplyToUser() {
     // given
-    final ProcessInstanceEvent processInstance = createProcessInstance();
-
     final String agentReply =
         "Hi Luke, I see that you have two robots: R2-D2 and C3P0. Which one are you having issues with?";
     final String userReply = "It's C3P0. He doesn't stop talking.";
@@ -136,8 +126,6 @@ public class AgentToolCallsTest {
   @DisplayName("Should load user data from the customer database service")
   void shouldLoadUser() {
     // given
-    final ProcessInstanceEvent processInstance = createProcessInstance();
-
     final CustomerDto customer =
         new CustomerDto(
             1L,
@@ -180,8 +168,6 @@ public class AgentToolCallsTest {
   @DisplayName("Should load product catalog")
   void shouldLoadProductCatalog() {
     // given
-    final ProcessInstanceEvent processInstance = createProcessInstance();
-
     final List<RobotDto> robots =
         List.of(
             new RobotDto(
@@ -221,8 +207,6 @@ public class AgentToolCallsTest {
   @DisplayName("Should load knowledge base entries")
   void shouldLoadKnowledgeBase() {
     // given
-    final ProcessInstanceEvent processInstance = createProcessInstance();
-
     final String keyword = "c3po";
     final List<KnowledgeBaseEntryDto> knowledgeBaseEntries =
         List.of(
@@ -261,8 +245,6 @@ public class AgentToolCallsTest {
   @DisplayName("Should calculate discount based on the decision table")
   void shouldCalculateDiscount() {
     // given
-    final ProcessInstanceEvent processInstance = createProcessInstance();
-
     // Mock the decision to return a 15% discount. We verify the decision logic separately.
     final int discount = 15;
     processTestContext.mockDmnDecision(CustomerSupportAgentProcess.DISCOUNT_DECISION_ID, discount);
@@ -303,8 +285,6 @@ public class AgentToolCallsTest {
   @DisplayName("Should call the order process as a child process")
   void shouldOrderItems() {
     // given
-    final ProcessInstanceEvent processInstance = createProcessInstance();
-
     final AddressDto shipmentAddress =
         new AddressDto("1 Moisture Farm Rd", "Anchorhead", "Tatooine");
     final BigDecimal paymentAmount = BigDecimal.valueOf(9999.99);

@@ -10,14 +10,10 @@ import io.camunda.demo.util.CustomerSupportAgentProcess;
 import io.camunda.demo.util.CustomerSupportAgentProcessUtil;
 import io.camunda.process.test.api.CamundaProcessTestContext;
 import io.camunda.process.test.api.CamundaSpringProcessTest;
-import io.camunda.process.test.api.testCases.TestCase;
-import io.camunda.process.test.api.testCases.TestCaseRunner;
-import io.camunda.process.test.api.testCases.TestCaseSource;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -27,7 +23,6 @@ public class AgentProcessTest {
 
   @Autowired private CamundaClient client;
   @Autowired private CamundaProcessTestContext processTestContext;
-  @Autowired private TestCaseRunner testCaseRunner;
 
   private CustomerSupportAgentProcessUtil processUtil;
 
@@ -39,12 +34,6 @@ public class AgentProcessTest {
 
     processUtil =
         new CustomerSupportAgentProcessUtil(client, CustomerSupportAgentProcess.CONVERSATION_ID);
-  }
-
-  @ParameterizedTest
-  @TestCaseSource(fileNames = "agent-process-test.json")
-  void runJsonTestCase(final TestCase testCase, final String fileName) {
-    testCaseRunner.run(testCase);
   }
 
   @Test

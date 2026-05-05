@@ -1,0 +1,260 @@
+{
+  "$schema": "https://camunda.com/json-schema/cpt-test-cases/8.9/schema.json",
+  "testCases": [
+    {
+      "name": "Should identify the customer and solve the problem using the knowledge base",
+      "description": "The agent uses the real data services to load customer data and search the knowledge base. The 'send-chat-message' job worker is mocked since no real UI is available in tests.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Hiro",
+            "message": "My robot is losing air",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ],
+          "runtimeInstructions": [
+            {"type": "TERMINATE_PROCESS_INSTANCE", "afterElementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "load-customer-data",
+              "variables": {
+                "toolCall": {
+                  "customerName": "Hiro"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "load-customer-data"}
+          ],
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {"elementId": "load-customer-data"},
+          "variables": {
+            "customerName": "Hiro"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Should load the product catalog with real product data",
+      "description": "The agent uses the real product catalog service backed by the H2 database. The catalog is returned and set as the tool call result.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "What robots do you have available?",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ],
+          "runtimeInstructions": [
+            {"type": "TERMINATE_PROCESS_INSTANCE", "afterElementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "load-product-catalog"
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "load-product-catalog"}
+          ],
+          "state": "IS_COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "Should search knowledge base with real data",
+      "description": "The agent uses the real knowledge base service backed by the H2 database. Entries matching the keyword are returned and set as the tool call result.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "My robot is talking too much.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ],
+          "runtimeInstructions": [
+            {"type": "TERMINATE_PROCESS_INSTANCE", "afterElementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "search-knowledge-base",
+              "variables": {
+                "toolCall": {
+                  "keyword": "c3po"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "search-knowledge-base"}
+          ],
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {"elementId": "search-knowledge-base"},
+          "variables": {
+            "keyword": "c3po"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Should reply to the user and wait for next message",
+      "description": "The agent sends a reply via the mocked send-chat-message job worker and then waits for the next user message. A follow-up message is published to continue the conversation.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Hiro",
+            "message": "My robot is losing air",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ],
+          "runtimeInstructions": [
+            {"type": "TERMINATE_PROCESS_INSTANCE", "afterElementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "send-agent-reply",
+              "variables": {
+                "toolCall": {
+                  "agentReply": "Hi Hiro! I see you have an issue with your Baymax. Please try the following solution: use tape to seal the puncture."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {"elementId": "send-agent-reply"},
+          "variables": {
+            "message": "Hi Hiro! I see you have an issue with your Baymax. Please try the following solution: use tape to seal the puncture."
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "Thank you, that fixed it!"
+          }
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "toolCallResult": "Thank you, that fixed it!"
+          }
+        }
+      ]
+    }
+  ]
+}
