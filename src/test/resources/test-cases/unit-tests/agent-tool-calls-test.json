@@ -129,7 +129,7 @@
               },
               "canBuyRobots": true,
               "canBuySecurityRobots": false,
-              "orders": {}
+              "orders": []
             }
           }
         },
@@ -200,23 +200,21 @@
           },
           "variables": {
             "toolCallResult": {
-              "customer": {
-                "id": 1,
-                "name": "Luke",
-                "email": "luke.skywalker@tatooine.galaxy",
-                "address": {
-                  "street": "Moisture Farm, Jundland Wastes",
-                  "city": "Tatooine",
-                  "country": "Outer Rim Territories"
-                },
-                "paymentMethod": {
-                  "method": "GALACTIC_CREDITS",
-                  "reference": "GC-77890-SKY"
-                },
-                "canBuyRobots": true,
-                "canBuySecurityRobots": false,
-                "orders": {}
-              }
+              "id": 1,
+              "name": "Luke",
+              "email": "luke.skywalker@tatooine.galaxy",
+              "address": {
+                "street": "Moisture Farm, Jundland Wastes",
+                "city": "Tatooine",
+                "country": "Outer Rim Territories"
+              },
+              "paymentMethod": {
+                "method": "GALACTIC_CREDITS",
+                "reference": "GC-77890-SKY"
+              },
+              "canBuyRobots": true,
+              "canBuySecurityRobots": false,
+              "orders": []
             }
           }
         },
@@ -312,20 +310,18 @@
             "processDefinitionId": "customer-support-agent-process"
           },
           "variables": {
-            "toolCallResult": {
-              "products": [
-                {
-                  "id": 1,
-                  "modelId": "C3P0",
-                  "modelVersion": "1.0",
-                  "name": "C-3PO Protocol Droid v1.0",
-                  "description": "The original human-cyborg relations droid, fluent in over six million forms of communication. Polite, knowledgeable, and occasionally over-dramatic.",
-                  "intent": "TRANSLATION",
-                  "price": 9999.99,
-                  "compatibleUpgrades": []
-                }
-              ]
-            }
+            "toolCallResult": [
+              {
+                "id": 1,
+                "modelId": "C3P0",
+                "modelVersion": "1.0",
+                "name": "C-3PO Protocol Droid v1.0",
+                "description": "The original human-cyborg relations droid, fluent in over six million forms of communication. Polite, knowledgeable, and occasionally over-dramatic.",
+                "intent": "TRANSLATION",
+                "price": 9999.99,
+                "compatibleUpgrades": []
+              }
+            ]
           }
         },
         {
@@ -426,21 +422,19 @@
             "processDefinitionId": "customer-support-agent-process"
           },
           "variables": {
-            "toolCallResult": {
-              "knowledgeBaseEntries": [
-                {
-                  "id": 4,
-                  "problem": "C-3PO is talking too much and cannot be silenced.",
-                  "keywords": [
-                    "c3po",
-                    "verbosity",
-                    "talking",
-                    "silence"
-                  ],
-                  "solution": "This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%."
-                }
-              ]
-            }
+            "toolCallResult": [
+              {
+                "id": 4,
+                "problem": "C-3PO is talking too much and cannot be silenced.",
+                "keywords": [
+                  "c3po",
+                  "verbosity",
+                  "talking",
+                  "silence"
+                ],
+                "solution": "This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%."
+              }
+            ]
           }
         },
         {
@@ -533,7 +527,9 @@
             "processDefinitionId": "customer-support-agent-process"
           },
           "variables": {
-            "toolCallResult": 15
+            "toolCallResult": {
+              "discount": 15
+            }
           }
         },
         {
