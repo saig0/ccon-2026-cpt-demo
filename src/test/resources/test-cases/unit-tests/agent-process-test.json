@@ -1,0 +1,60 @@
+{
+  "$schema": "https://camunda.com/json-schema/cpt-test-cases/8.9/schema.json",
+  "testCases": [
+    {
+      "name": "Should complete process when all steps are executed successfully",
+      "description": "The agent completes the conversation and the process ends successfully.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robots",
+            "conversationId": "conversation-1"
+          }
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "completionConditionFulfilled": true
+        },
+        {
+          "type": "COMPLETE_JOB",
+          "jobSelector": {
+            "elementId": "analyze-conversation"
+          },
+          "variables": {
+            "conversation_outcome": "OKAY"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "customer-support-agent"},
+            {"elementId": "analyze-conversation"}
+          ],
+          "state": "IS_COMPLETED_IN_ORDER"
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_COMPLETED"
+        }
+      ]
+    }
+  ]
+}

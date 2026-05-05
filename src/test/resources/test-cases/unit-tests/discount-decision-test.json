@@ -1,0 +1,365 @@
+{
+  "$schema": "https://camunda.com/json-schema/cpt-test-cases/8.9/schema.json",
+  "testCases": [
+    {
+      "name": "Should calculate discount - loyalty 5+ robots (10 purchased)",
+      "description": "Loyalty: 5+ robots. With 10 previously purchased robots and 1 in the order, the 25% loyalty discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 10,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 25
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - loyalty 5+ robots (5 purchased)",
+      "description": "Loyalty: 5+ robots. With 5 previously purchased robots and 1 in the order, the 25% loyalty discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 5,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 25
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - loyalty 3+ robots (4 purchased)",
+      "description": "Loyalty: 3+ robots. With 4 previously purchased robots and 1 in the order, the 20% loyalty discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 4,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 20
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - loyalty 3+ robots (3 purchased)",
+      "description": "Loyalty: 3+ robots. With 3 previously purchased robots and 1 in the order, the 20% loyalty discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 3,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 20
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - loyalty 1+ robots (2 purchased)",
+      "description": "Loyalty: 1+ robots. With 2 previously purchased robots and 1 in the order, the 15% loyalty discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 2,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 15
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - loyalty 1+ robots (1 purchased)",
+      "description": "Loyalty: 1+ robots. With 1 previously purchased robot, 1 robot and 1 upgrade in the order, the 15% loyalty discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 1,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 1
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 15
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - bundle robot + upgrade (2 robots, 2 upgrades)",
+      "description": "Bundle: Robot + upgrade. With 2 robots and 2 upgrades in the order, the 10% bundle discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 2,
+            "numberOfUpgradesInOrder": 2
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 10
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - bundle robot + upgrade (1 robot, 1 upgrade)",
+      "description": "Bundle: Robot + upgrade. With 1 robot and 1 upgrade in the order, the 10% bundle discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 1
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 10
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - bundle 4+ upgrades (5 upgrades)",
+      "description": "Bundle: 4+ upgrades. With 5 upgrades in the order, the 10% bundle discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 0,
+            "numberOfUpgradesInOrder": 5
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 10
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - bundle 4+ upgrades (4 upgrades)",
+      "description": "Bundle: 4+ upgrades. With 4 upgrades in the order, the 10% bundle discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 0,
+            "numberOfUpgradesInOrder": 4
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 10
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - bundle 2+ upgrades (3 upgrades)",
+      "description": "Bundle: 2+ upgrades. With 3 upgrades in the order, the 5% bundle discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 0,
+            "numberOfUpgradesInOrder": 3
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 5
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - bundle 2+ upgrades (2 upgrades)",
+      "description": "Bundle: 2+ upgrades. With 2 upgrades in the order, the 5% bundle discount applies.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 0,
+            "numberOfUpgradesInOrder": 2
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 5
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - first robot",
+      "description": "First robot: no discount applies when ordering a single robot with no upgrades and no loyalty.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 0
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - upgrade only",
+      "description": "Upgrade only: no discount applies when ordering a single upgrade with no robots and no loyalty.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 0,
+            "numberOfUpgradesInOrder": 1
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 0
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount - no discount",
+      "description": "No discount: empty order with no robots and no upgrades.",
+      "instructions": [
+        {
+          "type": "EVALUATE_DECISION",
+          "decisionDefinitionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 0,
+            "numberOfRobotsInOrder": 0,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_DECISION",
+          "decisionSelector": {
+            "decisionDefinitionId": "discount"
+          },
+          "output": 0
+        }
+      ]
+    }
+  ]
+}

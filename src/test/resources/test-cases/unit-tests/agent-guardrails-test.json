@@ -1,0 +1,266 @@
+{
+  "$schema": "https://camunda.com/json-schema/cpt-test-cases/8.9/schema.json",
+  "testCases": [
+    {
+      "name": "Should escalate to human when agent cannot resolve the issue",
+      "description": "The agent informs the user about escalation and a human escalation task is created.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "inform-user-about-escalation",
+              "variables": {
+                "toolCall": {
+                  "agentReply": "Hi Luke, I'm sorry but I wasn't able to resolve your issue. I'm escalating you to a human agent now."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB",
+          "jobSelector": {
+            "elementId": "analyze-conversation"
+          },
+          "variables": {
+            "conversation_outcome": "HUMAN_ESCALATION"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "human-escalation"}
+          ],
+          "state": "IS_ACTIVE"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {"elementId": "inform-user-about-escalation"},
+          "variables": {
+            "message": "Hi Luke, I'm sorry but I wasn't able to resolve your issue. I'm escalating you to a human agent now."
+          }
+        },
+        {
+          "type": "ASSERT_USER_TASK",
+          "userTaskSelector": {
+            "elementId": "human-escalation"
+          },
+          "name": "Human escalation",
+          "priority": 75
+        }
+      ]
+    },
+    {
+      "name": "Should handle agent errors and inform the user about it",
+      "description": "When the agent encounters an error, the user is informed and a human intervention task is created.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "THROW_BPMN_ERROR_FROM_JOB",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "errorCode": "AGENT_ERROR",
+          "variables": {
+            "code": "MAXIMUM_NUMBER_OF_MODEL_CALLS_REACHED",
+            "message": "The agent has reached the maximum number of model calls allowed for this conversation."
+          }
+        },
+        {
+          "type": "COMPLETE_JOB",
+          "jobSelector": {
+            "elementId": "analyze-conversation"
+          },
+          "variables": {
+            "conversation_outcome": "AGENT_ERROR"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "report-error-to-user"}
+          ],
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "human-intervention"}
+          ],
+          "state": "IS_ACTIVE"
+        },
+        {
+          "type": "ASSERT_USER_TASK",
+          "userTaskSelector": {
+            "elementId": "human-intervention"
+          },
+          "name": "Human intervention",
+          "priority": 100
+        }
+      ]
+    },
+    {
+      "name": "Should handle conversation timeout",
+      "description": "When the conversation timer fires, the process completes after analyzing the conversation.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "INCREASE_TIME",
+          "duration": "PT15M"
+        },
+        {
+          "type": "COMPLETE_JOB",
+          "jobSelector": {
+            "elementId": "analyze-conversation"
+          },
+          "variables": {
+            "conversation_outcome": "OKAY"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "analyze-conversation"}
+          ],
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_COMPLETED"
+        }
+      ]
+    },
+    {
+      "name": "Should review conversation and provide feedback for agent improvements",
+      "description": "When the agent identifies improvements, a review conversation task is created.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {"elementId": "customer-support-agent"}
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "completionConditionFulfilled": true
+        },
+        {
+          "type": "COMPLETE_JOB",
+          "jobSelector": {
+            "elementId": "analyze-conversation"
+          },
+          "variables": {
+            "conversation_outcome": "AGENT_IMPROVEMENTS"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {"elementId": "review-conversation"}
+          ],
+          "state": "IS_ACTIVE"
+        },
+        {
+          "type": "ASSERT_USER_TASK",
+          "userTaskSelector": {
+            "elementId": "review-conversation"
+          },
+          "name": "Review conversation",
+          "priority": 25
+        }
+      ]
+    }
+  ]
+}

@@ -1,12 +1,15 @@
 spring:
   # Load SQL scripts for testing
   sql.init.mode: always
+  sql.init.continue-on-error: false
   jpa:
     hibernate:
       ddl-auto: none
   # Use H2 in-memory database for testing
+  # Each test class gets a unique database instance with these settings:
+  # - No DB_CLOSE_DELAY: allows database to be garbage collected
   datasource:
-    url: jdbc:h2:mem:product-catalog;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:product-catalog;DB_CLOSE_DELAY=0
     driver-class-name: org.h2.Driver
     username: sa
     password:

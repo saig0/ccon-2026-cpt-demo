@@ -1,0 +1,681 @@
+{
+  "$schema": "https://camunda.com/json-schema/cpt-test-cases/8.9/schema.json",
+  "testCases": [
+    {
+      "name": "Should reply to user with agent message and receive user reply",
+      "description": "The agent activates the send-agent-reply tool which sends a message to the user and waits for the reply. The job worker is verified by the local task variable 'message' set by the input mapping.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "send-chat-message"
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {
+              "elementId": "customer-support-agent"
+            }
+          ],
+          "runtimeInstructions": [
+            {
+              "type": "TERMINATE_PROCESS_INSTANCE",
+              "afterElementId": "customer-support-agent"
+            }
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "send-agent-reply",
+              "variables": {
+                "toolCall": {
+                  "agentReply": "Hi Luke, I see that you have two robots: R2-D2 and C3P0. Which one are you having issues with?"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "send-agent-reply"
+          },
+          "variables": {
+            "message": "Hi Luke, I see that you have two robots: R2-D2 and C3P0. Which one are you having issues with?"
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE_MESSAGE_SUBSCRIPTION",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "messageSelector": {
+            "messageName": "user-message",
+            "correlationKey": "conversation-1"
+          },
+          "state": "IS_WAITING"
+        },
+        {
+          "type": "PUBLISH_MESSAGE",
+          "name": "user-message",
+          "correlationKey": "conversation-1",
+          "variables": {
+            "message": "It's C3P0. He doesn't stop talking."
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "customer-support-agent#innerInstance"
+          },
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "toolCallResult": "It's C3P0. He doesn't stop talking."
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_ACTIVE"
+        }
+      ]
+    },
+    {
+      "name": "Should load user data from the customer database service",
+      "description": "The agent activates the load-customer-data tool. The job worker is verified by the local task variable 'customerName' set by the input mapping.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "load-customer-data",
+          "variables": {
+            "customer": {
+              "id": 1,
+              "name": "Luke",
+              "email": "luke.skywalker@tatooine.galaxy",
+              "address": {
+                "street": "Moisture Farm, Jundland Wastes",
+                "city": "Tatooine",
+                "country": "Outer Rim Territories"
+              },
+              "paymentMethod": {
+                "method": "GALACTIC_CREDITS",
+                "reference": "GC-77890-SKY"
+              },
+              "canBuyRobots": true,
+              "canBuySecurityRobots": false,
+              "orders": []
+            }
+          }
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {
+              "elementId": "customer-support-agent"
+            }
+          ],
+          "runtimeInstructions": [
+            {
+              "type": "TERMINATE_PROCESS_INSTANCE",
+              "afterElementId": "customer-support-agent"
+            }
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "load-customer-data",
+              "variables": {
+                "toolCall": {
+                  "customerName": "Luke"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "load-customer-data"
+          },
+          "variables": {
+            "customerName": "Luke"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "customer-support-agent#innerInstance"
+          },
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "toolCallResult": {
+              "id": 1,
+              "name": "Luke",
+              "email": "luke.skywalker@tatooine.galaxy",
+              "address": {
+                "street": "Moisture Farm, Jundland Wastes",
+                "city": "Tatooine",
+                "country": "Outer Rim Territories"
+              },
+              "paymentMethod": {
+                "method": "GALACTIC_CREDITS",
+                "reference": "GC-77890-SKY"
+              },
+              "canBuyRobots": true,
+              "canBuySecurityRobots": false,
+              "orders": []
+            }
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_ACTIVE"
+        }
+      ]
+    },
+    {
+      "name": "Should load product catalog",
+      "description": "The agent activates the load-product-catalog tool. The job worker is verified by the element instance being active.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "load-product-catalog",
+          "variables": {
+            "products": [
+              {
+                "id": 1,
+                "modelId": "C3P0",
+                "modelVersion": "1.0",
+                "name": "C-3PO Protocol Droid v1.0",
+                "description": "The original human-cyborg relations droid, fluent in over six million forms of communication. Polite, knowledgeable, and occasionally over-dramatic.",
+                "intent": "TRANSLATION",
+                "price": 9999.99,
+                "compatibleUpgrades": []
+              }
+            ]
+          }
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {
+              "elementId": "customer-support-agent"
+            }
+          ],
+          "runtimeInstructions": [
+            {
+              "type": "TERMINATE_PROCESS_INSTANCE",
+              "afterElementId": "customer-support-agent"
+            }
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "load-product-catalog"
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelectors": [
+            {
+              "elementId": "load-product-catalog"
+            }
+          ],
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "customer-support-agent#innerInstance"
+          },
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "toolCallResult": [
+              {
+                "id": 1,
+                "modelId": "C3P0",
+                "modelVersion": "1.0",
+                "name": "C-3PO Protocol Droid v1.0",
+                "description": "The original human-cyborg relations droid, fluent in over six million forms of communication. Polite, knowledgeable, and occasionally over-dramatic.",
+                "intent": "TRANSLATION",
+                "price": 9999.99,
+                "compatibleUpgrades": []
+              }
+            ]
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_ACTIVE"
+        }
+      ]
+    },
+    {
+      "name": "Should load knowledge base entries",
+      "description": "The agent activates the search-knowledge-base tool. The job worker is verified by the local task variable 'keyword' set by the input mapping.",
+      "instructions": [
+        {
+          "type": "MOCK_JOB_WORKER_COMPLETE_JOB",
+          "jobType": "search-knowledge-base",
+          "variables": {
+            "knowledgeBaseEntries": [
+              {
+                "id": 4,
+                "problem": "C-3PO is talking too much and cannot be silenced.",
+                "keywords": [
+                  "c3po",
+                  "verbosity",
+                  "talking",
+                  "silence"
+                ],
+                "solution": "This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%."
+              }
+            ]
+          }
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {
+              "elementId": "customer-support-agent"
+            }
+          ],
+          "runtimeInstructions": [
+            {
+              "type": "TERMINATE_PROCESS_INSTANCE",
+              "afterElementId": "customer-support-agent"
+            }
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "search-knowledge-base",
+              "variables": {
+                "toolCall": {
+                  "keyword": "c3po"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "search-knowledge-base"
+          },
+          "variables": {
+            "keyword": "c3po"
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "customer-support-agent#innerInstance"
+          },
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "toolCallResult": [
+              {
+                "id": 4,
+                "problem": "C-3PO is talking too much and cannot be silenced.",
+                "keywords": [
+                  "c3po",
+                  "verbosity",
+                  "talking",
+                  "silence"
+                ],
+                "solution": "This is normal behaviour for a C-3PO unit — it is designed for human-cyborg relations. You can purchase the Reduced Verbosity Module upgrade to filter out unnecessary commentary by up to 94.7%."
+              }
+            ]
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_ACTIVE"
+        }
+      ]
+    },
+    {
+      "name": "Should calculate discount based on the decision table",
+      "description": "The agent activates the calculate-discount tool. The job worker is verified by the local task variables set by the input mapping (numberOfPreviouslyPurchasedRobots, numberOfRobotsInOrder, numberOfUpgradesInOrder).",
+      "instructions": [
+        {
+          "type": "MOCK_DMN_DECISION",
+          "decisionDefinitionId": "discount",
+          "variables": {
+            "discount": 15
+          }
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {
+              "elementId": "customer-support-agent"
+            }
+          ],
+          "runtimeInstructions": [
+            {
+              "type": "TERMINATE_PROCESS_INSTANCE",
+              "afterElementId": "customer-support-agent"
+            }
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "calculate-discount",
+              "variables": {
+                "toolCall": {
+                  "numberOfPreviouslyPurchasedRobots": 2,
+                  "numberOfRobotsInOrder": 1,
+                  "numberOfUpgradesInOrder": 0
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "calculate-discount"
+          },
+          "variables": {
+            "numberOfPreviouslyPurchasedRobots": 2,
+            "numberOfRobotsInOrder": 1,
+            "numberOfUpgradesInOrder": 0
+          }
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "customer-support-agent#innerInstance"
+          },
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "toolCallResult": {
+              "discount": 15
+            }
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_ACTIVE"
+        }
+      ]
+    },
+    {
+      "name": "Should call the order process as a child process",
+      "description": "The agent activates the order-items tool which calls the order process. The job worker is verified by the local task variable 'orderRequest' set by the input mapping.",
+      "instructions": [
+        {
+          "type": "MOCK_CHILD_PROCESS",
+          "processDefinitionId": "order-process",
+          "variables": {
+            "order": {
+              "id": 42,
+              "shipmentAddress": {
+                "street": "1 Moisture Farm Rd",
+                "city": "Anchorhead",
+                "country": "Tatooine"
+              },
+              "paymentAmount": 9999.99,
+              "items": [],
+              "status": "PREPARED_FOR_SHIPPING"
+            }
+          }
+        },
+        {
+          "type": "CREATE_PROCESS_INSTANCE",
+          "processDefinitionSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "userName": "Luke",
+            "message": "I have an issue with my robot.",
+            "conversationId": "conversation-1"
+          },
+          "startInstructions": [
+            {
+              "elementId": "customer-support-agent"
+            }
+          ],
+          "runtimeInstructions": [
+            {
+              "type": "TERMINATE_PROCESS_INSTANCE",
+              "afterElementId": "customer-support-agent"
+            }
+          ]
+        },
+        {
+          "type": "COMPLETE_JOB_AD_HOC_SUB_PROCESS",
+          "jobSelector": {
+            "elementId": "customer-support-agent"
+          },
+          "activateElements": [
+            {
+              "elementId": "order-items",
+              "variables": {
+                "toolCall": {
+                  "orderRequest": {
+                    "customerId": 2,
+                    "shipmentAddress": {
+                      "street": "1 Moisture Farm Rd",
+                      "city": "Anchorhead",
+                      "country": "Tatooine"
+                    },
+                    "paymentAmount": 9999.99,
+                    "orderItems": [
+                      {
+                        "robotId": 1,
+                        "upgradeId": null,
+                        "quantity": 1
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "ASSERT_ELEMENT_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "elementSelector": {
+            "elementId": "customer-support-agent#innerInstance"
+          },
+          "state": "IS_COMPLETED"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "variables": {
+            "toolCallResult": {
+              "id": 42,
+              "shipmentAddress": {
+                "street": "1 Moisture Farm Rd",
+                "city": "Anchorhead",
+                "country": "Tatooine"
+              },
+              "paymentAmount": 9999.99,
+              "items": [],
+              "status": "PREPARED_FOR_SHIPPING"
+            }
+          }
+        },
+        {
+          "type": "ASSERT_PROCESS_INSTANCE",
+          "processInstanceSelector": {
+            "processDefinitionId": "customer-support-agent-process"
+          },
+          "state": "IS_ACTIVE"
+        },
+        {
+          "type": "ASSERT_VARIABLES",
+          "processInstanceSelector": {
+            "processDefinitionId": "order-process"
+          },
+          "variables": {
+            "orderRequest": {
+              "customerId": 2,
+              "shipmentAddress": {
+                "street": "1 Moisture Farm Rd",
+                "city": "Anchorhead",
+                "country": "Tatooine"
+              },
+              "paymentAmount": 9999.99,
+              "orderItems": [
+                {
+                  "robotId": 1,
+                  "upgradeId": null,
+                  "quantity": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
