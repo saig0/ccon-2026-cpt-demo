@@ -29,7 +29,7 @@
             <dependency>
                 <groupId>io.camunda</groupId>
                 <artifactId>camunda-bom</artifactId>
-                <version>8.9.0</version>
+                <version>8.9.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -76,13 +76,6 @@
         <dependency>
             <groupId>io.camunda</groupId>
             <artifactId>camunda-process-test-spring</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.camunda</groupId>
-            <artifactId>camunda-process-test-json-test-cases</artifactId>
-            <version>8.9.0</version>
             <scope>test</scope>
         </dependency>
 
