@@ -7,11 +7,46 @@ Demo application for CPT (CCon 2026)
 A live customer-support chat website for **Camunda Robotics** — a fictional producer of smart robots and robotic tools.
 Users can contact a support agent to get help with product issues, upgrades, warranties, and more.
 
-> TODO: add process diagram
+![process diagram](assets/customer-support-agent.png)
 
 ## Content
 
-> TODO: link to code and process resources
+**Process resources**
+
+- [`customer-support-agent.bpmn`](src/main/resources/bpmn/customer-support-agent.bpmn) — Main AI agent process: message
+  loop, tool calls, guardrails, and human intervention
+- [`order-process.bpmn`](src/main/resources/bpmn/order-process.bpmn) — Sub-process: creates and charges an order for
+  upgrades or robots
+- [`calculate-discount.dmn`](src/main/resources/bpmn/calculate-discount.dmn) — Decision table: loyalty-based discount
+  calculation
+
+**Process application**
+
+- [`ProcessOrderApplication.java`](src/main/java/io/camunda/demo/ProcessOrderApplication.java) — Spring Boot entry
+  point; deploys BPMN/DMN on startup
+- [`workers/`](src/main/java/io/camunda/demo/workers) — Camunda job workers that implement the agent's tool calls
+- [`services/`](src/main/java/io/camunda/demo/services) — Business-logic services backed by an H2 database
+
+**Chat front-end**
+
+- [`chat-app/src/`](chat-app/src) — Node.js/TypeScript server: starts process instances, relays chat messages via a job
+  worker
+
+**Tests** (using [Camunda Process Test](https://docs.camunda.io/docs/apis-tools/testing/getting-started/))
+
+- [`AgentProcessTest`](src/test/java/io/camunda/demo/unitTests/AgentProcessTest.java) — Unit test: happy-path flow
+  through the agent process with mocked workers
+- [`AgentToolCallsTest`](src/test/java/io/camunda/demo/unitTests/AgentToolCallsTest.java) — Unit test: verifies each
+  tool-call worker is invoked with the correct variables
+- [`AgentGuardrailsTest`](src/test/java/io/camunda/demo/unitTests/AgentGuardrailsTest.java) — Unit test: guardrail paths
+- [`DiscountDecisionTest`](src/test/java/io/camunda/demo/unitTests/DiscountDecisionTest.java) — Unit test: unit tests
+  for the discount DMN table
+- [`AgentUnitJsonTest`](src/test/java/io/camunda/demo/unitTests/AgentUnitJsonTest.java) — Unit test: same unit tests
+  driven from JSON test-case files
+- [`AgentIntegrationTest`](src/test/java/io/camunda/demo/integrationTests/AgentIntegrationTest.java) — Integration test:
+  end-to-end with a real LLM (AWS Bedrock) and real data services
+- [`AgentIntegrationJsonTest`](src/test/java/io/camunda/demo/integrationTests/AgentIntegrationJsonTest.java) —
+  Integration test: same end-to-end scenarios driven from JSON test-case files
 
 ## Manual testing
 
