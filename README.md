@@ -48,6 +48,33 @@ Users can contact a support agent to get help with product issues, upgrades, war
 - [`AgentIntegrationJsonTest`](src/test/java/io/camunda/demo/integrationTests/AgentIntegrationJsonTest.java) —
   Integration test: same end-to-end scenarios driven from JSON test-case files
 
+## Automated tests
+
+Run the automated tests from the project root:
+
+```bash
+# Run all automated tests
+mvn test
+
+# Run only unit tests
+mvn -Dskip.integration.tests=true test
+
+# Run only integration tests
+mvn -Dskip.unit.tests=true test
+```
+
+Notes:
+
+- The Maven build also builds the chat front-end in `chat-app/` as part of the test run.
+- The integration tests use a real LLM via AWS Bedrock and require these environment variables:
+
+```bash
+export AWS_BEDROCK_ACCESS_KEY=YOUR_ACCESS_KEY
+export AWS_BEDROCK_SECRET_KEY=YOUR_SECRET_KEY
+```
+
+- The process tests start their own Camunda test runtime during the Maven test run, so you do not need to start Camunda 8 Run for the automated tests.
+
 ## Manual testing
 
 ### Install Camunda 8 Run
