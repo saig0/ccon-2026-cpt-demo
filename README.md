@@ -7,7 +7,7 @@ Demo application for CPT (CCon 2026)
 A live customer-support chat website for **Camunda Robotics** — a fictional producer of smart robots and robotic tools.
 Users can contact a support agent to get help with product issues, upgrades, warranties, and more.
 
-![process diagram](assets/customer-support-agent.png)
+![process diagram](assets/customer-support-agent-process.png)
 
 ## Content
 
@@ -73,7 +73,8 @@ export AWS_BEDROCK_ACCESS_KEY=YOUR_ACCESS_KEY
 export AWS_BEDROCK_SECRET_KEY=YOUR_SECRET_KEY
 ```
 
-- The process tests start their own Camunda test runtime during the Maven test run, so you do not need to start Camunda 8 Run for the automated tests.
+- The process tests start their own Camunda test runtime during the Maven test run, so you do not need to start Camunda
+  8 Run for the automated tests.
 
 ## Manual testing
 
