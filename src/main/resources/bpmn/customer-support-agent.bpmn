@@ -3,7 +3,7 @@
   <bpmn:process id="customer-support-agent-process" name="Customer support agent" isExecutable="true">
     <bpmn:adHocSubProcess id="customer-support-agent" name="Customer support agent" zeebe:modelerTemplate="io.camunda.connectors.agenticai.aiagent.jobworker.v1" zeebe:modelerTemplateVersion="5" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNBNTZFRkYiLz4KPG1hc2sgaWQ9InBhdGgtMi1vdXRzaWRlLTFfMTg1XzYiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjQiIHk9IjQiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iYmxhY2siPgo8cmVjdCBmaWxsPSJ3aGl0ZSIgeD0iNCIgeT0iNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ii8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjAuMDEwNSAxMi4wOTg3QzE4LjQ5IDEwLjU4OTQgMTcuMTU5NCA4LjEwODE0IDE2LjE3OTkgNi4wMTEwM0MxNi4xNTIgNi4wMDQ1MSAxNi4xMTc2IDYgMTYuMDc5NCA2QzE2LjA0MTEgNiAxNi4wMDY2IDYuMDA0NTEgMTUuOTc4OCA2LjAxMTA0QzE0Ljk5OTQgOC4xMDgxNCAxMy42Njk3IDEwLjU4ODkgMTIuMTQ4MSAxMi4wOTgxQzEwLjYyNjkgMTMuNjA3MSA4LjEyNTY4IDE0LjkyNjQgNi4wMTE1NyAxNS44OTgxQzYuMDA0NzQgMTUuOTI2MSA2IDE1Ljk2MTEgNiAxNkM2IDE2LjAzODcgNi4wMDQ2OCAxNi4wNzM2IDYuMDExNDQgMTYuMTAxNEM4LjEyNTE5IDE3LjA3MjkgMTAuNjI2MiAxOC4zOTE5IDEyLjE0NzcgMTkuOTAxNkMxMy42Njk3IDIxLjQxMDcgMTQuOTk5NiAyMy44OTIgMTUuOTc5MSAyNS45ODlDMTYuMDA2OCAyNS45OTU2IDE2LjA0MTEgMjYgMTYuMDc5MyAyNkMxNi4xMTc1IDI2IDE2LjE1MTkgMjUuOTk1NCAxNi4xNzk2IDI1Ljk4OUMxNy4xNTkxIDIzLjg5MiAxOC40ODg4IDIxLjQxMSAyMC4wMDk5IDE5LjkwMjFNMjAuMDA5OSAxOS45MDIxQzIxLjUyNTMgMTguMzk4NyAyMy45NDY1IDE3LjA2NjkgMjUuOTkxNSAxNi4wODI0QzI1Ljk5NjUgMTYuMDU5MyAyNiAxNi4wMzEgMjYgMTUuOTk5N0MyNiAxNS45Njg0IDI1Ljk5NjUgMTUuOTQwMyAyNS45OTE1IDE1LjkxNzFDMjMuOTQ3NCAxNC45MzI3IDIxLjUyNTkgMTMuNjAxIDIwLjAxMDUgMTIuMDk4NyIvPgo8L21hc2s+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjAuMDEwNSAxMi4wOTg3QzE4LjQ5IDEwLjU4OTQgMTcuMTU5NCA4LjEwODE0IDE2LjE3OTkgNi4wMTEwM0MxNi4xNTIgNi4wMDQ1MSAxNi4xMTc2IDYgMTYuMDc5NCA2QzE2LjA0MTEgNiAxNi4wMDY2IDYuMDA0NTEgMTUuOTc4OCA2LjAxMTA0QzE0Ljk5OTQgOC4xMDgxNCAxMy42Njk3IDEwLjU4ODkgMTIuMTQ4MSAxMi4wOTgxQzEwLjYyNjkgMTMuNjA3MSA4LjEyNTY4IDE0LjkyNjQgNi4wMTE1NyAxNS44OTgxQzYuMDA0NzQgMTUuOTI2MSA2IDE1Ljk2MTEgNiAxNkM2IDE2LjAzODcgNi4wMDQ2OCAxNi4wNzM2IDYuMDExNDQgMTYuMTAxNEM4LjEyNTE5IDE3LjA3MjkgMTAuNjI2MiAxOC4zOTE5IDEyLjE0NzcgMTkuOTAxNkMxMy42Njk3IDIxLjQxMDcgMTQuOTk5NiAyMy44OTIgMTUuOTc5MSAyNS45ODlDMTYuMDA2OCAyNS45OTU2IDE2LjA0MTEgMjYgMTYuMDc5MyAyNkMxNi4xMTc1IDI2IDE2LjE1MTkgMjUuOTk1NCAxNi4xNzk2IDI1Ljk4OUMxNy4xNTkxIDIzLjg5MiAxOC40ODg4IDIxLjQxMSAyMC4wMDk5IDE5LjkwMjFNMjAuMDA5OSAxOS45MDIxQzIxLjUyNTMgMTguMzk4NyAyMy45NDY1IDE3LjA2NjkgMjUuOTkxNSAxNi4wODI0QzI1Ljk5NjUgMTYuMDU5MyAyNiAxNi4wMzEgMjYgMTUuOTk5N0MyNiAxNS45Njg0IDI1Ljk5NjUgMTUuOTQwMyAyNS45OTE1IDE1LjkxNzFDMjMuOTQ3NCAxNC45MzI3IDIxLjUyNTkgMTMuNjAxIDIwLjAxMDUgMTIuMDk4NyIgZmlsbD0id2hpdGUiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMC4wMTA1IDEyLjA5ODdDMTguNDkgMTAuNTg5NCAxNy4xNTk0IDguMTA4MTQgMTYuMTc5OSA2LjAxMTAzQzE2LjE1MiA2LjAwNDUxIDE2LjExNzYgNiAxNi4wNzk0IDZDMTYuMDQxMSA2IDE2LjAwNjYgNi4wMDQ1MSAxNS45Nzg4IDYuMDExMDRDMTQuOTk5NCA4LjEwODE0IDEzLjY2OTcgMTAuNTg4OSAxMi4xNDgxIDEyLjA5ODFDMTAuNjI2OSAxMy42MDcxIDguMTI1NjggMTQuOTI2NCA2LjAxMTU3IDE1Ljg5ODFDNi4wMDQ3NCAxNS45MjYxIDYgMTUuOTYxMSA2IDE2QzYgMTYuMDM4NyA2LjAwNDY4IDE2LjA3MzYgNi4wMTE0NCAxNi4xMDE0QzguMTI1MTkgMTcuMDcyOSAxMC42MjYyIDE4LjM5MTkgMTIuMTQ3NyAxOS45MDE2QzEzLjY2OTcgMjEuNDEwNyAxNC45OTk2IDIzLjg5MiAxNS45NzkxIDI1Ljk4OUMxNi4wMDY4IDI1Ljk5NTYgMTYuMDQxMSAyNiAxNi4wNzkzIDI2QzE2LjExNzUgMjYgMTYuMTUxOSAyNS45OTU0IDE2LjE3OTYgMjUuOTg5QzE3LjE1OTEgMjMuODkyIDE4LjQ4ODggMjEuNDExIDIwLjAwOTkgMTkuOTAyMU0yMC4wMDk5IDE5LjkwMjFDMjEuNTI1MyAxOC4zOTg3IDIzLjk0NjUgMTcuMDY2OSAyNS45OTE1IDE2LjA4MjRDMjUuOTk2NSAxNi4wNTkzIDI2IDE2LjAzMSAyNiAxNS45OTk3QzI2IDE1Ljk2ODQgMjUuOTk2NSAxNS45NDAzIDI1Ljk5MTUgMTUuOTE3MUMyMy45NDc0IDE0LjkzMjcgMjEuNTI1OSAxMy42MDEgMjAuMDEwNSAxMi4wOTg3IiBzdHJva2U9IiM0OTFEOEIiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgbWFzaz0idXJsKCNwYXRoLTItb3V0c2lkZS0xXzE4NV82KSIvPgo8L3N2Zz4K">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="io.camunda.agenticai:aiagent-job-worker:1" retries="5" />
+        <zeebe:taskDefinition type="io.camunda.agenticai:aiagent-job-worker:1" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="bedrock" target="provider.type" />
           <zeebe:input source="eu-central-1" target="provider.bedrock.region" />
@@ -13,12 +13,12 @@
           <zeebe:input source="eu.anthropic.claude-sonnet-4-5-20250929-v1:0" target="provider.bedrock.model.model" />
           <zeebe:input source="=10000" target="provider.bedrock.model.parameters.maxTokens" />
           <zeebe:input source="=0.2" target="provider.bedrock.model.parameters.temperature" />
-          <zeebe:input source="=&#34;You are **SupportAgent** of **Camunda Robotics**, a helpful, humorous, chat agent that can handle customer requests using any tools explicitly provided to you at runtime.&#10;&#10;If tools are provided, you should prefer them instead of guessing an answer. You can call the same tool multiple times by providing different input values. Don&#39;t guess any tools which were not explicitly configured. If no tool matches the request, try to generate an answer. If you&#39;re not able to find a good answer, return with a message stating why you&#39;re not able to.&#10;&#10;--------------------&#10;&#10;1. Check if the user is a known customer &#10;2. Use the customer database to load missing information and the order history&#10;3. Use the product catalog to offer new products or upgrades&#10;4. Use the knowledge database to help with problems&#10;5. Escalate to a human if you need help&#10;&#10;---------------------&#10;&#10;Wrap minimal, inspectable reasoning in *exactly* this XML template:&#10;&#10;&#60;thinking&#62;&#10;&#60;context&#62;…briefly state the customer’s need and current state…&#60;/context&#62;&#10;&#60;reflection&#62;…list candidate tools, justify which you will call next and why…&#60;/reflection&#62;&#10;&#60;/thinking&#62;&#10;&#10;Reveal **no** additional private reasoning outside these tags.&#34;" target="data.systemPrompt.prompt" />
+          <zeebe:input source="=&#34;You are **SupportAgent** of **Camunda Robotics**, a helpful and humorous chat agent. Your objective is to resolve requests by:&#10;&#10;1. Using the available tools when external action is required.  &#10;2. Asking for clarification when input is incomplete or ambiguous.  &#10;3. Returning outputs in JSON format if requested by the connector.  &#10;  &#10;Let’s reason step by step.&#10;&#10;Comportments for tool usage:  &#10;- **Communicate with the user:** &#10;- Use the send reply tool to send a message to the user or ask a question.&#10;- Confirm any action to sending a message to the user. &#10;- Always use this tool to communitcate with the user. &#10;&#10;- **Identify the user:** &#10;- Use the customer database to check if this is a registered user. &#10;- Use the customer database to load missing information, such as the address or the order history.  &#10;  &#10;- **Solve a problem:** &#10;- The problem must be related to a product from Camunda Robotics. Ignore other requests.  &#10;- Use the knowledge database to search for known problem and solutions. The entries are tagged with keywords.&#10;- Sometimes a problem can be solved by upgrates or newer product versions. Use the product catalog to find compatible upgrades and products. &#10;&#10;- **Product catalog:** &#10;- Use the product catalog to find available upgrades and products.&#10;- Offer upgrade and new products if it fits to the user&#39;s request. Check for avaiable discounts.   &#10;  &#10;- **Place an order:** &#10;- Only registered users can place an order.       &#10;- Before placing an order, check for available discounts. &#10;- Place a new order if the user accepts the offer. Confirm the order.  &#10;  &#10;- **Escalation to human:**  &#10;- If the requested action could have irreversible impact, always escalate. &#10;- If tool outputs are malformed, incomplete, or contradictory, escalate for review.  &#10;- If confidence in the decision path is low, escalate rather than guessing.  &#10;  &#10;- **Unexpected tool outputs:**  &#10;- If a tool returns irrelevant or excessive data, sanitize and summarize before continuing.  &#10;- If output cannot be parsed or mapped correctly, escalate to human.&#10;&#10;The goal is to use tools precisely, combine them logically when workflows require multiple steps, and defer to a human when safety, ambiguity, or unexpected results make autonomous resolution unreliable.&#34;" target="data.systemPrompt.prompt" />
           <zeebe:input source="={&#10;  userName: userName,&#10;  userRequest: userRequest&#10;}" target="data.userPrompt.prompt" />
           <zeebe:input target="agentContext" />
           <zeebe:input source="in-process" target="data.memory.storage.type" />
-          <zeebe:input source="=20" target="data.memory.contextWindowSize" />
-          <zeebe:input source="=20" target="data.limits.maxModelCalls" />
+          <zeebe:input source="=30" target="data.memory.contextWindowSize" />
+          <zeebe:input source="=30" target="data.limits.maxModelCalls" />
           <zeebe:input source="WAIT_FOR_TOOL_CALL_RESULTS" target="data.events.behavior" />
           <zeebe:input source="text" target="data.response.format.type" />
           <zeebe:input source="=false" target="data.response.format.parseJson" />
@@ -71,7 +71,7 @@
         <bpmn:escalationEventDefinition id="EscalationEventDefinition_1nywcxn" escalationRef="Escalation_0e1ro02" />
       </bpmn:intermediateThrowEvent>
       <bpmn:serviceTask id="send-agent-reply" name="Send agent reply">
-        <bpmn:documentation>Use this tool to send a reply to the user</bpmn:documentation>
+        <bpmn:documentation>Use this tool to send a message to the user.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:taskDefinition type="send-chat-message" />
           <zeebe:ioMapping>
@@ -179,8 +179,8 @@
           <zeebe:input source="eu.anthropic.claude-sonnet-4-5-20250929-v1:0" target="provider.bedrock.model.model" />
           <zeebe:input source="=10000" target="provider.bedrock.model.parameters.maxTokens" />
           <zeebe:input source="=0.1" target="provider.bedrock.model.parameters.temperature" />
-          <zeebe:input source="=&#34;You are a judge agent who analyzes a conversation from a user and a support chat agent. Summarize the coversation, measure the performance of the agent, and give a recommendation for the human on how to follow-up.&#10;&#10;1. If the agent did not end the conversation properly, return the outcome &#39;AGENT_ERROR&#39;.&#10;2. If the agent ran into some error, return the outcome &#39;AGENT_ERROR&#39;.&#10;3. If the agent escalated to a human, return the outcome &#39;HUMAN_ESCALATION&#39;.&#10;4. If the agent responses was not good enough and should be improved, return the outcome &#39;AGENT_IMPROVEMENTS&#39;.&#10;5. Otherwise return the outcome &#39;OKAY&#39;.&#10;&#10;Return a JSON with the properties: `outcome`, `reasoning`, `summary`, and `recommendation`. The text should be in plain text format, no quotes, no tags.&#34;" target="data.systemPrompt.prompt" />
-          <zeebe:input source="=&#34;Conversation: &#34; + string(conversation) + &#34;, Agent context: &#34; + string(customer_support_agent)" target="data.userPrompt.prompt" />
+          <zeebe:input source="=&#34;You are a judge agent who analyzes a chat conversation from a user and a support chat agent. Summarize the coversation, measure the performance of the agent, and give a recommendation for the human on how to follow-up. Consider the given chat converation as the source-of-truth and the agent context as additional details.&#10;&#10;1. If the agent did not end the conversation properly, return the outcome &#39;AGENT_ERROR&#39;.&#10;2. If the agent ran into some error, return the outcome &#39;AGENT_ERROR&#39;.&#10;3. If the agent escalated to a human, return the outcome &#39;HUMAN_ESCALATION&#39;.&#10;4. If the agent responses was not good enough and should be improved, return the outcome &#39;AGENT_IMPROVEMENTS&#39;.&#10;5. Otherwise return the outcome &#39;OKAY&#39;.&#10;&#10;Return a JSON with the properties: `outcome`, `reasoning`, `summary`, and `recommendation`. The text should be in plain text format, no quotes, no tags.&#34;" target="data.systemPrompt.prompt" />
+          <zeebe:input source="=&#34;Chat conversation: &#34; + string(conversation) + &#34;, Additional agent context: &#34; + string(customer_support_agent)" target="data.userPrompt.prompt" />
           <zeebe:input source="=final_judge_agent.context" target="data.context" />
           <zeebe:input source="in-process" target="data.memory.storage.type" />
           <zeebe:input source="=20" target="data.memory.contextWindowSize" />
@@ -312,14 +312,58 @@
   </bpmn:category>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="customer-support-agent-process">
+      <bpmndi:BPMNShape id="Activity_0clv20r_di" bpmnElement="customer-support-agent" isExpanded="true">
+        <dc:Bounds x="280" y="80" width="700" height="470" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vtx4cj_di" bpmnElement="load-customer-data">
+        <dc:Bounds x="330" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zg515l_di" bpmnElement="load-product-catalog">
+        <dc:Bounds x="570" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03jguje_di" bpmnElement="search-knowledge-base">
+        <dc:Bounds x="450" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ekpygc_di" bpmnElement="Event_08njjqe">
+        <dc:Bounds x="862" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="836" y="235" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0os7pko_di" bpmnElement="send-agent-reply">
+        <dc:Bounds x="330" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0aqcum6_di" bpmnElement="user-message-received">
+        <dc:Bounds x="522" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="505" y="235" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0prgba2" bpmnElement="inform-user-about-escalation">
+        <dc:Bounds x="670" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1aj9rsg_di" bpmnElement="calculate-discount">
+        <dc:Bounds x="690" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00xfl0z_di" bpmnElement="order-items">
+        <dc:Bounds x="810" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1c80qxp_di" bpmnElement="Flow_1c80qxp">
+        <di:waypoint x="430" y="210" />
+        <di:waypoint x="522" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ebyntt_di" bpmnElement="Flow_0ebyntt">
+        <di:waypoint x="770" y="210" />
+        <di:waypoint x="862" y="210" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
         <dc:Bounds x="182" y="196" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="156" y="239" width="88" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0v9d8eg_di" bpmnElement="Gateway_0v9d8eg" isMarkerVisible="true">
-        <dc:Bounds x="1075" y="295" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1bcj4gw" bpmnElement="analyze-conversation">
         <dc:Bounds x="1050" y="174" width="100" height="80" />
@@ -334,10 +378,6 @@
           <dc:Bounds x="1368" y="239" width="65" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0qxgglh" bpmnElement="human-escalation">
-        <dc:Bounds x="1350" y="290" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0x47pvj" bpmnElement="report-error-to-user">
         <dc:Bounds x="1350" y="395" width="100" height="80" />
         <bpmndi:BPMNLabel />
@@ -350,53 +390,31 @@
         <dc:Bounds x="1350" y="500" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0clv20r_di" bpmnElement="customer-support-agent" isExpanded="true">
-        <dc:Bounds x="280" y="80" width="700" height="470" />
+      <bpmndi:BPMNShape id="Gateway_0v9d8eg_di" bpmnElement="Gateway_0v9d8eg" isMarkerVisible="true">
+        <dc:Bounds x="1075" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0qxgglh" bpmnElement="human-escalation">
+        <dc:Bounds x="1350" y="290" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0aqcum6_di" bpmnElement="user-message-received">
-        <dc:Bounds x="522" y="192" width="36" height="36" />
+      <bpmndi:BPMNShape id="Group_03hh3l3_di" bpmnElement="Group_03hh3l3">
+        <dc:Bounds x="300" y="130" width="300" height="168" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="505" y="235" width="71" height="27" />
+          <dc:Bounds x="412" y="137" width="77" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0os7pko_di" bpmnElement="send-agent-reply">
-        <dc:Bounds x="330" y="170" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1vtx4cj_di" bpmnElement="load-customer-data">
-        <dc:Bounds x="330" y="380" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_03jguje_di" bpmnElement="search-knowledge-base">
-        <dc:Bounds x="450" y="380" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0zg515l_di" bpmnElement="load-product-catalog">
-        <dc:Bounds x="570" y="380" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1aj9rsg_di" bpmnElement="calculate-discount">
-        <dc:Bounds x="690" y="380" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_00xfl0z_di" bpmnElement="order-items">
-        <dc:Bounds x="810" y="380" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0prgba2" bpmnElement="inform-user-about-escalation">
-        <dc:Bounds x="670" y="170" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0ekpygc_di" bpmnElement="Event_08njjqe">
-        <dc:Bounds x="862" y="192" width="36" height="36" />
+      <bpmndi:BPMNShape id="Group_0cwg2jx_di" bpmnElement="Group_0cwg2jx">
+        <dc:Bounds x="640" y="130" width="300" height="168" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="836" y="235" width="89" height="14" />
+          <dc:Bounds x="765" y="137" width="51" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1c80qxp_di" bpmnElement="Flow_1c80qxp">
-        <di:waypoint x="430" y="210" />
-        <di:waypoint x="522" y="210" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ebyntt_di" bpmnElement="Flow_0ebyntt">
-        <di:waypoint x="770" y="210" />
-        <di:waypoint x="862" y="210" />
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Group_1s9rzg2_di" bpmnElement="Group_1s9rzg2">
+        <dc:Bounds x="300" y="332" width="640" height="168" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="587" y="339" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0hj551s_di" bpmnElement="Event_0nnnt3i">
         <dc:Bounds x="962" y="462" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -418,24 +436,6 @@
       <bpmndi:BPMNEdge id="Flow_15xih2a_di" bpmnElement="Flow_15xih2a">
         <di:waypoint x="218" y="214" />
         <di:waypoint x="280" y="214" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1nqvwus_di" bpmnElement="Flow_1nqvwus">
-        <di:waypoint x="998" y="400" />
-        <di:waypoint x="1100" y="400" />
-        <di:waypoint x="1100" y="345" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ggrnzm_di" bpmnElement="Flow_0ggrnzm">
-        <di:waypoint x="998" y="480" />
-        <di:waypoint x="1100" y="480" />
-        <di:waypoint x="1100" y="345" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1lzr9vc_di" bpmnElement="Flow_1lzr9vc">
-        <di:waypoint x="998" y="320" />
-        <di:waypoint x="1075" y="320" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_13k83b5_di" bpmnElement="Flow_13k83b5">
-        <di:waypoint x="1100" y="295" />
-        <di:waypoint x="1100" y="254" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0aurxhe_di" bpmnElement="Flow_0aurxhe">
         <di:waypoint x="980" y="214" />
@@ -468,6 +468,28 @@
           <dc:Bounds x="1245" y="500" width="70" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0imduyu_di" bpmnElement="Flow_0imduyu">
+        <di:waypoint x="1450" y="435" />
+        <di:waypoint x="1490" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nqvwus_di" bpmnElement="Flow_1nqvwus">
+        <di:waypoint x="998" y="400" />
+        <di:waypoint x="1100" y="400" />
+        <di:waypoint x="1100" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13k83b5_di" bpmnElement="Flow_13k83b5">
+        <di:waypoint x="1100" y="295" />
+        <di:waypoint x="1100" y="254" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ggrnzm_di" bpmnElement="Flow_0ggrnzm">
+        <di:waypoint x="998" y="480" />
+        <di:waypoint x="1100" y="480" />
+        <di:waypoint x="1100" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lzr9vc_di" bpmnElement="Flow_1lzr9vc">
+        <di:waypoint x="998" y="320" />
+        <di:waypoint x="1075" y="320" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_03whjw8_di" bpmnElement="Flow_03whjw8">
         <di:waypoint x="1220" y="239" />
         <di:waypoint x="1220" y="330" />
@@ -476,28 +498,6 @@
           <dc:Bounds x="1239" y="303" width="82" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0imduyu_di" bpmnElement="Flow_0imduyu">
-        <di:waypoint x="1450" y="435" />
-        <di:waypoint x="1490" y="435" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Group_03hh3l3_di" bpmnElement="Group_03hh3l3">
-        <dc:Bounds x="300" y="130" width="300" height="168" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="412" y="137" width="77" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Group_1s9rzg2_di" bpmnElement="Group_1s9rzg2">
-        <dc:Bounds x="300" y="332" width="640" height="168" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="587" y="339" width="66" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Group_0cwg2jx_di" bpmnElement="Group_0cwg2jx">
-        <dc:Bounds x="640" y="130" width="300" height="168" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="765" y="137" width="51" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

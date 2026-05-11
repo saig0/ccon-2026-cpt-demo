@@ -3,6 +3,7 @@ camunda:
     # Enable the connectors for LLM integration testing
     runtime-mode: managed
     connectors-enabled: true
+    connectors-docker-image-version: 8.9.3
     # Set connector secrets for the AI connector
     # Load the secrets from environment variables for security
     connectors-secrets:

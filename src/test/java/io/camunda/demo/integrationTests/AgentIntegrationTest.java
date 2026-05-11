@@ -110,13 +110,14 @@ public class AgentIntegrationTest {
         .when(() -> processUtil.awaitUserMessage(processInstance))
         .as("Mock user reply")
         .then(() -> processUtil.publishUserMessage("It's about C3P0. He is talking too much."))
-        .then(() -> processUtil.publishUserMessage("Sounds good. Please order it for me."))
+        .then(() -> processUtil.publishUserMessage("Sounds good. I take it."))
+        .then(() -> processUtil.publishUserMessage("Yes, please place the order."))
         .then(END_CONVERSATION);
 
     // then
     assertThatProcessInstance(processInstance)
         .withAssertionTimeout(Duration.ofMinutes(2))
-        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 3);
+        .hasCompletedElement(byId(CustomerSupportAgentProcess.SEND_AGENT_REPLY_ELEMENT_ID), 4);
 
     assertThatProcessInstance(processInstance)
         .hasCompletedElements(
